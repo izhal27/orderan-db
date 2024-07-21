@@ -112,5 +112,3 @@ build/config\.gypi
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-
-seed.ts
