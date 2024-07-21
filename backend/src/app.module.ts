@@ -3,9 +3,13 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RolesModule } from './roles/roles.module';
+import { PrismaModule } from 'nestjs-prisma';
 
 @Module({
-  imports: [RolesModule],
+  imports: [
+    PrismaModule.forRoot({ isGlobal: true }),
+    RolesModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
