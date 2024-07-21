@@ -1,0 +1,99 @@
+.git
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.swp
+
+.npmrc
+pnpm-lock.yaml
+npm-debug.log
+pids
+logs
+results
+tmp
+temp
+
+# Build
+public/css/main.css
+
+# Coverage reports
+coverage
+
+# API keys and secrets
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# Dependency directory
+node_modules
+bower_components
+
+# Next.js build output
+.next
+out
+
+# IDE
+/.idea
+/.awcache
+/.vscode
+/.devcontainer
+/.classpath
+/.project
+/.settings 
+*.code-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# misc
+.DS_Store
+lerna-debug.log
+npm-debug.log
+yarn-error.log
+/**/npm-debug.log
+/packages/**/.npmignore
+/packages/**/LICENSE
+*.tsbuildinfo
+
+# Ignore built ts files
+dist/**/*
+
+# ignore yarn.lock
+yarn.lock
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# bundle
+packages/**/*.d.ts
+packages/**/*.js
+
+# example
+/quick-start
+/example_dist
+/example
+
+# tests
+/test
+/benchmarks/memory
+/coverage
+/.nyc_output
+/packages/graphql
+/benchmarks/memory
+build/config\.gypi
+
