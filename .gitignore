@@ -26,6 +26,7 @@ coverage
 
 # API keys and secrets
 .env
+.env.development
 .env.development.local
 .env.test.local
 .env.production.local
