@@ -129,9 +129,9 @@ describe('RolesService', () => {
         updatedAt: new Date()
       }
 
-      prismaMock.role.update.mockResolvedValue(role);
+      prismaMock.role.delete.mockResolvedValue(role);
 
-      const result = await roleService.update(1, role);
+      const result = await roleService.remove(1);
       expect(result).toEqual(role);
     });
   });
