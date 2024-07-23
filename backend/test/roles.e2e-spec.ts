@@ -1,14 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
+import { PrismaClient } from '@prisma/client';
+import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 import * as request from 'supertest';
+import { matchers } from 'jest-date/matchers'
+
 import { AppModule } from '../src/app.module';
 import { RolesModule } from 'src/roles/roles.module';
-import { PrismaClient } from '@prisma/client';
-import { matchers } from 'jest-date/matchers'
-import { HttpAdapterHost } from '@nestjs/core';
-import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 
 expect.extend(matchers);
+
+const role = {
+  name: 'Role 1',
+  description: 'This is a description'
+};
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -35,54 +41,143 @@ describe('AppController (e2e)', () => {
   }, 30000);
 
   describe('Roles', () => {
-    it('should throw error when missing fields', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/roles/')
-        .send({ role: {} })
-        .expect(400);
-      expect(response.body?.statusCode).toEqual(400);
-    });
-
     afterEach(async () => {
       await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
     }, 30000);
 
-    it('should throw error when duplicate entry', async () => {
-      const role = {
-        name: 'Role 1',
-        description: 'This is a description'
-      };
+    describe('create role', () => {
+      it('should throw error 400 when missing fields', async () => {
+        const res = await request(app.getHttpServer())
+          .post('/roles/')
+          .send({ role: {} })
+          .expect(400);
+        expect(res.body?.statusCode).toEqual(400);
+      });
 
-      await request(app.getHttpServer())
-        .post('/roles/')
-        .send(role)
-        .expect(201);
+      it('should throw error 409 when duplicate entry', async () => {
+        await request(app.getHttpServer())
+          .post('/roles/')
+          .send(role)
+          .expect(201);
 
-      const response = await request(app.getHttpServer())
-        .post('/roles/')
-        .send(role)
-        .expect(409);
-      expect(response.body?.statusCode).toEqual(409);
+        const res = await request(app.getHttpServer())
+          .post('/roles/')
+          .send(role)
+          .expect(409);
+        expect(res.body?.statusCode).toEqual(409);
+      });
+
+      it('should create a role', async () => {
+        const res = await request(app.getHttpServer())
+          .post('/roles/')
+          .send(role)
+          .expect(201);
+        const newRole = await res.body;
+
+        expect(role.name).toEqual(newRole.name);
+        expect(role.description).toEqual(newRole.description);
+      });
     });
 
-    it('should create a role', async () => {
-      const role = {
-        name: 'Role 1',
-        description: 'This is a description'
-      };
+    describe('read role', () => {
+      it('should throw error 400 when search input wrong', async () => {
+        const res = await request(app.getHttpServer())
+          .get('/roles/a')
+          .expect(400);
+        expect(res.body?.statusCode).toEqual(400);
+      });
 
-      const response = await request(app.getHttpServer())
-        .post('/roles/')
-        .send(role)
-        .expect(201);
+      it('should return a role', async () => {
+        const resPost = await request(app.getHttpServer())
+          .post('/roles/')
+          .send(role)
+          .expect(201);
+        const newRole = await resPost.body;
 
-      delete response.body.createdAt;
-      delete response.body.updatedAt;
+        const res = await request(app.getHttpServer())
+          .get(`/roles/${newRole.id}`)
+          .expect(200);
+        expect(res.body).toEqual(newRole);
+      });
 
-      expect(response.body).toEqual({
-        id: expect.any(Number),
-        name: role.name,
-        description: role.description
+      it('should throw error 404 when role not found', async () => {
+        const res = await request(app.getHttpServer())
+          .get('/roles/1')
+          .expect(404);
+        expect(res.body?.statusCode).toEqual(404);
+      });
+    });
+
+    describe('update role', () => {
+      it('should throw error 400 when search input wrong', async () => {
+        const res = await request(app.getHttpServer())
+          .patch('/roles/a')
+          .expect(400);
+        expect(res.body?.statusCode).toEqual(400);
+      });
+
+      it('should throw error 400 when missing fields', async () => {
+        const resPost = await request(app.getHttpServer())
+          .post('/roles/')
+          .send(role)
+          .expect(201);
+        const newRole = await resPost.body;
+
+        const res = await request(app.getHttpServer())
+          .patch(`/roles/${newRole.id}`)
+          .send({ name: '' })
+          .expect(400);
+        expect(res.body?.statusCode).toEqual(400);
+      });
+
+      it('should throw error 404 when role not found', async () => {
+        const res = await request(app.getHttpServer())
+          .patch('/roles/1')
+          .send({ role: {} })
+          .expect(404);
+        expect(res.body?.statusCode).toEqual(404);
+      });
+
+      it('should return updated role', async () => {
+        const resPost = await request(app.getHttpServer())
+          .post('/roles/')
+          .send(role)
+          .expect(201);
+        const newUser = await resPost.body;
+
+        const updateRole = {
+          name: 'A updated name',
+          description: 'A updated description'
+        }
+
+        const res = await request(app.getHttpServer())
+          .patch(`/roles/${newUser.id}`)
+          .send(updateRole)
+          .expect(200);
+        expect(res.body.name).toEqual(updateRole.name);
+        expect(res.body.description).toEqual(updateRole.description);
+      });
+    });
+
+    describe('delete role', () => {
+      it('should throw error 404 when role not found', async () => {
+        const res = await request(app.getHttpServer())
+          .delete('/roles/1')
+          .expect(404);
+        expect(res.body?.statusCode).toEqual(404);
+      });
+
+      it('should return a role', async () => {
+        const resPost = await request(app.getHttpServer())
+          .post('/roles/')
+          .send(role)
+          .expect(201);
+        const newRole = await resPost.body;
+
+        const res = await request(app.getHttpServer())
+          .delete(`/roles/${newRole.id}`)
+          .expect(200);
+        expect(res.body).toEqual(newRole);
       });
     });
   });
