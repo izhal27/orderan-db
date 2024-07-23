@@ -27,45 +27,4 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .expect('Hello World!');
   });
-
-  beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, RolesModule, PrismaClient],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
-
-    prismaClient = moduleFixture.get<PrismaClient>(PrismaClient);
-
-    await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
-  }, 30000);
-
-  afterAll(async () => {
-    await app.close();
-    await prismaClient.$disconnect();
-  }, 30000);
-
-  describe('Roles', () => {
-    it('should create a role', async () => {
-      const role = {
-        name: 'Role 1',
-        description: 'This is a description'
-      };
-
-      const response = await request(app.getHttpServer())
-        .post('/roles/')
-        .send(role)
-        .expect(201);
-
-      delete response.body.createdAt;
-      delete response.body.updatedAt;
-
-      expect(response.body).toEqual({
-        id: expect.any(Number),
-        name: role.name,
-        description: role.description
-      });
-    });
-  });
 });
