@@ -26,26 +26,26 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MaxLength(50)
   @ApiProperty({ required: false, nullable: true })
-  name: string | null;
+  name?: string | null;
 
   @IsString()
   @IsOptional()
   @IsNotEmpty()
   @ApiProperty({ required: false, nullable: true })
-  image: string | null;
+  image?: string | null;
 
   @IsBoolean()
   @IsOptional()
-  @ApiProperty({ required: false, nullable: true })
   @ApiProperty()
-  isBlocked: boolean;
+  @ApiProperty()
+  isBlocked?: boolean;
 
   @IsBoolean()
-  @ApiProperty({ required: false, nullable: true })
+  @ApiProperty()
   @ApiProperty()
   roleId: number;
 
   @ApiProperty({ required: false, nullable: true })
-  refreshToken: string | null;
+  refreshToken?: string | null;
 
 }
