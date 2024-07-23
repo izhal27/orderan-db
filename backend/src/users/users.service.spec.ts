@@ -82,7 +82,7 @@ describe('UsersService', () => {
       prismaMock.user.findUnique.mockResolvedValue(null);
 
       await expect(
-        usersService.findOne(1),
+        usersService.findOne(user.id),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -91,7 +91,7 @@ describe('UsersService', () => {
     it('should return updated user', async () => {
       prismaMock.user.update.mockResolvedValue(user);
 
-      const result = await usersService.update(1, user);
+      const result = await usersService.update(user.id, user);
       expect(result).toEqual(user);
     });
 
@@ -108,7 +108,7 @@ describe('UsersService', () => {
     it('should return delete user', async () => {
       prismaMock.user.delete.mockResolvedValue(user);
 
-      const result = await usersService.remove(1);
+      const result = await usersService.remove(user.id);
       expect(result).toEqual(user);
     });
 
@@ -116,7 +116,7 @@ describe('UsersService', () => {
       prismaMock.user.delete.mockRejectedValue(new NotFoundException());
 
       await expect(
-        usersService.remove(1),
+        usersService.remove(user.id),
       ).rejects.toThrow(NotFoundException);
     });
   });
