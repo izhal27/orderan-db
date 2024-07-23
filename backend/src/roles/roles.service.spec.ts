@@ -6,6 +6,14 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 
 import { RolesService } from "./roles.service";
 
+const role = {
+  id: 1,
+  name: 'role 1',
+  description: 'description 1',
+  createdAt: new Date(),
+  updatedAt: new Date()
+}
+
 describe('RolesService', () => {
   let roleService: RolesService;
   let prismaMock: DeepMockProxy<PrismaClient>;
@@ -28,14 +36,6 @@ describe('RolesService', () => {
 
   describe('create', () => {
     it('should return created role', async () => {
-      const role = {
-        id: 1,
-        name: 'role 1',
-        description: 'description 1',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-
       prismaMock.role.create.mockResolvedValue(role);
 
       const result = await roleService.create(role);
@@ -45,22 +45,7 @@ describe('RolesService', () => {
 
   describe('findAll', () => {
     it('should return all role', async () => {
-      const allRoles = [
-        {
-          id: 1,
-          name: 'role 1',
-          description: 'description 1',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        },
-        {
-          id: 2,
-          name: 'role 2',
-          description: 'description 2',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        },
-      ];
+      const allRoles = [role, role];
 
       prismaMock.role.findMany.mockResolvedValue(allRoles);
 
@@ -78,62 +63,36 @@ describe('RolesService', () => {
 
   describe('findOne', () => {
     it('should return role if exists', async () => {
-      const existingUser = {
-        id: 1,
-        name: 'Existing Role',
-        description: 'Description',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
+      prismaMock.role.findUnique.mockResolvedValue(role);
 
-      prismaMock.role.findUnique.mockResolvedValue(existingUser);
-
-      const result = await roleService.findOne(existingUser.id);
-      expect(result).toEqual(existingUser);
+      const result = await roleService.findOne(role.id);
+      expect(result).toEqual(role);
     });
 
     it('should throw NotFoundException if role not exists', async () => {
       prismaMock.role.findUnique.mockResolvedValue(null);
 
       await expect(
-        roleService.findOne(100),
+        roleService.findOne(role.id),
       ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('update', () => {
     it('should return updated role', async () => {
-      const role = {
-        id: 1,
-        name: 'role 1',
-        description: 'description 1',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-
       prismaMock.role.update.mockResolvedValue(role);
 
-      const result = await roleService.update(1, role);
+      const result = await roleService.update(role.id, role);
       expect(result).toEqual(role);
     });
   });
-
 
   describe('delete', () => {
     it('should return delete role', async () => {
-      const role = {
-        id: 1,
-        name: 'role 1',
-        description: 'description 1',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-
       prismaMock.role.delete.mockResolvedValue(role);
 
-      const result = await roleService.remove(1);
+      const result = await roleService.remove(role.id);
       expect(result).toEqual(role);
     });
   });
-
 });
