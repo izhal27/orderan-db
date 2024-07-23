@@ -31,7 +31,7 @@ export class RolesController {
   }
 
   @Patch(':id')
-  @ApiCreatedResponse({ type: RoleEntity })
+  @ApiOkResponse({ type: RoleEntity })
   update(@Param('id', ParseIntPipe) id: number, @Body() updateRoleDto: UpdateRoleDto) {
     return this.rolesService.update(id, updateRoleDto);
   }
