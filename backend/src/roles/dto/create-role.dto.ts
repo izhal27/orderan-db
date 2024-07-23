@@ -13,5 +13,5 @@ export class CreateRoleDto {
   @IsNotEmpty()
   @MaxLength(300)
   @ApiProperty({ required: false })
-  description: string;
+  description: string | null;
 }
