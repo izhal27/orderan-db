@@ -16,7 +16,7 @@ const role = {
   description: 'This is a description'
 };
 
-describe('AppController (e2e)', () => {
+describe('RolesController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
 
