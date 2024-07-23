@@ -1,20 +1,150 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { User } from '@prisma/client';
+import { PrismaService } from 'nestjs-prisma';
+
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
+
+const user: User = {
+  id: 1,
+  username: 'testing',
+  email: 'test@test.com',
+  password: 'aaa',
+  name: 'Testing User',
+  image: '',
+  isBlocked: false,
+  roleId: 1,
+  refreshToken: '',
+  createdAt: new Date(),
+  updatedAt: new Date()
+}
 
 describe('UsersController', () => {
-  let controller: UsersController;
+  let usersController: UsersController;
+  let usersService: UsersService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [UsersService],
+      providers: [UsersService, PrismaService],
     }).compile();
 
-    controller = module.get<UsersController>(UsersController);
+    usersController = module.get<UsersController>(UsersController);
+    usersService = module.get<UsersService>(UsersService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(usersController).toBeDefined();
+  });
+
+  describe('users controller', () => {
+    describe('create user', () => {
+      it('should register new user', async () => {
+        jest
+          .spyOn(usersService, 'create')
+          .mockResolvedValue(user);
+
+        const result = await usersController.create(user);
+
+        expect(usersService.create).toHaveBeenCalledWith(user);
+        expect(result).toEqual(user);
+      });
+
+      it('should throw error if name already registered', async () => {
+        jest
+          .spyOn(usersService, 'create')
+          .mockRejectedValue(new ConflictException());
+
+        const register = usersController.create(user);
+
+        await expect(usersService.create).rejects.toThrow(ConflictException);
+        await expect(register).rejects.toThrow(ConflictException);
+      });
+
+      it('should throw error if required fields is missing', async () => {
+        jest
+          .spyOn(usersService, 'create')
+          .mockRejectedValue(new BadRequestException());
+
+        const register = usersController.create(new CreateUserDto());
+
+        await expect(usersService.create).rejects.toThrow(BadRequestException);
+        await expect(register).rejects.toThrow(BadRequestException);
+      });
+    });
+
+    describe('get user', () => {
+      it('should return a user', async () => {
+        jest
+          .spyOn(usersService, 'findOne')
+          .mockResolvedValue(user);
+
+        const result = await usersController.findOne(1);
+
+        expect(usersService.findOne).toHaveBeenCalledWith(1);
+        expect(result).toEqual(user);
+      });
+
+      it('should throw error if user not found', async () => {
+        jest
+          .spyOn(usersService, 'findOne')
+          .mockRejectedValue(new NotFoundException());
+
+        const result = usersController.findOne(1);
+
+        await expect(usersService.findOne).rejects.toThrow(NotFoundException);
+        await expect(result).rejects.toThrow(NotFoundException);
+      });
+    });
+
+    describe('update user', () => {
+      it('should throw error if user not found', async () => {
+        jest
+          .spyOn(usersService, 'update')
+          .mockRejectedValue(new NotFoundException());
+
+        const result = usersController.update(user.id, user);
+
+        await expect(usersService.update).rejects.toThrow(NotFoundException);
+        await expect(result).rejects.toThrow(NotFoundException);
+      });
+
+      it('should update user', async () => {
+        jest
+          .spyOn(usersService, 'update')
+          .mockResolvedValue(user);
+
+        const result = await usersController.update(user.id, user);
+
+        expect(usersService.update).toHaveBeenCalledWith(user.id, user);
+        expect(result).toEqual(user);
+      });
+    });
+
+    describe('remove user', () => {
+      it('should throw error if user not found', async () => {
+        jest
+          .spyOn(usersService, 'remove')
+          .mockRejectedValue(new NotFoundException());
+
+        const result = usersController.remove(1);
+
+        await expect(usersService.remove).rejects.toThrow(NotFoundException);
+        await expect(result).rejects.toThrow(NotFoundException);
+      });
+
+      it('should return a user when success deleted', async () => {
+        jest
+          .spyOn(usersService, 'remove')
+          .mockResolvedValue(user);
+
+        const result = await usersController.remove(user.id);
+
+        expect(usersService.remove).toHaveBeenCalledWith(user.id);
+        expect(result).toEqual(user);
+      });
+    });
   });
 });
