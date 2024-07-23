@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RolesModule } from './roles/roles.module';
+import { UsersModule } from './users/users.module';
 import config from '../config/configuration';
 
 @Module({
@@ -15,7 +16,8 @@ import config from '../config/configuration';
     PrismaModule.forRoot({
       isGlobal: true
     }),
-    RolesModule
+    RolesModule,
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService],
