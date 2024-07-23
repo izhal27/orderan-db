@@ -81,9 +81,9 @@ describe('UsersController', () => {
           .spyOn(usersService, 'findOne')
           .mockResolvedValue(user);
 
-        const result = await usersController.findOne(1);
+        const result = await usersController.findOne(user.id);
 
-        expect(usersService.findOne).toHaveBeenCalledWith(1);
+        expect(usersService.findOne).toHaveBeenCalledWith(user.id);
         expect(result).toEqual(user);
       });
 
@@ -92,7 +92,7 @@ describe('UsersController', () => {
           .spyOn(usersService, 'findOne')
           .mockRejectedValue(new NotFoundException());
 
-        const result = usersController.findOne(1);
+        const result = usersController.findOne(user.id);
 
         await expect(usersService.findOne).rejects.toThrow(NotFoundException);
         await expect(result).rejects.toThrow(NotFoundException);
@@ -129,7 +129,7 @@ describe('UsersController', () => {
           .spyOn(usersService, 'remove')
           .mockRejectedValue(new NotFoundException());
 
-        const result = usersController.remove(1);
+        const result = usersController.remove(user.id);
 
         await expect(usersService.remove).rejects.toThrow(NotFoundException);
         await expect(result).rejects.toThrow(NotFoundException);
