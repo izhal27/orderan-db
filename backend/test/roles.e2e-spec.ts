@@ -5,6 +5,8 @@ import { AppModule } from '../src/app.module';
 import { RolesModule } from 'src/roles/roles.module';
 import { PrismaClient } from '@prisma/client';
 import { matchers } from 'jest-date/matchers'
+import { HttpAdapterHost } from '@nestjs/core';
+import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 
 expect.extend(matchers);
 
@@ -17,13 +19,13 @@ describe('AppController (e2e)', () => {
       imports: [AppModule, RolesModule, PrismaClient],
     }).compile();
 
-
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+    const { httpAdapter } = app.get(HttpAdapterHost);
+    app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
     await app.init();
 
     prismaClient = moduleFixture.get<PrismaClient>(PrismaClient);
-
     await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
   }, 30000);
 
@@ -41,9 +43,13 @@ describe('AppController (e2e)', () => {
       expect(response.body?.statusCode).toEqual(400);
     });
 
+    afterEach(async () => {
+      await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
+    }, 30000);
+
     it('should throw error when duplicate entry', async () => {
       const role = {
-        name: 'Role 2',
+        name: 'Role 1',
         description: 'This is a description'
       };
 
@@ -55,8 +61,8 @@ describe('AppController (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/roles/')
         .send(role)
-        .expect(500);
-      // expect(response.body?.statusCode).toEqual(400);
+        .expect(409);
+      expect(response.body?.statusCode).toEqual(409);
     });
 
     it('should create a role', async () => {
