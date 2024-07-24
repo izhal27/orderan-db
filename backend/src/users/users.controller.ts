@@ -1,5 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 
 import { UserEntity } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -10,7 +24,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @ApiTags('users')
 @ApiBearerAuth()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @ApiCreatedResponse({ type: UserEntity })
@@ -32,7 +46,10 @@ export class UsersController {
 
   @Patch(':id')
   @ApiOkResponse({ type: UserEntity })
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     return this.usersService.update(id, updateUserDto);
   }
 

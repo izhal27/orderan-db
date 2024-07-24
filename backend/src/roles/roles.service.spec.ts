@@ -1,18 +1,18 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { NotFoundException } from "@nestjs/common";
-import { PrismaClient } from "@prisma/client";
-import { PrismaService } from "nestjs-prisma";
+import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+import { PrismaService } from 'nestjs-prisma';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 
-import { RolesService } from "./roles.service";
+import { RolesService } from './roles.service';
 
 const role = {
   id: 1,
   name: 'role 1',
   description: 'description 1',
   createdAt: new Date(),
-  updatedAt: new Date()
-}
+  updatedAt: new Date(),
+};
 
 describe('RolesService', () => {
   let roleService: RolesService;
@@ -72,9 +72,9 @@ describe('RolesService', () => {
     it('should throw NotFoundException if role not exists', async () => {
       prismaMock.role.findUnique.mockResolvedValue(null);
 
-      await expect(
-        roleService.findOne(role.id),
-      ).rejects.toThrow(NotFoundException);
+      await expect(roleService.findOne(role.id)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

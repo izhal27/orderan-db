@@ -4,25 +4,21 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClient } from '@prisma/client';
 import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 import * as request from 'supertest';
-import { matchers } from 'jest-date/matchers'
 
-import { AppModule } from '../src/app.module';
 import { RolesModule } from 'src/roles/roles.module';
-
-expect.extend(matchers);
 
 const role = {
   name: 'Role 1',
-  description: 'This is a description'
+  description: 'This is a description',
 };
 
 describe('RolesController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, RolesModule, PrismaClient],
+      imports: [RolesModule, PrismaClient],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -35,7 +31,7 @@ describe('RolesController (e2e)', () => {
     await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
   }, 30000);
 
-  afterAll(async () => {
+  afterEach(async () => {
     await app.close();
     await prismaClient.$disconnect();
   }, 30000);
@@ -147,8 +143,8 @@ describe('RolesController (e2e)', () => {
 
         const updateRole = {
           name: 'A updated name',
-          description: 'A updated description'
-        }
+          description: 'A updated description',
+        };
 
         const res = await request(app.getHttpServer())
           .patch(`/roles/${newUser.id}`)

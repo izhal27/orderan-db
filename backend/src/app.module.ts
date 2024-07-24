@@ -11,15 +11,15 @@ import config from '../config/configuration';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [config]
+      load: [config],
     }),
     PrismaModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
     }),
     RolesModule,
-    UsersModule
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

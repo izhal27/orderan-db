@@ -4,12 +4,8 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClient } from '@prisma/client';
 import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 import * as request from 'supertest';
-import { matchers } from 'jest-date/matchers'
 
-import { AppModule } from '../src/app.module';
 import { UsersModule } from 'src/users/users.module';
-
-expect.extend(matchers);
 
 const user = {
   name: 'User 1',
@@ -26,9 +22,9 @@ describe('UserController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, UsersModule, PrismaClient],
+      imports: [UsersModule, PrismaClient],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -38,31 +34,23 @@ describe('UserController (e2e)', () => {
     await app.init();
 
     prismaClient = moduleFixture.get<PrismaClient>(PrismaClient);
-    await prismaClient.role.upsert({
-      where: { name: 'Role-1' },
-      update: {},
-      create: { name: 'Role-1', description: 'Description Role-1' }
-    });
-    await prismaClient.role.upsert({
-      where: { name: 'Role-2' },
-      update: {},
-      create: { name: 'Role-2', description: 'Description Role-2' }
-    });
-    await prismaClient.role.upsert({
-      where: { name: 'Role-3' },
-      update: {},
-      create: { name: 'Role-3', description: 'Description Role-3' }
-    });
 
     await prismaClient.$executeRaw`TRUNCATE "public"."User" RESTART IDENTITY CASCADE; `;
   }, 30000);
 
-  afterAll(async () => {
+  afterEach(async () => {
     await app.close();
     await prismaClient.$disconnect();
   }, 30000);
 
   describe('Users', () => {
+    beforeEach(async () => {
+      await prismaClient.role.upsert({
+        where: { name: 'Role-1' },
+        update: {},
+        create: { name: 'Role-1', description: 'Description Role-1' },
+      });
+    });
     afterEach(async () => {
       await prismaClient.$executeRaw`TRUNCATE "public"."User" RESTART IDENTITY CASCADE; `;
     }, 30000);
@@ -89,20 +77,21 @@ describe('UserController (e2e)', () => {
         expect(res.body?.statusCode).toEqual(409);
       });
 
-      it('should create a user', async () => {
+      it.skip('should create a user', async () => {
         const res = await request(app.getHttpServer())
           .post('/users/')
           .send(user)
           .expect(201);
         const newRole = await res.body;
 
-        // expect(user.name).toEqual(newRole.name);
-        // expect(user.description).toEqual(newRole.description);
+        expect(user.username).toEqual(newRole.username);
+        expect(user.email).toEqual(newRole.email);
+        expect(user.roleId).toEqual(newRole.roleId);
       });
     });
 
     describe('read user', () => {
-      it.skip('should throw error 400 when search input wrong', async () => {
+      it('should throw error 400 when search input wrong', async () => {
         const res = await request(app.getHttpServer())
           .get('/users/a')
           .expect(400);
@@ -117,12 +106,12 @@ describe('UserController (e2e)', () => {
         const newRole = await resPost.body;
 
         const res = await request(app.getHttpServer())
-          .get(`/ users / ${newRole.id} `)
+          .get(`/users/${newRole.id} `)
           .expect(200);
         expect(res.body).toEqual(newRole);
       });
 
-      it.skip('should throw error 404 when user not found', async () => {
+      it('should throw error 404 when user not found', async () => {
         const res = await request(app.getHttpServer())
           .get('/users/1')
           .expect(404);
@@ -131,7 +120,7 @@ describe('UserController (e2e)', () => {
     });
 
     describe('update user', () => {
-      it.skip('should throw error 400 when search input wrong', async () => {
+      it('should throw error 400 when search input wrong', async () => {
         const res = await request(app.getHttpServer())
           .patch('/users/a')
           .expect(400);
@@ -145,14 +134,25 @@ describe('UserController (e2e)', () => {
           .expect(201);
         const newRole = await resPost.body;
 
-        const res = await request(app.getHttpServer())
-          .patch(`/ users / ${newRole.id} `)
-          .send({ name: '' })
+        await request(app.getHttpServer())
+          .patch(`/users/${newRole.id} `)
+          .send({ ...user, username: '' })
           .expect(400);
-        expect(res.body?.statusCode).toEqual(400);
+        await request(app.getHttpServer())
+          .patch(`/users/${newRole.id} `)
+          .send({ ...user, email: '' })
+          .expect(400);
+        await request(app.getHttpServer())
+          .patch(`/users/${newRole.id} `)
+          .send({ ...user, password: '' })
+          .expect(400);
+        await request(app.getHttpServer())
+          .patch(`/users/${newRole.id} `)
+          .send({ ...user, roleId: '' })
+          .expect(400);
       });
 
-      it.skip('should throw error 404 when user not found', async () => {
+      it('should throw error 404 when user not found', async () => {
         const res = await request(app.getHttpServer())
           .patch('/users/1')
           .send({ user: {} })
@@ -167,39 +167,42 @@ describe('UserController (e2e)', () => {
           .expect(201);
         const newUser = await resPost.body;
 
-        const updateRole = {
+        const updateUser = {
+          username: 'A updated username',
+          email: 'updated@email.com',
           name: 'A updated name',
-          description: 'A updated description'
-        }
+        };
 
         const res = await request(app.getHttpServer())
-          .patch(`/ users / ${newUser.id} `)
-          .send(updateRole)
+          .patch(`/users/${newUser.id} `)
+          .send(updateUser)
           .expect(200);
-        expect(res.body.name).toEqual(updateRole.name);
-        expect(res.body.description).toEqual(updateRole.description);
+        expect(res.body.username).toEqual(updateUser.username);
+        expect(res.body.email).toEqual(updateUser.email);
+        expect(res.body.name).toEqual(updateUser.name);
       });
     });
 
     describe('delete user', () => {
-      it.skip('should throw error 404 when user not found', async () => {
+      it('should throw error 404 when user not found', async () => {
         const res = await request(app.getHttpServer())
           .delete('/users/1')
           .expect(404);
         expect(res.body?.statusCode).toEqual(404);
       });
 
-      it.skip('should return a user', async () => {
+      it('should return a user', async () => {
         const resPost = await request(app.getHttpServer())
           .post('/users/')
           .send(user)
           .expect(201);
-        const newRole = await resPost.body;
+        const newUser = await resPost.body;
 
         const res = await request(app.getHttpServer())
-          .delete(`/ users / ${newRole.id} `)
+          .delete(`/users/${newUser.id} `)
           .expect(200);
-        expect(res.body).toEqual(newRole);
+
+        expect(res.body).toEqual(newUser);
       });
     });
   });

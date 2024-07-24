@@ -6,7 +6,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   create(createUserDto: CreateUserDto) {
     return this.prismaService.user.create({ data: createUserDto });
@@ -18,7 +18,7 @@ export class UsersService {
 
   async findOne(id: number) {
     const user = await this.prismaService.user.findUnique({
-      where: { id }
+      where: { id },
     });
     if (!user) {
       throw new NotFoundException(`User with id ${id} does not exist.`);
@@ -29,13 +29,13 @@ export class UsersService {
   update(id: number, updateUserDto: UpdateUserDto) {
     return this.prismaService.user.update({
       where: { id },
-      data: updateUserDto
+      data: updateUserDto,
     });
   }
 
   remove(id: number) {
     return this.prismaService.user.delete({
-      where: { id }
+      where: { id },
     });
   }
 }

@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
@@ -18,8 +22,8 @@ const user: User = {
   roleId: 1,
   refreshToken: '',
   createdAt: new Date(),
-  updatedAt: new Date()
-}
+  updatedAt: new Date(),
+};
 
 describe('UsersController', () => {
   let usersController: UsersController;
@@ -42,9 +46,7 @@ describe('UsersController', () => {
   describe('users controller', () => {
     describe('create user', () => {
       it('should register new user', async () => {
-        jest
-          .spyOn(usersService, 'create')
-          .mockResolvedValue(user);
+        jest.spyOn(usersService, 'create').mockResolvedValue(user);
 
         const result = await usersController.create(user);
 
@@ -77,9 +79,7 @@ describe('UsersController', () => {
 
     describe('get user', () => {
       it('should return a user', async () => {
-        jest
-          .spyOn(usersService, 'findOne')
-          .mockResolvedValue(user);
+        jest.spyOn(usersService, 'findOne').mockResolvedValue(user);
 
         const result = await usersController.findOne(user.id);
 
@@ -112,9 +112,7 @@ describe('UsersController', () => {
       });
 
       it('should update user', async () => {
-        jest
-          .spyOn(usersService, 'update')
-          .mockResolvedValue(user);
+        jest.spyOn(usersService, 'update').mockResolvedValue(user);
 
         const result = await usersController.update(user.id, user);
 
@@ -136,9 +134,7 @@ describe('UsersController', () => {
       });
 
       it('should return a user when success deleted', async () => {
-        jest
-          .spyOn(usersService, 'remove')
-          .mockResolvedValue(user);
+        jest.spyOn(usersService, 'remove').mockResolvedValue(user);
 
         const result = await usersController.remove(user.id);
 

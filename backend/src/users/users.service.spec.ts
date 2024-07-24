@@ -1,10 +1,10 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { NotFoundException } from "@nestjs/common";
-import { PrismaClient } from "@prisma/client";
-import { PrismaService } from "nestjs-prisma";
+import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+import { PrismaService } from 'nestjs-prisma';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 
-import { UsersService } from "./users.service";
+import { UsersService } from './users.service';
 
 const user = {
   id: 1,
@@ -17,8 +17,8 @@ const user = {
   roleId: 1,
   refreshToken: '',
   createdAt: new Date(),
-  updatedAt: new Date()
-}
+  updatedAt: new Date(),
+};
 
 describe('UsersService', () => {
   let usersService: UsersService;
@@ -42,7 +42,6 @@ describe('UsersService', () => {
 
   describe('create', () => {
     it('should return created user', async () => {
-
       prismaMock.user.create.mockResolvedValue(user);
 
       const result = await usersService.create(user);
@@ -52,9 +51,7 @@ describe('UsersService', () => {
 
   describe('findAll', () => {
     it('should return all user', async () => {
-      const allUsers = [
-        user, user
-      ];
+      const allUsers = [user, user];
 
       prismaMock.user.findMany.mockResolvedValue(allUsers);
 
@@ -81,9 +78,9 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user not exists', async () => {
       prismaMock.user.findUnique.mockResolvedValue(null);
 
-      await expect(
-        usersService.findOne(user.id),
-      ).rejects.toThrow(NotFoundException);
+      await expect(usersService.findOne(user.id)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -98,9 +95,9 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user not exists', async () => {
       prismaMock.user.update.mockRejectedValue(new NotFoundException());
 
-      await expect(
-        usersService.update(1, user),
-      ).rejects.toThrow(NotFoundException);
+      await expect(usersService.update(1, user)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -115,9 +112,9 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user not exists', async () => {
       prismaMock.user.delete.mockRejectedValue(new NotFoundException());
 
-      await expect(
-        usersService.remove(user.id),
-      ).rejects.toThrow(NotFoundException);
+      await expect(usersService.remove(user.id)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

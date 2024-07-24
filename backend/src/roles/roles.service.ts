@@ -6,7 +6,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Injectable()
 export class RolesService {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   create(createRoleDto: CreateRoleDto) {
     return this.prismaService.role.create({ data: createRoleDto });
@@ -18,7 +18,7 @@ export class RolesService {
 
   async findOne(id: number) {
     const article = await this.prismaService.role.findUnique({
-      where: { id }
+      where: { id },
     });
     if (!article) {
       throw new NotFoundException(`Role with id ${id} does not exist.`);
@@ -29,13 +29,13 @@ export class RolesService {
   update(id: number, updateRoleDto: UpdateRoleDto) {
     return this.prismaService.role.update({
       where: { id },
-      data: updateRoleDto
+      data: updateRoleDto,
     });
   }
 
   remove(id: number) {
     return this.prismaService.role.delete({
-      where: { id }
+      where: { id },
     });
   }
 }

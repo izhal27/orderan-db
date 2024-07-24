@@ -1,5 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { RoleEntity } from './entities/role.entity';
 import { RolesService } from './roles.service';
@@ -10,7 +24,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 @ApiTags('roles')
 @ApiBearerAuth()
 export class RolesController {
-  constructor(private readonly rolesService: RolesService) { }
+  constructor(private readonly rolesService: RolesService) {}
 
   @Post()
   @ApiCreatedResponse({ type: RoleEntity })
@@ -32,7 +46,10 @@ export class RolesController {
 
   @Patch(':id')
   @ApiOkResponse({ type: RoleEntity })
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateRoleDto: UpdateRoleDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateRoleDto: UpdateRoleDto,
+  ) {
     return this.rolesService.update(id, updateRoleDto);
   }
 

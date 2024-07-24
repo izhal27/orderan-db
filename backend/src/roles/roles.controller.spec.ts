@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
@@ -12,7 +16,7 @@ const role: Role = {
   name: 'New role',
   description: 'New description',
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
 };
 
 describe('RolesController', () => {
@@ -36,9 +40,7 @@ describe('RolesController', () => {
   describe('roles controller', () => {
     describe('create role', () => {
       it('should register new role', async () => {
-        jest
-          .spyOn(rolesService, 'create')
-          .mockResolvedValue(role);
+        jest.spyOn(rolesService, 'create').mockResolvedValue(role);
 
         const result = await rolesController.create(role);
 
@@ -71,9 +73,7 @@ describe('RolesController', () => {
 
     describe('get role', () => {
       it('should return a role', async () => {
-        jest
-          .spyOn(rolesService, 'findOne')
-          .mockResolvedValue(role);
+        jest.spyOn(rolesService, 'findOne').mockResolvedValue(role);
 
         const result = await rolesController.findOne(role.id);
 
@@ -106,9 +106,7 @@ describe('RolesController', () => {
       });
 
       it('should update role', async () => {
-        jest
-          .spyOn(rolesService, 'update')
-          .mockResolvedValue(role);
+        jest.spyOn(rolesService, 'update').mockResolvedValue(role);
 
         const result = await rolesController.update(role.id, role);
 
@@ -130,9 +128,7 @@ describe('RolesController', () => {
       });
 
       it('should return a role when success deleted', async () => {
-        jest
-          .spyOn(rolesService, 'remove')
-          .mockResolvedValue(role);
+        jest.spyOn(rolesService, 'remove').mockResolvedValue(role);
 
         const result = await rolesController.remove(role.id);
 
