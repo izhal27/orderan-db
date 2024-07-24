@@ -6,12 +6,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
-import config from '../config/configuration';
+import { validate } from '../config/env.validation';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [config],
+      validate,
     }),
     PrismaModule.forRoot({
       isGlobal: true,
@@ -22,4 +22,4 @@ import config from '../config/configuration';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
