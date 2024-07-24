@@ -5,7 +5,8 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 import * as request from 'supertest';
 
-import { RolesModule } from 'src/roles/roles.module';
+import { AppModule } from './../src/app.module';
+import { RolesModule } from './../src/roles/roles.module';
 
 const role = {
   name: 'Role 1',
@@ -18,7 +19,7 @@ describe('RolesController (e2e)', () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [RolesModule, PrismaClient],
+      imports: [AppModule, RolesModule, PrismaClient],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -37,7 +38,7 @@ describe('RolesController (e2e)', () => {
   }, 30000);
 
   describe('Roles', () => {
-    afterEach(async () => {
+    beforeEach(async () => {
       await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
     }, 30000);
 
@@ -98,7 +99,7 @@ describe('RolesController (e2e)', () => {
 
       it('should throw error 404 when role not found', async () => {
         const res = await request(app.getHttpServer())
-          .get('/roles/1')
+          .get('/roles/1000')
           .expect(404);
         expect(res.body?.statusCode).toEqual(404);
       });
@@ -128,7 +129,7 @@ describe('RolesController (e2e)', () => {
 
       it('should throw error 404 when role not found', async () => {
         const res = await request(app.getHttpServer())
-          .patch('/roles/1')
+          .patch('/roles/1000')
           .send({ role: {} })
           .expect(404);
         expect(res.body?.statusCode).toEqual(404);

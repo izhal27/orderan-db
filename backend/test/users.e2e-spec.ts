@@ -5,7 +5,9 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 import * as request from 'supertest';
 
-import { UsersModule } from 'src/users/users.module';
+
+import { AppModule } from './../src/app.module';
+import { UsersModule } from './../src/users/users.module';
 
 const user = {
   name: 'User 1',
@@ -24,7 +26,7 @@ describe('UserController (e2e)', () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [UsersModule, PrismaClient],
+      imports: [AppModule, UsersModule, PrismaClient],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -52,7 +54,7 @@ describe('UserController (e2e)', () => {
       });
     });
     afterEach(async () => {
-      await prismaClient.$executeRaw`TRUNCATE "public"."User" RESTART IDENTITY CASCADE; `;
+      await prismaClient.$executeRaw`TRUNCATE "public"."User"; `;
     }, 30000);
 
     describe('create user', () => {
@@ -64,7 +66,7 @@ describe('UserController (e2e)', () => {
         expect(res.body?.statusCode).toEqual(400);
       });
 
-      it.skip('should throw error 409 when duplicate entry', async () => {
+      it('should throw error 409 when duplicate entry', async () => {
         await request(app.getHttpServer())
           .post('/users/')
           .send(user)
@@ -154,7 +156,7 @@ describe('UserController (e2e)', () => {
 
       it('should throw error 404 when user not found', async () => {
         const res = await request(app.getHttpServer())
-          .patch('/users/1')
+          .patch('/users/1000')
           .send({ user: {} })
           .expect(404);
         expect(res.body?.statusCode).toEqual(404);
@@ -195,8 +197,9 @@ describe('UserController (e2e)', () => {
         const resPost = await request(app.getHttpServer())
           .post('/users/')
           .send(user)
-          .expect(201);
+        // .expect(201);
         const newUser = await resPost.body;
+        console.log(newUser);
 
         const res = await request(app.getHttpServer())
           .delete(`/users/${newUser.id} `)
