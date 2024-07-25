@@ -20,10 +20,11 @@ export class CreateUserDto {
   username: string;
 
   @IsString()
+  @IsOptional()
   @IsNotEmpty()
   @IsEmail()
-  @ApiProperty()
-  email: string;
+  @ApiProperty({ required: false, nullable: true })
+  email?: string | null;
 
   @IsString()
   @IsNotEmpty()
@@ -50,9 +51,10 @@ export class CreateUserDto {
   isBlocked?: boolean;
 
   @IsNumber()
+  @IsOptional()
   @IsNotEmpty()
-  @ApiProperty()
-  roleId: number;
+  @ApiProperty({ required: false, nullable: true })
+  roleId?: number;
 
   @ApiProperty({ required: false, nullable: true })
   refreshToken?: string | null;
