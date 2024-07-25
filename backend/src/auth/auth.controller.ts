@@ -1,6 +1,7 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+import { AuthDto } from './dto/auth.dto';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -9,13 +10,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Post('/local/signup')
-  signupLocal() {
-    return this.authService.signupLocal();
+  signupLocal(@Body() authDto: AuthDto) {
+    return this.authService.signupLocal(authDto);
   }
 
   @Post('/local/signin')
-  signinLocal() {
-    return this.authService.signinLocal();
+  signinLocal(@Body() authDto: AuthDto) {
+    return this.authService.signinLocal(authDto);
   }
 
   @Post('/logout')
