@@ -14,13 +14,17 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     createUserDto.password = await this.hashPassword(createUserDto.password);
-    const user = await this.prismaService.user.create({
-      data: createUserDto,
-      include: {
-        role: true
-      }
-    });
-    return this.sanitizeUser(user);
+    try {
+      const user = await this.prismaService.user.create({
+        data: createUserDto,
+        include: {
+          role: true
+        }
+      });
+      return this.sanitizeUser(user);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async findAll() {
@@ -73,6 +77,8 @@ export class UsersService {
   }
 
   async signupLocal({ username, password }: AuthDto) {
+    console.log(username);
+
     const hashPassword = await this.hashPassword(password);
     const user = await this.create({
       username,
