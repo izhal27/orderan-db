@@ -9,14 +9,14 @@ export class UserEntity implements User {
     Object.assign(this, partial);
   }
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   id: number;
 
   @ApiProperty()
   username: string;
 
-  @ApiProperty()
-  email: string;
+  @ApiProperty({ required: false, nullable: true })
+  email: string | null;
 
   @Exclude()
   password: string;
@@ -27,11 +27,11 @@ export class UserEntity implements User {
   @ApiProperty({ required: false, nullable: true })
   image: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: false })
   isBlocked: boolean;
 
-  @ApiProperty()
-  roleId: number;
+  @ApiProperty({ required: false, nullable: true })
+  roleId: number | null;
 
   @ApiProperty({ required: false, type: RoleEntity })
   role?: RoleEntity;
@@ -39,9 +39,9 @@ export class UserEntity implements User {
   @ApiProperty({ required: false, nullable: true })
   refreshToken: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   updatedAt: Date;
 }
