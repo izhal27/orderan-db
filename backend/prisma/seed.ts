@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -6,50 +7,68 @@ async function main() {
   // create roles
   const role1 = await prisma.role.upsert({
     where: {
-      name: 'Admin',
+      name: 'admin',
     },
     update: {},
     create: {
-      name: 'Admin',
+      name: 'admin',
       description: 'Role for Super Admin',
     },
   });
 
   const role2 = await prisma.role.upsert({
     where: {
-      name: 'Administrasi',
+      name: 'administrasi',
     },
     update: {},
     create: {
-      name: 'Administrasi',
+      name: 'administrasi',
       description: 'Role for Administrasi (Kasir, Social media admin, etc)',
     },
   });
 
   const role3 = await prisma.role.upsert({
     where: {
-      name: 'Designer',
+      name: 'designer',
     },
     update: {},
     create: {
-      name: 'Designer',
+      name: 'designer',
       description: 'Role for Designer',
     },
   });
 
   const role4 = await prisma.role.upsert({
     where: {
-      name: 'Operator',
+      name: 'operator',
     },
     update: {},
     create: {
-      name: 'Operator',
+      name: 'operator',
       description: 'Role for Operator',
     },
   });
 
+  const hashPassword = await bcrypt.hash(process.env.DUMMY_PASS || '123456', 10);
 
-  console.log({ role1, role2, role3, role4 });
+  // create user
+  const user = await prisma.user.upsert({
+    where: {
+      username: 'admin',
+      email: 'admin@duniabaliho.com',
+      name: 'Admin',
+    },
+    update: {},
+    create: {
+      username: 'admin',
+      email: 'admin@duniabaliho.com',
+      name: 'Admin',
+      password: hashPassword,
+      roleId: 1,
+    },
+  });
+
+  console.log({ role1, role2, role3, role4, user });
 }
 
 main()
