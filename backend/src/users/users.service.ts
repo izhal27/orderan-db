@@ -51,10 +51,10 @@ export class UsersService {
         role: true
       },
     });
-    if (!user) {
-      throw new NotFoundException(`User does not exist`);
+    if (user) {
+      this.sanitizeUser(user)
     }
-    return this.sanitizeUser(user);
+    return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
