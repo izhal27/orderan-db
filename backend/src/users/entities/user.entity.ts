@@ -27,8 +27,9 @@ export class UserEntity implements User {
   @ApiProperty({ required: false, nullable: true })
   image: string | null;
 
+  @Exclude()
   @ApiProperty({ required: false, default: false })
-  isBlocked: boolean;
+  blocked: boolean;
 
   @ApiProperty({ required: false, nullable: true })
   roleId: number | null;
@@ -36,6 +37,7 @@ export class UserEntity implements User {
   @ApiProperty({ required: false, type: RoleEntity })
   role?: RoleEntity;
 
+  @Exclude()
   @ApiProperty({ required: false, nullable: true })
   refreshToken: string | null;
 

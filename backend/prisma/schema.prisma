@@ -20,7 +20,7 @@ model User {
   password     String
   name         String?
   image        String?
-  isBlocked    Boolean  @default(false)
+  blocked      Boolean  @default(false)
   role         Role?    @relation(fields: [roleId], references: [id])
   roleId       Int?
   refreshToken String?
