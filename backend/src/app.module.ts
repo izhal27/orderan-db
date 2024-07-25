@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
   imports: [
     ConfigModule.forRoot({
       validate,
+      isGlobal: true,
     }),
     PrismaModule.forRoot({
       isGlobal: true,
