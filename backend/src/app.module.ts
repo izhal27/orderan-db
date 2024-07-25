@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
 import { validate } from '../config/env.validation';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { validate } from '../config/env.validation';
     }),
     RolesModule,
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
