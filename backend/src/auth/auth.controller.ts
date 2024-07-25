@@ -13,8 +13,7 @@ export class AuthController {
   @Post('/local/signup')
   @ApiCreatedResponse()
   signupLocal(@Body() authDto: AuthDto): Promise<Tokens> {
-    return Promise.resolve({ access_token: 'cds', refresh_token: '' });
-    // return this.authService.signupLocal(authDto);
+    return this.authService.signupLocal(authDto);
   }
 
   @Post('/local/signin')
