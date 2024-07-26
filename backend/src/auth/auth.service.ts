@@ -7,6 +7,7 @@ import { AuthDto } from './dto/auth.dto';
 import { UsersService } from '../users/users.service';
 import { JWT_EXPIRES, JWT_SECRET, REFRESH_TOKEN_EXPIRES } from '../types/constants';
 import { compareValue, hashValue } from '../helpers/hash';
+import { Tokens } from '../types';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,7 @@ export class AuthService {
     return tokens;
   }
 
-  async signinLocal({ username, password }: AuthDto) {
+  async signinLocal({ username, password }: AuthDto): Promise<Tokens> {
     const user = await this.userService.findOne({ username });
 
     if (!user) {
@@ -41,7 +42,9 @@ export class AuthService {
     if (user.blocked || user.roleId) {
       throw new UnauthorizedException('User has been blocked or does not have any roles')
     }
-    return user;
+    const tokens = await this.getTokens(user.id, user.username);
+    this.updateRefreshTokenHash(user.id, tokens.refresh_token);
+    return tokens;
   }
 
   logout(userId: number) {

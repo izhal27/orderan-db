@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, NotImplementedException, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { AuthDto } from './dto/auth.dto';
@@ -19,8 +19,7 @@ export class AuthController {
   @Post('/local/signin')
   @ApiOkResponse()
   signinLocal(@Body() authDto: AuthDto): Promise<Tokens> {
-    return Promise.resolve({ access_token: 'cds', refresh_token: '' });
-    // return this.authService.signinLocal(authDto);
+    return this.authService.signinLocal(authDto);
   }
 
   @Post('/logout')
@@ -34,7 +33,6 @@ export class AuthController {
   @ApiOkResponse()
   @ApiBearerAuth()
   refreshTokens(): Promise<Tokens> {
-    return Promise.resolve({ access_token: 'cds', refresh_token: '' });
-    // return this.authService.refreshTokens();
+    throw new NotImplementedException();
   }
 }
