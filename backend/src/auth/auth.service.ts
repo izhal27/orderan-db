@@ -25,7 +25,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async signupLocal({ username, password }: AuthDto) {
     const user = await this.userService.create({
@@ -83,6 +83,12 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
+  private async generateTokens(user: User): Promise<Tokens> {
+    const tokens = await this.getTokens(user.id, user.username);
+    this.updateRefreshTokenHash(user.username, tokens.refresh_token);
+    return tokens;
+  }
+
   async getTokens(userId: number, username: string) {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
@@ -113,21 +119,15 @@ export class AuthService {
     };
   }
 
-  private async updateRefreshTokenHash(userId: number, refreshToken: string) {
+  private async updateRefreshTokenHash(username: string, refreshToken: string) {
     const hash = await hashValue(refreshToken);
     this.userService.update({
       where: {
-        id: userId,
+        username,
       },
       data: {
         refreshToken: hash,
       },
     });
-  }
-
-  private async generateTokens(user: User): Promise<Tokens> {
-    const tokens = await this.getTokens(user.id, user.username);
-    this.updateRefreshTokenHash(user.id, tokens.refresh_token);
-    return tokens;
   }
 }
