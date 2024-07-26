@@ -22,7 +22,7 @@ import { GetCurrentUser, GetCurrentUserId, Public } from '../common/decorators';
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Public()
   @Post('/local/signup')
@@ -33,6 +33,7 @@ export class AuthController {
 
   @Public()
   @Post('/local/signin')
+  @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
   signinLocal(@Body() authDto: AuthDto): Promise<Tokens> {
     return this.authService.signinLocal(authDto);
