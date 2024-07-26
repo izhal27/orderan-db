@@ -13,11 +13,8 @@ import { AccessTokenGuard } from './common/guards';
   imports: [
     ConfigModule.forRoot({
       validate,
-      isGlobal: true,
     }),
-    PrismaModule.forRoot({
-      isGlobal: true,
-    }),
+    PrismaModule.forRoot({}),
     RolesModule,
     UsersModule,
     AuthModule,
@@ -29,4 +26,4 @@ import { AccessTokenGuard } from './common/guards';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
