@@ -115,8 +115,10 @@ describe('UsersController', () => {
 
         const result = await usersController.update(user.id, user);
 
-        expect(usersService.update).toHaveBeenCalledWith(
-          { where: { id: user.id }, data: user });
+        expect(usersService.update).toHaveBeenCalledWith({
+          where: { id: user.id },
+          data: user,
+        });
         expect(result).toEqual(user);
       });
     });

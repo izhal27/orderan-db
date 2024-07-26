@@ -90,9 +90,9 @@ describe('UsersService', () => {
 
       const result = await usersService.update({
         where: {
-          id: user.id
+          id: user.id,
         },
-        data: user
+        data: user,
       });
       expect(result).toEqual(user);
     });
@@ -100,14 +100,14 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user not exists', async () => {
       prismaMock.user.update.mockRejectedValue(new NotFoundException());
 
-      await expect(usersService.update({
-        where: {
-          id: 1
-        },
-        data: user
-      })).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        usersService.update({
+          where: {
+            id: 1,
+          },
+          data: user,
+        }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 

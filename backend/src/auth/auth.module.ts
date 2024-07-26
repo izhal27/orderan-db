@@ -7,7 +7,6 @@ import { AuthService } from './auth.service';
 import { AccessTokenStrategy, RefreshTokenStrategy } from './strategies';
 import { UsersModule } from '../users/users.module';
 import { JWT_EXPIRES, JWT_SECRET } from '../types/constants';
-import { validate } from 'src/config/env.validation';
 
 @Module({
   imports: [
@@ -27,4 +26,4 @@ import { validate } from 'src/config/env.validation';
   controllers: [AuthController],
   providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy],
 })
-export class AuthModule { }
+export class AuthModule {}
