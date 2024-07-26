@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { JWT, JWT_SECRET } from '../../types/constants';
 import { JwtPayload } from '../../types';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../../users/users.service';
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy, JWT) {
