@@ -27,7 +27,7 @@ export class AuthController {
   @ApiOkResponse()
   @ApiBearerAuth()
   logout() {
-    return this.authService.logout();
+    return this.authService.logout(1);
   }
 
   @Post('/refresh')

@@ -24,7 +24,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @ApiTags('users')
 @ApiBearerAuth()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   @ApiCreatedResponse({ type: UserEntity })
@@ -41,7 +41,7 @@ export class UsersController {
   @Get(':id')
   @ApiOkResponse({ type: UserEntity })
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findOne(id);
+    return this.usersService.findOne({ id });
   }
 
   @Patch(':id')
@@ -50,12 +50,12 @@ export class UsersController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.usersService.update(id, updateUserDto);
+    return this.usersService.update({ where: { id }, data: updateUserDto });
   }
 
   @Delete(':id')
   @ApiOkResponse({ type: UserEntity })
   remove(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.remove(id);
+    return this.usersService.remove({ id });
   }
 }

@@ -1,5 +1,5 @@
 import { REFRESH_TOKEN_SECRET } from './../types/constants';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
@@ -27,19 +27,34 @@ export class AuthService {
   }
 
   async signinLocal({ username, password }: AuthDto) {
-    const user = await this.userService.findByUsername(username);
+    const user = await this.userService.findOne({ username });
+
+    if (!user) {
+      throw new ForbiddenException('Access denied')
+    }
+
     const isValid = await compareValue(password, user.password);
     if (!isValid) {
       throw new UnauthorizedException('Username or password is incorect');
     }
-    if (user.blocked || !user.role) {
+
+    if (user.blocked || user.roleId) {
       throw new UnauthorizedException('User has been blocked or does not have any roles')
     }
     return user;
   }
 
-  logout() {
-    throw new Error('Method not implemented.');
+  logout(userId: number) {
+    this.userService.update({
+      where: {
+        id: userId,
+        refreshToken: {
+          not: null
+        }
+      }, data: {
+        refreshToken: null
+      }
+    })
   }
 
   refreshTokens() {
@@ -76,6 +91,13 @@ export class AuthService {
 
   private async updateRefreshTokenHash(userId: number, refreshToken: string) {
     const hash = await hashValue(refreshToken);
-    this.userService.update(userId, { refreshToken: hash });
+    this.userService.update({
+      where: {
+        id: userId
+      },
+      data: {
+        refreshToken: hash
+      }
+    });
   }
 }
