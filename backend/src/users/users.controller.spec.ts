@@ -4,21 +4,20 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 
-const user: User = {
+const user = {
   id: 1,
   username: 'testing',
   email: 'test@test.com',
   password: 'aaa',
   name: 'Testing User',
   image: '',
-  isBlocked: false,
+  blocked: false,
   roleId: 1,
   refreshToken: '',
   createdAt: new Date(),
@@ -83,7 +82,7 @@ describe('UsersController', () => {
 
         const result = await usersController.findOne(user.id);
 
-        expect(usersService.findOne).toHaveBeenCalledWith(user.id);
+        expect(usersService.findOne).toHaveBeenCalledWith({ id: user.id });
         expect(result).toEqual(user);
       });
 
@@ -116,7 +115,8 @@ describe('UsersController', () => {
 
         const result = await usersController.update(user.id, user);
 
-        expect(usersService.update).toHaveBeenCalledWith(user.id, user);
+        expect(usersService.update).toHaveBeenCalledWith(
+          { where: { id: user.id }, data: user });
         expect(result).toEqual(user);
       });
     });
@@ -138,7 +138,7 @@ describe('UsersController', () => {
 
         const result = await usersController.remove(user.id);
 
-        expect(usersService.remove).toHaveBeenCalledWith(user.id);
+        expect(usersService.remove).toHaveBeenCalledWith({ id: user.id });
         expect(result).toEqual(user);
       });
     });
