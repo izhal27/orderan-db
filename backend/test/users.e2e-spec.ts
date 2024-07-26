@@ -5,7 +5,6 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 import * as request from 'supertest';
 
-
 import { AppModule } from './../src/app.module';
 import { UsersModule } from './../src/users/users.module';
 
@@ -196,7 +195,7 @@ describe('UserController (e2e)', () => {
       it('should return a user', async () => {
         const resPost = await request(app.getHttpServer())
           .post('/users/')
-          .send(user)
+          .send(user);
         // .expect(201);
         const newUser = await resPost.body;
         console.log(newUser);

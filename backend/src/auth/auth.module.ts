@@ -23,6 +23,6 @@ import { JWT_EXPIRES, JWT_SECRET } from '../types/constants';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy]
+  providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy],
 })
-export class AuthModule { }
+export class AuthModule {}

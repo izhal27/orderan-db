@@ -12,7 +12,7 @@ async function bootstrap() {
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  const configService = app.get<ConfigService>(ConfigService)
+  const configService = app.get<ConfigService>(ConfigService);
 
   const config = new DocumentBuilder()
     .setTitle('Orderan Dunia Baliho')

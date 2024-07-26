@@ -1,13 +1,13 @@
+import { APP_GUARD } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 import { PrismaModule } from 'nestjs-prisma';
 import { ConfigModule } from '@nestjs/config';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
-import { validate } from '../config/env.validation';
+import { validate } from './config/env.validation';
 import { AuthModule } from './auth/auth.module';
+import { AccessTokenGuard } from './common/guards';
 
 @Module({
   imports: [
@@ -22,7 +22,11 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     AuthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AccessTokenGuard,
+    },
+  ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,23 +1,21 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
-import { hashValue } from './../helpers/hash';
+import { hashValue } from '../helpers/hash';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
     data.password = await hashValue(data.password);
     const user = await this.prismaService.user.create({
       data,
       include: {
-        role: true
-      }
+        role: true,
+      },
     });
     return this.sanitizeUser(user);
   }
@@ -25,19 +23,20 @@ export class UsersService {
   async findAll() {
     const users = await this.prismaService.user.findMany({
       include: {
-        role: true
-      }
+        role: true,
+      },
     });
-    return users.map(user => this.sanitizeUser(user));
+    return users.map((user) => this.sanitizeUser(user));
   }
 
   async findOne(
     where: Prisma.UserWhereUniqueInput,
-    includeRole = true): Promise<User | null> {
+    includeRole = true,
+  ): Promise<User | null> {
     const user = await this.prismaService.user.findUnique({
       where,
       include: {
-        role: includeRole
+        role: includeRole,
       },
     });
     if (user) {
