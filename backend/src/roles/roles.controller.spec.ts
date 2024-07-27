@@ -77,7 +77,7 @@ describe('RolesController', () => {
 
         const result = await rolesController.findOne(role.id);
 
-        expect(rolesService.findOne).toHaveBeenCalledWith(role.id);
+        expect(rolesService.findUnique).toHaveBeenCalledWith(role.id);
         expect(result).toEqual(role);
       });
 
@@ -88,7 +88,7 @@ describe('RolesController', () => {
 
         const result = rolesController.findOne(role.id);
 
-        await expect(rolesService.findOne).rejects.toThrow(NotFoundException);
+        await expect(rolesService.findUnique).rejects.toThrow(NotFoundException);
         await expect(result).rejects.toThrow(NotFoundException);
       });
     });
@@ -123,7 +123,7 @@ describe('RolesController', () => {
 
         const result = rolesController.remove(role.id);
 
-        await expect(rolesService.remove).rejects.toThrow(NotFoundException);
+        await expect(rolesService.delete).rejects.toThrow(NotFoundException);
         await expect(result).rejects.toThrow(NotFoundException);
       });
 
@@ -132,7 +132,7 @@ describe('RolesController', () => {
 
         const result = await rolesController.remove(role.id);
 
-        expect(rolesService.remove).toHaveBeenCalledWith(role.id);
+        expect(rolesService.delete).toHaveBeenCalledWith(role.id);
         expect(result).toEqual(role);
       });
     });

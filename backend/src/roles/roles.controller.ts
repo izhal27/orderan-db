@@ -24,7 +24,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 @ApiTags('roles')
 @ApiBearerAuth()
 export class RolesController {
-  constructor(private readonly rolesService: RolesService) {}
+  constructor(private readonly rolesService: RolesService) { }
 
   @Post()
   @ApiCreatedResponse({ type: RoleEntity })
@@ -35,13 +35,13 @@ export class RolesController {
   @Get()
   @ApiOkResponse({ type: RoleEntity, isArray: true })
   findAll() {
-    return this.rolesService.findAll();
+    return this.rolesService.findMany();
   }
 
   @Get(':id')
   @ApiOkResponse({ type: RoleEntity })
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.rolesService.findOne(id);
+    return this.rolesService.findUnique(id);
   }
 
   @Patch(':id')
@@ -56,6 +56,6 @@ export class RolesController {
   @Delete(':id')
   @ApiOkResponse({ type: RoleEntity })
   remove(@Param('id', ParseIntPipe) id: number) {
-    return this.rolesService.remove(id);
+    return this.rolesService.delete(id);
   }
 }

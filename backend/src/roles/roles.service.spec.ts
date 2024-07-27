@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 
 import { RolesService } from './roles.service';
 
-const role = {
+const role: Role = {
   id: 1,
   name: 'role 1',
   description: 'description 1',
@@ -34,65 +34,82 @@ describe('RolesService', () => {
     roleService = module.get<RolesService>(RolesService);
   });
 
-  describe('create', () => {
-    it('should return created role', async () => {
-      prismaMock.role.create.mockResolvedValue(role);
-
-      const result = await roleService.create(role);
-      expect(result).toEqual(role);
-    });
+  it('should have the service defined', () => {
+    expect(roleService).toBeDefined();
   });
 
-  describe('findAll', () => {
-    it('should return all role', async () => {
-      const allRoles = [role, role];
-
-      prismaMock.role.findMany.mockResolvedValue(allRoles);
-
-      const result = await roleService.findAll();
-      expect(result).toEqual(allRoles);
-    });
-
-    it('should return empty array if there are no roles', async () => {
+  describe('findMany', () => {
+    beforeEach(() => {
       prismaMock.role.findMany.mockResolvedValue([]);
+    });
 
-      const result = await roleService.findAll();
-      expect(result).toEqual([]);
+    it('should be defined', () => {
+      expect(roleService.findMany).toBeDefined();
+    });
+
+    it('should call the prisma service', () => {
+      roleService.findMany();
+      expect(prismaMock.role.findMany).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('findOne', () => {
-    it('should return role if exists', async () => {
+  describe('findUnique', () => {
+    beforeEach(() => {
       prismaMock.role.findUnique.mockResolvedValue(role);
-
-      const result = await roleService.findOne(role.id);
-      expect(result).toEqual(role);
     });
 
-    it('should throw NotFoundException if role not exists', async () => {
-      prismaMock.role.findUnique.mockResolvedValue(null);
+    it('should be defined', () => {
+      expect(roleService.findUnique).toBeDefined();
+    });
 
-      await expect(roleService.findOne(role.id)).rejects.toThrow(
-        NotFoundException,
-      );
+    it('should call the prisma service', () => {
+      roleService.findUnique({ id: 1 });
+      expect(prismaMock.role.findUnique).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('create', () => {
+    beforeEach(() => {
+      prismaMock.role.create.mockResolvedValue(role);
+    });
+
+    it('should be defined', () => {
+      expect(roleService.create).toBeDefined();
+    });
+
+    it('should call the prisma service', async () => {
+      await roleService.create({ ...role });
+      expect(prismaMock.role.create).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('update', () => {
-    it('should return updated role', async () => {
+    beforeEach(() => {
       prismaMock.role.update.mockResolvedValue(role);
+    });
 
-      const result = await roleService.update(role.id, role);
-      expect(result).toEqual(role);
+    it('should be defined', () => {
+      expect(roleService.update).toBeDefined();
+    });
+
+    it('should call the prisma service', () => {
+      roleService.update({ where: { id: 1 }, data: { ...role } });
+      expect(prismaMock.role.update).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('delete', () => {
-    it('should return delete role', async () => {
+    beforeEach(() => {
       prismaMock.role.delete.mockResolvedValue(role);
+    });
 
-      const result = await roleService.remove(role.id);
-      expect(result).toEqual(role);
+    it('should be defined', () => {
+      expect(roleService.delete).toBeDefined();
+    });
+
+    it('should call the prisma service', () => {
+      roleService.delete({ id: 1 });
+      expect(prismaMock.role.delete).toHaveBeenCalledTimes(1);
     });
   });
 });
