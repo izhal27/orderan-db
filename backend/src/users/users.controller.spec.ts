@@ -131,7 +131,7 @@ describe('UsersController', () => {
 
         const result = usersController.remove(user.id);
 
-        await expect(usersService.remove).rejects.toThrow(NotFoundException);
+        await expect(usersService.delete).rejects.toThrow(NotFoundException);
         await expect(result).rejects.toThrow(NotFoundException);
       });
 
@@ -140,7 +140,7 @@ describe('UsersController', () => {
 
         const result = await usersController.remove(user.id);
 
-        expect(usersService.remove).toHaveBeenCalledWith({ id: user.id });
+        expect(usersService.delete).toHaveBeenCalledWith({ id: user.id });
         expect(result).toEqual(user);
       });
     });

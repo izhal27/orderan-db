@@ -24,7 +24,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @ApiTags('users')
 @ApiBearerAuth()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   @ApiCreatedResponse({ type: UserEntity })
@@ -35,7 +35,7 @@ export class UsersController {
   @Get()
   @ApiOkResponse({ type: UserEntity, isArray: true })
   findAll() {
-    return this.usersService.findAll();
+    return this.usersService.findMany();
   }
 
   @Get(':id')
@@ -56,6 +56,6 @@ export class UsersController {
   @Delete(':id')
   @ApiOkResponse({ type: UserEntity })
   remove(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.remove({ id });
+    return this.usersService.delete({ id });
   }
 }

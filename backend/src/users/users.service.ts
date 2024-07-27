@@ -7,7 +7,7 @@ import { hashValue } from '../helpers/hash';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
     data.password = await hashValue(data.password);
@@ -20,7 +20,7 @@ export class UsersService {
     return this.sanitizeUser(user);
   }
 
-  async findAll() {
+  async findMany() {
     const users = await this.prismaService.user.findMany({
       include: {
         role: true,
@@ -57,7 +57,7 @@ export class UsersService {
     return this.sanitizeUser(user);
   }
 
-  async remove(where: Prisma.UserWhereUniqueInput): Promise<User> {
+  async delete(where: Prisma.UserWhereUniqueInput): Promise<User> {
     const user = await this.prismaService.user.delete({
       where,
     });
