@@ -49,7 +49,7 @@ async function main() {
     },
   });
 
-  const hashPassword = await bcrypt.hash(process.env.DUMMY_PASS || '123456', 10);
+  const hashPassword = await bcrypt.hash('12345', 10);
 
   // create user
   const user = await prisma.user.upsert({
