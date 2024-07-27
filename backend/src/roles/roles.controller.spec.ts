@@ -88,7 +88,9 @@ describe('RolesController', () => {
 
         const result = rolesController.findOne(role.id);
 
-        await expect(rolesService.findUnique).rejects.toThrow(NotFoundException);
+        await expect(rolesService.findUnique).rejects.toThrow(
+          NotFoundException,
+        );
         await expect(result).rejects.toThrow(NotFoundException);
       });
     });

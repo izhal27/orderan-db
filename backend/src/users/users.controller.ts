@@ -34,14 +34,14 @@ export class UsersController {
 
   @Get()
   @ApiOkResponse({ type: UserEntity, isArray: true })
-  findAll() {
+  findMany() {
     return this.usersService.findMany();
   }
 
   @Get(':id')
   @ApiOkResponse({ type: UserEntity })
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findOne({ id });
+    return this.usersService.findUnique({ id });
   }
 
   @Patch(':id')
@@ -55,7 +55,7 @@ export class UsersController {
 
   @Delete(':id')
   @ApiOkResponse({ type: UserEntity })
-  remove(@Param('id', ParseIntPipe) id: number) {
+  delete(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.delete({ id });
   }
 }

@@ -22,7 +22,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, JWT) {
 
   async validate(payload: JwtPayload) {
     const { username } = payload;
-    const user = await this.usersService.findOne({
+    const user = await this.usersService.findUnique({
       username,
       refreshToken: {
         not: null,

@@ -7,7 +7,7 @@ import { hashValue } from '../helpers/hash';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
     data.password = await hashValue(data.password);
@@ -29,7 +29,7 @@ export class UsersService {
     return users.map((user) => this.sanitizeUser(user));
   }
 
-  async findOne(
+  async findUnique(
     where: Prisma.UserWhereUniqueInput,
     includeRole = true,
   ): Promise<User | null> {

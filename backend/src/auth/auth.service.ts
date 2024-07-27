@@ -36,7 +36,7 @@ export class AuthService {
   }
 
   async signinLocal({ username, password }: AuthDto): Promise<Tokens> {
-    const user = await this.userService.findOne({ username });
+    const user = await this.userService.findUnique({ username });
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -53,7 +53,7 @@ export class AuthService {
   }
 
   async logout(userId: number) {
-    const user = await this.userService.findOne({
+    const user = await this.userService.findUnique({
       id: userId,
       refreshToken: {
         not: null,
@@ -72,7 +72,7 @@ export class AuthService {
   }
 
   async refreshTokens(username: string, refreshToken: string): Promise<Tokens> {
-    const user = await this.userService.findOne({ username });
+    const user = await this.userService.findUnique({ username });
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access denied');
     }

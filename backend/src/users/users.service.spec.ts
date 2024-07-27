@@ -64,11 +64,11 @@ describe('UsersService', () => {
     });
 
     it('should be defined', () => {
-      expect(usersService.findOne).toBeDefined();
+      expect(usersService.findUnique).toBeDefined();
     });
 
     it('should call the prisma service', () => {
-      usersService.findOne({ id: 1 });
+      usersService.findUnique({ id: 1 });
       expect(prismaMock.user.findUnique).toHaveBeenCalledTimes(1);
     });
   });
