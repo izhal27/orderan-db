@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
-import { UpdateRoleDto } from 'src/roles/dto/update-role.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -69,7 +69,7 @@ describe('UsersController', () => {
     });
 
     it('should call UsersService.update', () => {
-      controller.update(1, {} as UpdateRoleDto);
+      controller.update(1, {} as UpdateUserDto);
       expect(serviceMock.update).toHaveBeenCalledTimes(1);
     });
   });
