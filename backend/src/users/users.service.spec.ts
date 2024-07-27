@@ -5,20 +5,6 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 
 import { UsersService } from './users.service';
 
-const user: User = {
-  id: 1,
-  username: 'testing',
-  email: 'test@test.com',
-  password: 'aaaaa',
-  name: 'Testing User',
-  image: '',
-  blocked: false,
-  roleId: 1,
-  refreshToken: '',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
-
 describe('UsersService', () => {
   let usersService: UsersService;
   let prismaMock: DeepMockProxy<PrismaClient>;
@@ -60,7 +46,7 @@ describe('UsersService', () => {
 
   describe('findOne', () => {
     beforeEach(() => {
-      prismaMock.user.findUnique.mockResolvedValue(user);
+      prismaMock.user.findUnique.mockResolvedValue({} as User);
     });
 
     it('should be defined', () => {
@@ -75,7 +61,7 @@ describe('UsersService', () => {
 
   describe('create', () => {
     beforeEach(() => {
-      prismaMock.user.create.mockResolvedValue(user);
+      prismaMock.user.create.mockResolvedValue({} as User);
     });
 
     it('should be defined', () => {
@@ -83,14 +69,14 @@ describe('UsersService', () => {
     });
 
     it('should call the prisma service', async () => {
-      await usersService.create({ ...user });
+      await usersService.create({ password: '' } as User);
       expect(prismaMock.user.create).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('update', () => {
     beforeEach(() => {
-      prismaMock.user.update.mockResolvedValue(user);
+      prismaMock.user.update.mockResolvedValue({} as User);
     });
 
     it('should be defined', () => {
@@ -98,14 +84,14 @@ describe('UsersService', () => {
     });
 
     it('should call the prisma service', () => {
-      usersService.update({ where: { id: 1 }, data: { ...user } });
+      usersService.update({ where: { id: 1 }, data: {} as User });
       expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('delete', () => {
     beforeEach(() => {
-      prismaMock.user.delete.mockResolvedValue(user);
+      prismaMock.user.delete.mockResolvedValue({} as User);
     });
 
     it('should be defined', () => {

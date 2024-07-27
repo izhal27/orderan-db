@@ -36,7 +36,7 @@ describe('UsersController', () => {
     });
 
     it('should call UsersService.findMany', () => {
-      controller.findMany();
+      controller.findAll();
       expect(serviceMock.findMany).toHaveBeenCalledTimes(1);
     });
   });
