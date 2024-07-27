@@ -25,7 +25,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async signupLocal({ username, password }: AuthDto) {
     const user = await this.userService.create({
@@ -85,7 +85,7 @@ export class AuthService {
 
   private async generateTokens(user: User): Promise<Tokens> {
     const tokens = await this.getTokens(user.id, user.username);
-    this.updateRefreshTokenHash(user.username, tokens.refresh_token);
+    await this.updateRefreshTokenHash(user.username, tokens.refresh_token);
     return tokens;
   }
 
