@@ -30,7 +30,6 @@ describe('RolesController', () => {
     expect(controller).toBeDefined();
   });
 
-
   describe('findMany', () => {
     it('should be defined', () => {
       expect(serviceMock.findMany).toBeDefined();

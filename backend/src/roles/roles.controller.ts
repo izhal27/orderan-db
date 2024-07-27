@@ -24,7 +24,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 @ApiTags('roles')
 @ApiBearerAuth()
 export class RolesController {
-  constructor(private readonly rolesService: RolesService) { }
+  constructor(private readonly rolesService: RolesService) {}
 
   @Post()
   @ApiCreatedResponse({ type: RoleEntity })
