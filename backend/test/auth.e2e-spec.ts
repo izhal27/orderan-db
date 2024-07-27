@@ -29,6 +29,8 @@ describe('Auth (e2e)', () => {
       update: {},
       create: { name: 'Role-1', description: 'Description Role-1' },
     });
+
+    await prismaClient.$executeRaw`TRUNCATE "public"."User" RESTART IDENTITY CASCADE;`;
   }, 30000);
 
   afterAll(async () => {
@@ -51,15 +53,11 @@ describe('Auth (e2e)', () => {
   });
 
   describe('Authenticated', () => {
-    beforeEach(async () => {
-      await prismaClient.$executeRaw`TRUNCATE "public"."User" RESTART IDENTITY CASCADE;`;
-    }, 30000);
-
     const user = {
       username: 'user1',
       password: 'aaa'
     }
-    let token = '';
+    let token;
 
     it('/auth/local/signup (POST) - should return access_token and refresh_token', async () => {
       const res = await request(app.getHttpServer())
@@ -67,21 +65,33 @@ describe('Auth (e2e)', () => {
         .send(user)
         .expect(201);
       const data = await res.body;
-      token = data.access_token;
       expect(data.access_token).not.toBeNull();
       expect(data.refresh_token).not.toBeNull();
     });
 
     it('/roles (GET) - should return roles array', async () => {
-      console.log(token)
+      const resLogin = await request(app.getHttpServer())
+        .post('/auth/local/signin')
+        .send(user)
+        .expect(200);
+      token = await resLogin.body?.access_token;
       const res = await request(app.getHttpServer())
         .get('/roles')
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
-
       const roles = await res.body;
       expect(roles).not.toBeNull();
       expect(roles).toBeInstanceOf(Array);
+    });
+
+    it('/users (GET) - should return users array', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/users')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+      const users = await res.body;
+      expect(users).not.toBeNull();
+      expect(users).toBeInstanceOf(Array);
     });
   });
 });
