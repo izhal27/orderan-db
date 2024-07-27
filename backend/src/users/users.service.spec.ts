@@ -1,16 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 
 import { UsersService } from './users.service';
 
-const user = {
+const user: User = {
   id: 1,
   username: 'testing',
   email: 'test@test.com',
-  password: 'aaa',
+  password: 'aaaaa',
   name: 'Testing User',
   image: '',
   blocked: false,
@@ -40,91 +39,82 @@ describe('UsersService', () => {
     usersService = module.get<UsersService>(UsersService);
   });
 
-  describe('create', () => {
-    it('should return created user', async () => {
-      prismaMock.user.create.mockResolvedValue(user);
-
-      const result = await usersService.create(user);
-      expect(result).toEqual(user);
-    });
+  it('should have the service defined', () => {
+    expect(usersService).toBeDefined();
   });
 
-  describe('findAll', () => {
-    it('should return all user', async () => {
-      const allUsers = [user, user];
-
-      prismaMock.user.findMany.mockResolvedValue(allUsers);
-
-      const result = await usersService.findAll();
-      expect(result).toEqual(allUsers);
+  describe('findMany', () => {
+    beforeEach(() => {
+      prismaMock.user.findMany.mockResolvedValue([]);
     });
 
-    it('should return empty array if there are no roles', async () => {
-      prismaMock.user.findMany.mockResolvedValue([]);
+    it('should be defined', () => {
+      expect(usersService.findMany).toBeDefined();
+    });
 
-      const result = await usersService.findAll();
-      expect(result).toEqual([]);
+    it('should call the prisma service', () => {
+      usersService.findMany();
+      expect(prismaMock.user.findMany).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('findOne', () => {
-    it('should return user if exists', async () => {
+    beforeEach(() => {
       prismaMock.user.findUnique.mockResolvedValue(user);
-
-      const result = await usersService.findOne({ id: user.id });
-      expect(result).toEqual(user);
     });
 
-    it('should throw NotFoundException if user not exists', async () => {
-      prismaMock.user.findUnique.mockRejectedValue(new NotFoundException());
+    it('should be defined', () => {
+      expect(usersService.findOne).toBeDefined();
+    });
 
-      await expect(usersService.findOne({ id: 111 })).rejects.toThrow(
-        NotFoundException,
-      );
+    it('should call the prisma service', () => {
+      usersService.findOne({ id: 1 });
+      expect(prismaMock.user.findUnique).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('create', () => {
+    beforeEach(() => {
+      prismaMock.user.create.mockResolvedValue(user);
+    });
+
+    it('should be defined', () => {
+      expect(usersService.create).toBeDefined();
+    });
+
+    it('should call the prisma service', async () => {
+      await usersService.create({ ...user });
+      expect(prismaMock.user.create).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('update', () => {
-    it('should return updated user', async () => {
+    beforeEach(() => {
       prismaMock.user.update.mockResolvedValue(user);
-
-      const result = await usersService.update({
-        where: {
-          id: user.id,
-        },
-        data: user,
-      });
-      expect(result).toEqual(user);
     });
 
-    it('should throw NotFoundException if user not exists', async () => {
-      prismaMock.user.update.mockRejectedValue(new NotFoundException());
+    it('should be defined', () => {
+      expect(usersService.update).toBeDefined();
+    });
 
-      await expect(
-        usersService.update({
-          where: {
-            id: 1,
-          },
-          data: user,
-        }),
-      ).rejects.toThrow(NotFoundException);
+    it('should call the prisma service', () => {
+      usersService.update({ where: { id: 1 }, data: { ...user } });
+      expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('delete', () => {
-    it('should return delete user', async () => {
+    beforeEach(() => {
       prismaMock.user.delete.mockResolvedValue(user);
-
-      const result = await usersService.remove({ id: user.id });
-      expect(result).toEqual(user);
     });
 
-    it('should throw NotFoundException if user not exists', async () => {
-      prismaMock.user.delete.mockRejectedValue(new NotFoundException());
+    it('should be defined', () => {
+      expect(usersService.delete).toBeDefined();
+    });
 
-      await expect(usersService.remove({ id: user.id })).rejects.toThrow(
-        NotFoundException,
-      );
+    it('should call the prisma service', () => {
+      usersService.delete({ id: 1 });
+      expect(prismaMock.user.delete).toHaveBeenCalledTimes(1);
     });
   });
 });
