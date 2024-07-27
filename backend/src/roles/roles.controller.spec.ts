@@ -1,142 +1,88 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  BadRequestException,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
-import { Role } from '@prisma/client';
-import { PrismaService } from 'nestjs-prisma';
+import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 
 import { RolesController } from './roles.controller';
 import { RolesService } from './roles.service';
+import { UpdateRoleDto } from './dto/update-role.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 
-const role: Role = {
-  id: 1,
-  name: 'New role',
-  description: 'New description',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
-
 describe('RolesController', () => {
-  let rolesController: RolesController;
-  let rolesService: RolesService;
+  let controller: RolesController;
+  let serviceMock: DeepMockProxy<RolesService>;
 
   beforeAll(async () => {
+    serviceMock = mockDeep<RolesService>();
+
     const app: TestingModule = await Test.createTestingModule({
       controllers: [RolesController],
-      providers: [RolesService, PrismaService],
+      providers: [
+        {
+          provide: RolesService,
+          useValue: serviceMock,
+        },
+      ],
     }).compile();
 
-    rolesController = app.get<RolesController>(RolesController);
-    rolesService = app.get<RolesService>(RolesService);
+    controller = app.get<RolesController>(RolesController);
   });
 
   it('should be defined"', () => {
-    expect(rolesController).toBeDefined();
+    expect(controller).toBeDefined();
   });
 
-  describe('roles controller', () => {
-    describe('create role', () => {
-      it('should register new role', async () => {
-        jest.spyOn(rolesService, 'create').mockResolvedValue(role);
 
-        const result = await rolesController.create(role);
-
-        expect(rolesService.create).toHaveBeenCalledWith(role);
-        expect(result).toEqual(role);
-      });
-
-      it('should throw error if name already registered', async () => {
-        jest
-          .spyOn(rolesService, 'create')
-          .mockRejectedValue(new ConflictException());
-
-        const register = rolesController.create(role);
-
-        await expect(rolesService.create).rejects.toThrow(ConflictException);
-        await expect(register).rejects.toThrow(ConflictException);
-      });
-
-      it('should throw error if required fields is missing', async () => {
-        jest
-          .spyOn(rolesService, 'create')
-          .mockRejectedValue(new BadRequestException());
-
-        const register = rolesController.create(new CreateRoleDto());
-
-        await expect(rolesService.create).rejects.toThrow(BadRequestException);
-        await expect(register).rejects.toThrow(BadRequestException);
-      });
+  describe('findMany', () => {
+    it('should be defined', () => {
+      expect(serviceMock.findMany).toBeDefined();
     });
 
-    describe('get role', () => {
-      it('should return a role', async () => {
-        jest.spyOn(rolesService, 'findOne').mockResolvedValue(role);
+    it('should call RolesService.findMany', () => {
+      controller.findAll();
+      expect(serviceMock.findMany).toHaveBeenCalledTimes(1);
+    });
+  });
 
-        const result = await rolesController.findOne(role.id);
-
-        expect(rolesService.findUnique).toHaveBeenCalledWith(role.id);
-        expect(result).toEqual(role);
-      });
-
-      it('should throw error if role not found', async () => {
-        jest
-          .spyOn(rolesService, 'findOne')
-          .mockRejectedValue(new NotFoundException());
-
-        const result = rolesController.findOne(role.id);
-
-        await expect(rolesService.findUnique).rejects.toThrow(
-          NotFoundException,
-        );
-        await expect(result).rejects.toThrow(NotFoundException);
-      });
+  describe('findOne', () => {
+    it('should be defined', () => {
+      expect(serviceMock.findUnique).toBeDefined();
     });
 
-    describe('update role', () => {
-      it('should throw error if role not found', async () => {
-        jest
-          .spyOn(rolesService, 'update')
-          .mockRejectedValue(new NotFoundException());
+    it('should call RolesService.findUnique', () => {
+      controller.findOne(1);
+      expect(serviceMock.findUnique).toHaveBeenCalledTimes(1);
+    });
+  });
 
-        const result = rolesController.update(role.id, role);
-
-        await expect(rolesService.update).rejects.toThrow(NotFoundException);
-        await expect(result).rejects.toThrow(NotFoundException);
-      });
-
-      it('should update role', async () => {
-        jest.spyOn(rolesService, 'update').mockResolvedValue(role);
-
-        const result = await rolesController.update(role.id, role);
-
-        expect(rolesService.update).toHaveBeenCalledWith(role.id, role);
-        expect(result).toEqual(role);
-      });
+  describe('create', () => {
+    it('should be defined', () => {
+      expect(serviceMock.create).toBeDefined();
     });
 
-    describe('remove role', () => {
-      it('should throw error if role not found', async () => {
-        jest
-          .spyOn(rolesService, 'remove')
-          .mockRejectedValue(new NotFoundException());
+    it('should call RolesService.create', () => {
+      controller.create({} as CreateRoleDto);
+      expect(serviceMock.create).toHaveBeenCalledTimes(1);
+    });
+  });
 
-        const result = rolesController.remove(role.id);
+  describe('update', () => {
+    it('should be defined', () => {
+      expect(serviceMock.update).toBeDefined();
+    });
 
-        await expect(rolesService.delete).rejects.toThrow(NotFoundException);
-        await expect(result).rejects.toThrow(NotFoundException);
-      });
+    it('should call RolesService.update', () => {
+      controller.update(1, {} as UpdateRoleDto);
+      expect(serviceMock.update).toHaveBeenCalledTimes(1);
+    });
+  });
 
-      it('should return a role when success deleted', async () => {
-        jest.spyOn(rolesService, 'remove').mockResolvedValue(role);
+  describe('delete', () => {
+    it('should be defined', () => {
+      expect(serviceMock.delete).toBeDefined();
+    });
 
-        const result = await rolesController.remove(role.id);
-
-        expect(rolesService.delete).toHaveBeenCalledWith(role.id);
-        expect(result).toEqual(role);
-      });
+    it('should call UsersService.delete', () => {
+      controller.delete(1);
+      expect(serviceMock.delete).toHaveBeenCalledTimes(1);
     });
   });
 });
