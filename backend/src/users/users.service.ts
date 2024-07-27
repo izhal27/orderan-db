@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
@@ -7,7 +7,7 @@ import { hashValue } from '../helpers/hash';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
     data.password = await hashValue(data.password);
@@ -39,10 +39,10 @@ export class UsersService {
         role: includeRole,
       },
     });
-    if (user) {
-      this.sanitizeUser(user);
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
-    return user;
+    return this.sanitizeUser(user);;
   }
 
   async update(params: {
