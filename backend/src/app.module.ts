@@ -5,13 +5,14 @@ import { ConfigModule } from '@nestjs/config';
 
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
-import { validate } from './config/env.validation';
+import { validate } from './config/env.config';
 import { AuthModule } from './auth/auth.module';
 import { AccessTokenGuard } from './common/guards';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
+      envFilePath: `.env.${process.env.NODE_ENV}`,
       validate,
     }),
     PrismaModule.forRoot({}),

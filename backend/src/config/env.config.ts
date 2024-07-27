@@ -7,6 +7,7 @@ import {
   Min,
   validateSync,
 } from 'class-validator';
+import { loadEnvFile } from 'process';
 
 enum Environment {
   Development = 'development',
@@ -40,13 +41,16 @@ class EnvironmentVariables {
 }
 
 export function validate(config: Record<string, unknown>) {
+  if (process.env.NODE_ENV) {
+    loadEnvFile(`.env.${process.env.NODE_ENV}`);
+  }
+
   const validatedConfig = plainToInstance(EnvironmentVariables, config, {
     enableImplicitConversion: true,
   });
   const errors = validateSync(validatedConfig, {
     skipMissingProperties: false,
   });
-
   if (errors.length > 0) {
     throw new Error(errors.toString());
   }
