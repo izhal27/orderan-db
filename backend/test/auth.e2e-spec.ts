@@ -40,23 +40,19 @@ describe('Auth (e2e)', () => {
 
   describe('Unauthenticated', () => {
     it('/roles (GET) - should return Unauthorized', () => {
-      return request(app.getHttpServer())
-        .get('/roles')
-        .expect(401);
+      return request(app.getHttpServer()).get('/roles').expect(401);
     });
 
     it('/users (GET) - should return Unauthorized', () => {
-      return request(app.getHttpServer())
-        .get('/users')
-        .expect(401);
+      return request(app.getHttpServer()).get('/users').expect(401);
     });
   });
 
   describe('Authenticated', () => {
     const user = {
       username: 'user1',
-      password: 'aaa'
-    }
+      password: 'aaa',
+    };
     let token;
 
     it('/auth/local/signup (POST) - should return access_token and refresh_token', async () => {

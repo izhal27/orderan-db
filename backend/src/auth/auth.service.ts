@@ -25,7 +25,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   async signupLocal({ username, password }: AuthDto) {
     const user = await this.userService.create({
