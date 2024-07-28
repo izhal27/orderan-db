@@ -6,9 +6,9 @@ import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 
 import { AppModule } from '../src/app.module';
 
-export const buildApp = async (module: any[]) => {
+export const buildApp = async (module: any[] = []) => {
   const moduleFixture: TestingModule = await Test.createTestingModule({
-    imports: [AppModule, ...module],
+    imports: [AppModule, PrismaClient, ...module],
   }).compile();
   const app = moduleFixture.createNestApplication();
   const prismaClient = moduleFixture.get<PrismaClient>(PrismaClient);

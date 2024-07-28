@@ -1,14 +1,10 @@
-import { HttpAdapterHost } from '@nestjs/core';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { PrismaClient } from '@prisma/client';
-import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 
-import { AppModule } from '../src/app.module';
-import { RolesModule } from '../src/roles/roles.module';
+import { buildApp } from './setup.e2e';
 
-describe('Auth (e2e)', () => {
+describe('AuthController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
   let accessToken;
@@ -18,15 +14,7 @@ describe('Auth (e2e)', () => {
   };
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, RolesModule, PrismaClient],
-    }).compile();
-    app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-    const { httpAdapter } = app.get(HttpAdapterHost);
-    app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
-    await app.init();
-    prismaClient = moduleFixture.get<PrismaClient>(PrismaClient);
+    ({ app, prismaClient } = await buildApp());
     await prismaClient.role.upsert({
       where: { name: 'Role-1' },
       update: {},
@@ -43,15 +31,11 @@ describe('Auth (e2e)', () => {
 
   describe('Unauthenticated', () => {
     it('GET: /roles - should return Unauthorized', async () => {
-      await request(app.getHttpServer())
-        .get('/roles')
-        .expect(401);
+      await request(app.getHttpServer()).get('/roles').expect(401);
     });
 
     it('GET: /users - should return Unauthorized', async () => {
-      await request(app.getHttpServer())
-        .get('/users')
-        .expect(401);
+      await request(app.getHttpServer()).get('/users').expect(401);
     });
   });
 
@@ -62,7 +46,7 @@ describe('Auth (e2e)', () => {
         .send(user)
         .expect(201);
       const { access_token, refresh_token } = await res.body;
-      accessToken = access_token
+      accessToken = access_token;
       expect(access_token).not.toBeNull();
       expect(refresh_token).not.toBeNull();
     });

@@ -1,53 +1,60 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 
-import { UsersModule } from './../src/users/users.module';
 import { PrismaClient } from '@prisma/client';
+import { buildApp } from './setup.e2e';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
+  const user = {
+    username: 'user1',
+    password: '12345',
+  };
+  let accessToken = '';
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [UsersModule, PrismaClient],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-
-    prismaClient = moduleFixture.get<PrismaClient>(PrismaClient);
-    await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
-    await app.init();
-  }, 3000);
-
-  afterEach(async () => {
-    //
+    ({ app, prismaClient } = await buildApp());
+    await prismaClient.$executeRaw`TRUNCATE "public"."User" RESTART IDENTITY CASCADE;`;
+    const res = await request(app.getHttpServer())
+      .post('/auth/local/signup')
+      .send(user)
+      .expect(201);
+    accessToken = await res.body.access_token;
   }, 3000);
 
   afterAll(async () => {
+    await prismaClient.$executeRaw`TRUNCATE "public"."User" RESTART IDENTITY CASCADE;`;
     await app.close();
     await prismaClient.$disconnect();
   });
 
-  describe('GET: users/:id', () => {
-    it('should return OK', async () => {
-      const res = await request(app.getHttpServer())
-        .get('/users/1')
-        .expect(200);
-      const data = await res.body;
-      expect(data).not.toBeNull();
+  describe('Create', () => {
+    it('should throw error 400 when username is missing', async () => {
+      await request(app.getHttpServer())
+        .post('/users')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...user, username: '' })
+        .expect(400);
     });
-  });
 
-  describe('POST: users/', () => {
-    it('should return OK', async () => {
+    it('should throw error 409 when duplicate entry', async () => {
+      await request(app.getHttpServer())
+        .post('/users')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(user)
+        .expect(409);
+    });
+
+    it('should create a user', async () => {
       const res = await request(app.getHttpServer())
-        .post('/users/')
-        .send({ username: 'userrrrr', password: 'aaaaaaaaaaa' })
+        .post('/users')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ username: 'user2', password: '12345' })
         .expect(201);
-      const data = await res.body;
-      expect(data).not.toBeNull();
+      const newUser = await res.body;
+      expect(newUser).not.toBeNull();
+      expect(newUser.username).toEqual('user2');
     });
   });
 });

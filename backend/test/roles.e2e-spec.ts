@@ -1,36 +1,20 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { HttpAdapterHost } from '@nestjs/core';
+import { INestApplication } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 import * as request from 'supertest';
 
-import { AppModule } from './../src/app.module';
-import { RolesModule } from './../src/roles/roles.module';
-
-const role = {
-  name: 'Role 1',
-  description: 'This is a description',
-};
-
-let accessToken = '';
+import { buildApp } from './setup.e2e';
 
 describe('RolesController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
+  const role = {
+    name: 'Role 1',
+    description: 'This is a description',
+  };
+  let accessToken = '';
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, RolesModule, PrismaClient],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-    const { httpAdapter } = app.get(HttpAdapterHost);
-    app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
-    await app.init();
-
-    prismaClient = moduleFixture.get<PrismaClient>(PrismaClient);
+    ({ app, prismaClient } = await buildApp());
     await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
     const res = await request(app.getHttpServer())
       .post('/auth/local/signup')
@@ -112,7 +96,6 @@ describe('RolesController (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const data = await res.body;
-
       expect(data.name).toEqual(role.name);
       expect(data.description).toEqual(role.description);
     });
@@ -147,14 +130,12 @@ describe('RolesController (e2e)', () => {
         name: 'A updated name',
         description: 'A updated description',
       };
-
       const res = await request(app.getHttpServer())
         .patch('/roles/1')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateRole)
         .expect(200);
       const data = await res.body;
-
       expect(data.name).toEqual(updateRole.name);
       expect(data.description).toEqual(updateRole.description);
     });
