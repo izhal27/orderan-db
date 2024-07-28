@@ -48,7 +48,7 @@ export class CreateUserDto {
   @IsBoolean()
   @IsOptional()
   @ApiProperty()
-  isBlocked?: boolean;
+  blocked?: boolean;
 
   @IsNumber()
   @IsOptional()
