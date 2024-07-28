@@ -1,11 +1,11 @@
 import { INestApplication } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
 import * as request from 'supertest';
 
-import { PrismaClient } from '@prisma/client';
 import { buildApp } from './setup.e2e';
-import { compareValue } from 'src/helpers/hash';
+import { compareValue } from '../src/helpers/hash';
 
-describe('UserController (e2e)', () => {
+describe('UsersController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
   let user: {
@@ -83,18 +83,19 @@ describe('UserController (e2e)', () => {
       user = await res.body;
       expect(user).not.toBeNull();
       expect(user.username).toEqual('user2');
+      expect(await compareValue('12345', user.password)).toEqual(true);
     });
   });
 
   describe('Read', () => {
-    it('POST: /users/a - should throw error 400 when param input wrong', async () => {
+    it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
         .get('/users/a')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
     });
 
-    it('POST: /users/1000 - should throw error 404 when user not found', async () => {
+    it('should throw error 404 when user not found', async () => {
       await request(app.getHttpServer())
         .get('/users/1000')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -103,7 +104,7 @@ describe('UserController (e2e)', () => {
 
     it('should return list of users', async () => {
       const res = await request(app.getHttpServer())
-        .get('/roles')
+        .get('/users')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const data = await res.body;
@@ -140,7 +141,7 @@ describe('UserController (e2e)', () => {
     });
 
     it('should return updated user', async () => {
-      const updateUser = {
+      const updatedData = {
         username: 'anotheruser',
         name: 'Updated user name',
         email: 'test@email.com',
@@ -149,21 +150,58 @@ describe('UserController (e2e)', () => {
         blocked: true,
         roleId: 1,
       };
-      const res = await request(app.getHttpServer())
-        .patch('/users/1')
+      const postRes = await request(app.getHttpServer())
+        .post('/users')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send(updateUser)
+        .send({ username: 'user3', password: '12345' })
+        .expect(201);
+      const newUser = await postRes.body;
+      const res = await request(app.getHttpServer())
+        .patch(`/users/${newUser.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(updatedData)
         .expect(200);
       const { username, password, email, name, image, blocked, roleId } =
         await res.body;
-      console.log(JSON.stringify(await res.body, null, 4));
-      expect(username).toEqual(updateUser.username);
-      expect(email).toEqual(updateUser.email);
-      expect(name).toEqual(updateUser.name);
-      expect(image).toEqual(updateUser.image);
-      expect(blocked).toEqual(updateUser.blocked);
-      expect(roleId).toEqual(updateUser.roleId);
-      expect(await compareValue(updateUser.password, password)).toEqual(true);
+      expect(username).toEqual(updatedData.username);
+      expect(email).toEqual(updatedData.email);
+      expect(name).toEqual(updatedData.name);
+      expect(image).toEqual(updatedData.image);
+      expect(blocked).toEqual(updatedData.blocked);
+      expect(roleId).toEqual(updatedData.roleId);
+      expect(await compareValue(updatedData.password, password)).toEqual(true);
+    });
+  });
+
+  describe('Delete', () => {
+    it('should throw error 400 when param input wrong', async () => {
+      await request(app.getHttpServer())
+        .delete('/users/a')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(400);
+    });
+
+    it('should throw error 404 when user not found', async () => {
+      await request(app.getHttpServer())
+        .delete('/users/1000')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(404);
+    });
+
+    it('should return a deleted user', async () => {
+      const postRes = await request(app.getHttpServer())
+        .post('/users')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ username: 'user27', password: '12345' })
+        .expect(201);
+      const newUser = await postRes.body;
+      const res = await request(app.getHttpServer())
+        .delete(`/users/${newUser.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+      const data = await res.body;
+      expect(data.username).toEqual(newUser.username);
+      expect(data.password).toEqual(newUser.password);
     });
   });
 });
