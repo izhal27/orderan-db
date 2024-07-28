@@ -13,11 +13,13 @@ const role = {
   description: 'This is a description',
 };
 
+let accessToken = '';
+
 describe('RolesController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule, RolesModule, PrismaClient],
     }).compile();
@@ -30,152 +32,161 @@ describe('RolesController (e2e)', () => {
 
     prismaClient = moduleFixture.get<PrismaClient>(PrismaClient);
     await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
+    const res = await request(app.getHttpServer())
+      .post('/auth/local/signup')
+      .send({ username: 'admin', password: '12345' })
+      .expect(201);
+    accessToken = await res.body.access_token;
   }, 30000);
 
-  afterEach(async () => {
+  afterAll(async () => {
+    await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
     await app.close();
     await prismaClient.$disconnect();
   }, 30000);
 
-  describe('Roles', () => {
-    beforeEach(async () => {
-      await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
-    }, 30000);
-
-    describe('create role', () => {
-      it('should throw error 400 when missing fields', async () => {
-        const res = await request(app.getHttpServer())
-          .post('/roles/')
-          .send({ role: {} })
-          .expect(400);
-        expect(res.body?.statusCode).toEqual(400);
-      });
-
-      it('should throw error 409 when duplicate entry', async () => {
-        await request(app.getHttpServer())
-          .post('/roles/')
-          .send(role)
-          .expect(201);
-
-        const res = await request(app.getHttpServer())
-          .post('/roles/')
-          .send(role)
-          .expect(409);
-        expect(res.body?.statusCode).toEqual(409);
-      });
-
-      it('should create a role', async () => {
-        const res = await request(app.getHttpServer())
-          .post('/roles/')
-          .send(role)
-          .expect(201);
-        const newRole = await res.body;
-
-        expect(role.name).toEqual(newRole.name);
-        expect(role.description).toEqual(newRole.description);
-      });
+  describe('Create', () => {
+    it('should throw error 400 when name is missing', async () => {
+      await request(app.getHttpServer())
+        .post('/roles')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ name: '' })
+        .expect(400);
     });
 
-    describe('read role', () => {
-      it('should throw error 400 when search input wrong', async () => {
-        const res = await request(app.getHttpServer())
-          .get('/roles/a')
-          .expect(400);
-        expect(res.body?.statusCode).toEqual(400);
-      });
+    it('should throw error 409 when duplicate entry', async () => {
+      const role = {
+        name: 'Role 1',
+        description: 'This is a description',
+      };
 
-      it('should return a role', async () => {
-        const resPost = await request(app.getHttpServer())
-          .post('/roles/')
-          .send(role)
-          .expect(201);
-        const newRole = await resPost.body;
+      await request(app.getHttpServer())
+        .post('/roles')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(role)
+        .expect(201);
 
-        const res = await request(app.getHttpServer())
-          .get(`/roles/${newRole.id}`)
-          .expect(200);
-        expect(res.body).toEqual(newRole);
-      });
-
-      it('should throw error 404 when role not found', async () => {
-        const res = await request(app.getHttpServer())
-          .get('/roles/1000')
-          .expect(404);
-        expect(res.body?.statusCode).toEqual(404);
-      });
+      await request(app.getHttpServer())
+        .post('/roles')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(role)
+        .expect(409);
     });
 
-    describe('update role', () => {
-      it('should throw error 400 when search input wrong', async () => {
-        const res = await request(app.getHttpServer())
-          .patch('/roles/a')
-          .expect(400);
-        expect(res.body?.statusCode).toEqual(400);
-      });
+    it('should create a role', async () => {
+      const role = {
+        name: 'Role 2',
+        description: 'This is a description',
+      };
 
-      it('should throw error 400 when missing fields', async () => {
-        const resPost = await request(app.getHttpServer())
-          .post('/roles/')
-          .send(role)
-          .expect(201);
-        const newRole = await resPost.body;
+      const res = await request(app.getHttpServer())
+        .post('/roles')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(role)
+        .expect(201);
+      const newRole = await res.body;
 
-        const res = await request(app.getHttpServer())
-          .patch(`/roles/${newRole.id}`)
-          .send({ name: '' })
-          .expect(400);
-        expect(res.body?.statusCode).toEqual(400);
-      });
+      expect(role.name).toEqual(newRole.name);
+      expect(role.description).toEqual(newRole.description);
+    });
+  });
 
-      it('should throw error 404 when role not found', async () => {
-        const res = await request(app.getHttpServer())
-          .patch('/roles/1000')
-          .send({ role: {} })
-          .expect(404);
-        expect(res.body?.statusCode).toEqual(404);
-      });
-
-      it('should return updated role', async () => {
-        const resPost = await request(app.getHttpServer())
-          .post('/roles/')
-          .send(role)
-          .expect(201);
-        const newUser = await resPost.body;
-
-        const updateRole = {
-          name: 'A updated name',
-          description: 'A updated description',
-        };
-
-        const res = await request(app.getHttpServer())
-          .patch(`/roles/${newUser.id}`)
-          .send(updateRole)
-          .expect(200);
-        expect(res.body.name).toEqual(updateRole.name);
-        expect(res.body.description).toEqual(updateRole.description);
-      });
+  describe('Read', () => {
+    it('should throw error 400 when param input wrong', async () => {
+      await request(app.getHttpServer())
+        .get('/roles/a')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(400);
     });
 
-    describe('delete role', () => {
-      it('should throw error 404 when role not found', async () => {
-        const res = await request(app.getHttpServer())
-          .delete('/roles/1')
-          .expect(404);
-        expect(res.body?.statusCode).toEqual(404);
-      });
+    it('should throw error 404 when role not found', async () => {
+      await request(app.getHttpServer())
+        .get('/roles/1000')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(404);
+    });
 
-      it('should return a role', async () => {
-        const resPost = await request(app.getHttpServer())
-          .post('/roles/')
-          .send(role)
-          .expect(201);
-        const newRole = await resPost.body;
+    it('should return a role', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/roles/1')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+      const data = await res.body;
 
-        const res = await request(app.getHttpServer())
-          .delete(`/roles/${newRole.id}`)
-          .expect(200);
-        expect(res.body).toEqual(newRole);
-      });
+      expect(data.name).toEqual(role.name);
+      expect(data.description).toEqual(role.description);
+    });
+  });
+
+  describe('Update', () => {
+    it('should throw error 400 when param input wrong', async () => {
+      await request(app.getHttpServer())
+        .patch('/roles/a')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(400);
+    });
+
+    it('should throw error 400 when name is missing', async () => {
+      await request(app.getHttpServer())
+        .patch('/roles/1')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ name: '' })
+        .expect(400);
+    });
+
+    it('should throw error 404 when role not found', async () => {
+      await request(app.getHttpServer())
+        .patch('/roles/1000')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ role: {} })
+        .expect(404);
+    });
+
+    it('should return updated role', async () => {
+      const updateRole = {
+        name: 'A updated name',
+        description: 'A updated description',
+      };
+
+      const res = await request(app.getHttpServer())
+        .patch('/roles/1')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(updateRole)
+        .expect(200);
+      const data = await res.body;
+
+      expect(data.name).toEqual(updateRole.name);
+      expect(data.description).toEqual(updateRole.description);
+    });
+  });
+
+  describe('Delete', () => {
+    it('should throw error 400 when param input wrong', async () => {
+      await request(app.getHttpServer())
+        .delete('/roles/a')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(400);
+    });
+
+    it('should throw error 404 when role not found', async () => {
+      await request(app.getHttpServer())
+        .delete('/roles/1000')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(404);
+    });
+
+    it('should return a role', async () => {
+      const getRes = await request(app.getHttpServer())
+        .get('/roles/1')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+      const role = await getRes.body;
+      const res = await request(app.getHttpServer())
+        .delete(`/roles/${role.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+      const data = await res.body;
+      expect(data).toEqual(role);
     });
   });
 });
