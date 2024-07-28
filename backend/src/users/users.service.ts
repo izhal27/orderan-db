@@ -50,6 +50,9 @@ export class UsersService {
     data: Prisma.UserUpdateInput;
   }): Promise<User> {
     const { where, data } = params;
+    if (data.password) {
+      data.password = await hashValue(data.password.toString());
+    }
     const user = await this.prismaService.user.update({
       where,
       data,
