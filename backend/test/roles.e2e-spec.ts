@@ -90,6 +90,16 @@ describe('RolesController (e2e)', () => {
         .expect(404);
     });
 
+    it('should return list of role', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/roles')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+      const data = await res.body;
+      expect(data).not.toBe(null);
+      expect(data).toBeInstanceOf(Array);
+    });
+
     it('should return a role', async () => {
       const res = await request(app.getHttpServer())
         .get('/roles/1')
