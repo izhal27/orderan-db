@@ -12,7 +12,8 @@ import { AccessTokenGuard } from './common/guards';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV}`,
+      envFilePath: process.env.NODE_ENV ?
+        `.env.${process.env.NODE_ENV}` : '.env',
       validate,
     }),
     PrismaModule.forRoot({}),
@@ -27,4 +28,4 @@ import { AccessTokenGuard } from './common/guards';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
