@@ -7,7 +7,12 @@ import { buildApp } from './setup.e2e';
 describe('RolesController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
-  const role = {
+  let role: {
+    id: number | null;
+    name: string;
+    description: string;
+  } = {
+    id: null,
     name: 'Role 1',
     description: 'This is a description',
   };
@@ -15,7 +20,11 @@ describe('RolesController (e2e)', () => {
 
   beforeAll(async () => {
     ({ app, prismaClient } = await buildApp());
-    await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
+    await prismaClient.role.upsert({
+      where: { name: 'Role 1' },
+      update: {},
+      create: { name: 'Role 1', description: 'Description Role-1' },
+    });
     const res = await request(app.getHttpServer())
       .post('/auth/local/signup')
       .send({ username: 'admin', password: '12345' })
@@ -24,7 +33,6 @@ describe('RolesController (e2e)', () => {
   }, 30000);
 
   afterAll(async () => {
-    await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
     await app.close();
     await prismaClient.$disconnect();
   }, 30000);
@@ -39,17 +47,6 @@ describe('RolesController (e2e)', () => {
     });
 
     it('should throw error 409 when duplicate entry', async () => {
-      const role = {
-        name: 'Role 1',
-        description: 'This is a description',
-      };
-
-      await request(app.getHttpServer())
-        .post('/roles')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .send(role)
-        .expect(201);
-
       await request(app.getHttpServer())
         .post('/roles')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -58,20 +55,18 @@ describe('RolesController (e2e)', () => {
     });
 
     it('should create a role', async () => {
-      const role = {
-        name: 'Role 2',
-        description: 'This is a description',
-      };
-
       const res = await request(app.getHttpServer())
         .post('/roles')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send(role)
+        .send({
+          name: 'Role 2',
+          description: 'This is a description',
+        })
         .expect(201);
-      const newRole = await res.body;
+      role = await res.body;
 
-      expect(role.name).toEqual(newRole.name);
-      expect(role.description).toEqual(newRole.description);
+      expect(role.name).toEqual('Role 2');
+      expect(role.description).toEqual('This is a description');
     });
   });
 
@@ -102,12 +97,12 @@ describe('RolesController (e2e)', () => {
 
     it('should return a role', async () => {
       const res = await request(app.getHttpServer())
-        .get('/roles/1')
+        .get(`/roles/${role.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
-      const data = await res.body;
-      expect(data.name).toEqual(role.name);
-      expect(data.description).toEqual(role.description);
+      const { name, description } = await res.body;
+      expect(name).toEqual(role.name);
+      expect(description).toEqual(role.description);
     });
   });
 
