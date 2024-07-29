@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsAlphanumeric,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -11,6 +12,7 @@ export class CreateRoleDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
+  @IsAlphanumeric()
   @ApiProperty()
   name: string;
 
