@@ -20,7 +20,7 @@ export class CreateOrderTypeDto {
   @IsOptional()
   @IsNotEmpty()
   @ApiProperty({ required: false, default: 0 })
-  price: string | number | Decimal;
+  price: Decimal;
 
   @IsString()
   @IsOptional()
