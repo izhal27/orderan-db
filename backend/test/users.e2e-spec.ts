@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import * as request from 'supertest';
+import { faker } from '@faker-js/faker';
 
 import { buildApp } from './setup.e2e';
 import { compareValue } from '../src/helpers/hash';
@@ -8,33 +9,31 @@ import { compareValue } from '../src/helpers/hash';
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
-  let role;
-  let user: {
-    id: number | null;
-    username: string;
-    password: string;
-  } = {
-    id: null,
-    username: 'user1',
+  const dummyUser = {
+    username: 'dummy',
     password: '12345',
   };
+  let role: Role;
   let accessToken = '';
 
   beforeAll(async () => {
     ({ app, prismaClient } = await buildApp());
     const res = await request(app.getHttpServer())
       .post('/auth/local/signup')
-      .send(user)
+      .send(dummyUser)
       .expect(201);
     accessToken = await res.body.access_token;
+    const fakerName = faker.string.alphanumeric({ length: 5 });
+    const fakerDesc = faker.lorem.words();
     role = await prismaClient.role.upsert({
-      where: { name: 'Role 1' },
+      where: { name: fakerName },
       update: {},
-      create: { name: 'Role 1', description: 'Description Role-1' },
+      create: { name: fakerName, description: fakerDesc },
     });
   }, 3000);
 
   afterAll(async () => {
+    jest.clearAllMocks();
     await app.close();
     await prismaClient.$disconnect();
   });
@@ -44,7 +43,7 @@ describe('UsersController (e2e)', () => {
       await request(app.getHttpServer())
         .post('/users')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ ...user, username: '' })
+        .send({ ...dummyUser, username: '' })
         .expect(400);
     });
 
@@ -52,7 +51,7 @@ describe('UsersController (e2e)', () => {
       await request(app.getHttpServer())
         .post('/users')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ ...user, password: '' })
+        .send({ ...dummyUser, password: '' })
         .expect(400);
     });
 
@@ -60,7 +59,7 @@ describe('UsersController (e2e)', () => {
       await request(app.getHttpServer())
         .post('/users')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ ...user, email: 'testemail' })
+        .send({ ...dummyUser, email: 'testemail' })
         .expect(400);
     });
 
@@ -68,20 +67,18 @@ describe('UsersController (e2e)', () => {
       await request(app.getHttpServer())
         .post('/users')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send(user)
+        .send(dummyUser)
         .expect(409);
     });
 
     it('should create a user', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/users')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .send({ username: 'user2', password: '12345' })
-        .expect(201);
-      user = await res.body;
-      expect(user).not.toBeNull();
-      expect(user.username).toEqual('user2');
-      expect(await compareValue('12345', user.password)).toEqual(true);
+      const {
+        fakeUsername,
+        fakePass,
+        body: { username, password },
+      } = await generateDummyUser(app, accessToken);
+      expect(username).toEqual(fakeUsername);
+      expect(await compareValue(fakePass, password)).toEqual(true);
     });
   });
 
@@ -105,20 +102,24 @@ describe('UsersController (e2e)', () => {
         .get('/users')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
-      const data = await res.body;
-      expect(data).not.toBe(null);
-      expect(data).toBeInstanceOf(Array);
+      const users = await res.body;
+      expect(users).not.toBe(null);
+      expect(users).toBeInstanceOf(Array);
     });
 
     it('should return a user', async () => {
+      const {
+        fakeUsername,
+        fakePass,
+        body: { id },
+      } = await generateDummyUser(app, accessToken);
       const res = await request(app.getHttpServer())
-        .get(`/users/${user.id}`)
+        .get(`/users/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
-      const data = await res.body;
-      expect(data).not.toBeNull();
-      expect(data.id).toEqual(user.id);
-      expect(data.username).toEqual(user.username);
+      const { username, password } = await res.body;
+      expect(username).toEqual(fakeUsername);
+      expect(await compareValue(fakePass, password)).toEqual(true);
     });
   });
 
@@ -140,22 +141,19 @@ describe('UsersController (e2e)', () => {
 
     it('should return updated user', async () => {
       const updatedData = {
-        username: 'anotheruser',
-        name: 'Updated user name',
-        email: 'test@email.com',
-        password: 'aaaaa',
-        image: 'imagepath',
+        username: faker.string.alphanumeric({ length: 5 }),
+        name: faker.internet.displayName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        image: faker.internet.url(),
         blocked: true,
         roleId: role.id,
       };
-      const postRes = await request(app.getHttpServer())
-        .post('/users')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .send({ username: 'user3', password: '12345' })
-        .expect(201);
-      const newUser = await postRes.body;
+      const {
+        body: { id },
+      } = await generateDummyUser(app, accessToken);
       const res = await request(app.getHttpServer())
-        .patch(`/users/${newUser.id}`)
+        .patch(`/users/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updatedData)
         .expect(200);
@@ -187,19 +185,30 @@ describe('UsersController (e2e)', () => {
     });
 
     it('should return a deleted user', async () => {
-      const postRes = await request(app.getHttpServer())
-        .post('/users')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .send({ username: 'user27', password: '12345' })
-        .expect(201);
-      const newUser = await postRes.body;
+      const {
+        body: { id, username: newUsername, password: newPassword },
+      } = await generateDummyUser(app, accessToken);
       const res = await request(app.getHttpServer())
-        .delete(`/users/${newUser.id}`)
+        .delete(`/users/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const { username, password } = await res.body;
-      expect(username).toEqual(newUser.username);
-      expect(password).toEqual(newUser.password);
+      expect(username).toEqual(newUsername);
+      expect(password).toEqual(newPassword);
     });
   });
 });
+
+async function generateDummyUser(
+  app: INestApplication<any>,
+  accessToken: string,
+) {
+  const fakeUsername = faker.string.alphanumeric({ length: 5 });
+  const fakePass = faker.internet.password();
+  const postRes = await request(app.getHttpServer())
+    .post('/users')
+    .set('Authorization', `Bearer ${accessToken}`)
+    .send({ username: fakeUsername, password: fakePass })
+    .expect(201);
+  return { fakeUsername, fakePass, body: postRes.body };
+}
