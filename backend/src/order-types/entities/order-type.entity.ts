@@ -1,30 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsDecimal,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { OrderType } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 
-export class OrderType {
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(5)
+export class OrderTypeEntity implements OrderType {
+  @ApiProperty()
+  id: number;
+
   @ApiProperty()
   name: string;
 
-  @IsDecimal()
-  @IsOptional()
-  @IsNotEmpty()
   @ApiProperty({ required: false, default: 0 })
-  price: number | null;
+  price: Decimal;
 
-  @IsString()
-  @IsOptional()
-  @IsNotEmpty()
-  @MaxLength(300)
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, nullable: true })
   description: string | null;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
 }
