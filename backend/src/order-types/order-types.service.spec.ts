@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OrderType, PrismaClient, Role } from '@prisma/client';
+import { OrderType, PrismaClient } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { PrismaService } from 'nestjs-prisma';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';

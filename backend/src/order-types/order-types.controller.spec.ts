@@ -19,7 +19,8 @@ describe('OrderTypesController', () => {
         {
           provide: OrderTypesService,
           useValue: serviceMock,
-        },],
+        },
+      ],
     }).compile();
 
     controller = module.get<OrderTypesController>(OrderTypesController);
