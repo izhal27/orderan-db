@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
+import { OrderTypeModule } from './order-type/order-type.module';
 import { validate } from './config/env.config';
 import { AuthModule } from './auth/auth.module';
 import { AccessTokenGuard } from './common/guards';
@@ -20,6 +21,7 @@ import { AccessTokenGuard } from './common/guards';
     RolesModule,
     UsersModule,
     AuthModule,
+    OrderTypeModule,
   ],
   providers: [
     {
