@@ -38,6 +38,7 @@ describe('UsersController (e2e)', () => {
     await prismaClient.$disconnect();
   });
 
+  // <---------------- CREATE ---------------->
   describe('Create', () => {
     it('should throw error 400 when username is missing', async () => {
       await request(app.getHttpServer())
@@ -82,6 +83,7 @@ describe('UsersController (e2e)', () => {
     });
   });
 
+  // <---------------- READ ---------------->
   describe('Read', () => {
     it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
@@ -123,6 +125,7 @@ describe('UsersController (e2e)', () => {
     });
   });
 
+  // <---------------- UPDATE ---------------->
   describe('Update', () => {
     it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
@@ -169,6 +172,7 @@ describe('UsersController (e2e)', () => {
     });
   });
 
+  // <---------------- DELETE ---------------->
   describe('Delete', () => {
     it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())

@@ -30,6 +30,7 @@ describe('RolesController (e2e)', () => {
     await prismaClient.$disconnect();
   }, 30000);
 
+  // <---------------- CREATE ---------------->
   describe('Create', () => {
     it('should throw error 400 when name is missing', async () => {
       await request(app.getHttpServer())
@@ -58,6 +59,7 @@ describe('RolesController (e2e)', () => {
     });
   });
 
+  // <---------------- READ ---------------->
   describe('Read', () => {
     it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
@@ -99,6 +101,7 @@ describe('RolesController (e2e)', () => {
     });
   });
 
+  // <---------------- UPDATE ---------------->
   describe('Update', () => {
     it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
@@ -151,6 +154,7 @@ describe('RolesController (e2e)', () => {
     });
   });
 
+  // <---------------- DELETE ---------------->
   describe('Delete', () => {
     it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())

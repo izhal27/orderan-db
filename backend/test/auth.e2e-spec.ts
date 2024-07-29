@@ -31,6 +31,7 @@ describe('AuthController (e2e)', () => {
     await prismaClient.$disconnect();
   }, 30000);
 
+  // <---------------- UNAUTHENTICATED ---------------->
   describe('Unauthenticated', () => {
     it('GET: /roles - should return Unauthorized', async () => {
       await request(app.getHttpServer()).get('/roles').expect(401);
@@ -41,6 +42,7 @@ describe('AuthController (e2e)', () => {
     });
   });
 
+  // <---------------- AUTHENTICATED ---------------->
   describe('Authenticated', () => {
     it('POST: /auth/local/signup - should return tokens', async () => {
       const res = await request(app.getHttpServer())
