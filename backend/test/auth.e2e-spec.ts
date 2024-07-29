@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { PrismaClient } from '@prisma/client';
+import { faker } from '@faker-js/faker';
 
 import { buildApp } from './setup.e2e';
 
@@ -9,22 +10,23 @@ describe('AuthController (e2e)', () => {
   let prismaClient: PrismaClient;
   let accessToken;
   const user = {
-    username: 'user1',
-    password: 'aaa',
+    username: faker.string.alphanumeric({ length: 5 }),
+    password: faker.internet.password(),
   };
 
   beforeAll(async () => {
     ({ app, prismaClient } = await buildApp());
+    const fakeRoleName = faker.string.alphanumeric({ length: 5 });
+    const fakeRoleDesc = faker.lorem.words();
     await prismaClient.role.upsert({
-      where: { name: 'Role-1' },
+      where: { name: fakeRoleName },
       update: {},
-      create: { name: 'Role-1', description: 'Description Role-1' },
+      create: { name: fakeRoleName, description: fakeRoleDesc },
     });
-    await prismaClient.$executeRaw`TRUNCATE "public"."User" RESTART IDENTITY CASCADE;`;
   }, 30000);
 
   afterAll(async () => {
-    await prismaClient.$executeRaw`TRUNCATE "public"."User" RESTART IDENTITY CASCADE;`;
+    jest.clearAllMocks();
     await app.close();
     await prismaClient.$disconnect();
   }, 30000);
