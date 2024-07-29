@@ -1,23 +1,25 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaClient, Role } from '@prisma/client';
+import { OrderType, PrismaClient, Role } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 import { PrismaService } from 'nestjs-prisma';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 
 import { OrderTypesService } from './order-types.service';
 
-const role: Role = {
+const orderType: OrderType = {
   id: 1,
-  name: 'role 1',
+  name: 'flexy',
+  price: new Decimal(1000),
   description: 'description 1',
   createdAt: new Date(),
   updatedAt: new Date(),
 };
 
-describe('OrderTypeService', () => {
+describe('OrderTypesService', () => {
   let orderTypeService: OrderTypesService;
   let prismaMock: DeepMockProxy<PrismaClient>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     prismaMock = mockDeep<PrismaClient>();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -37,7 +39,7 @@ describe('OrderTypeService', () => {
 
   describe('findMany', () => {
     beforeEach(() => {
-      prismaMock.role.findMany.mockResolvedValue([]);
+      prismaMock.orderType.findMany.mockResolvedValue([]);
     });
 
     it('should be defined', () => {
@@ -46,13 +48,13 @@ describe('OrderTypeService', () => {
 
     it('should call the prisma service', () => {
       orderTypeService.findMany();
-      expect(prismaMock.role.findMany).toHaveBeenCalledTimes(1);
+      expect(prismaMock.orderType.findMany).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('findUnique', () => {
     beforeEach(() => {
-      prismaMock.role.findUnique.mockResolvedValue(role);
+      prismaMock.orderType.findUnique.mockResolvedValue(orderType);
     });
 
     it('should be defined', () => {
@@ -61,13 +63,13 @@ describe('OrderTypeService', () => {
 
     it('should call the prisma service', () => {
       orderTypeService.findUnique({ id: 1 });
-      expect(prismaMock.role.findUnique).toHaveBeenCalledTimes(1);
+      expect(prismaMock.orderType.findUnique).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('create', () => {
     beforeEach(() => {
-      prismaMock.role.create.mockResolvedValue(role);
+      prismaMock.orderType.create.mockResolvedValue(orderType);
     });
 
     it('should be defined', () => {
@@ -75,14 +77,14 @@ describe('OrderTypeService', () => {
     });
 
     it('should call the prisma service', async () => {
-      await orderTypeService.create({ ...role });
-      expect(prismaMock.role.create).toHaveBeenCalledTimes(1);
+      await orderTypeService.create({ ...orderType });
+      expect(prismaMock.orderType.create).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('update', () => {
     beforeEach(() => {
-      prismaMock.role.update.mockResolvedValue(role);
+      prismaMock.orderType.update.mockResolvedValue(orderType);
     });
 
     it('should be defined', () => {
@@ -90,14 +92,14 @@ describe('OrderTypeService', () => {
     });
 
     it('should call the prisma service', () => {
-      orderTypeService.update({ where: { id: 1 }, data: { ...role } });
-      expect(prismaMock.role.update).toHaveBeenCalledTimes(1);
+      orderTypeService.update({ where: { id: 1 }, data: { ...orderType } });
+      expect(prismaMock.orderType.update).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('delete', () => {
     beforeEach(() => {
-      prismaMock.role.delete.mockResolvedValue(role);
+      prismaMock.orderType.delete.mockResolvedValue(orderType);
     });
 
     it('should be defined', () => {
@@ -106,7 +108,7 @@ describe('OrderTypeService', () => {
 
     it('should call the prisma service', () => {
       orderTypeService.delete({ id: 1 });
-      expect(prismaMock.role.delete).toHaveBeenCalledTimes(1);
+      expect(prismaMock.orderType.delete).toHaveBeenCalledTimes(1);
     });
   });
 });
