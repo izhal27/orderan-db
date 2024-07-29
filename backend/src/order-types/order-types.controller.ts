@@ -13,9 +13,9 @@ import { OrderTypesService } from './order-types.service';
 import { CreateOrderTypeDto } from './dto/create-order-type.dto';
 import { UpdateOrderTypeDto } from './dto/update-order-type.dto';
 
-@Controller('order-type')
+@Controller('order-types')
 export class OrderTypesController {
-  constructor(private readonly orderTypeService: OrderTypesService) {}
+  constructor(private readonly orderTypeService: OrderTypesService) { }
 
   @Post()
   create(@Body() createOrderTypeDto: CreateOrderTypeDto) {
