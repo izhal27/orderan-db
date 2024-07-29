@@ -10,7 +10,7 @@ describe('UsersController', () => {
   let controller: UsersController;
   let serviceMock: DeepMockProxy<UsersService>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     serviceMock = mockDeep<UsersService>();
 
     const module: TestingModule = await Test.createTestingModule({

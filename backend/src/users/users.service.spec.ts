@@ -9,7 +9,7 @@ describe('UsersService', () => {
   let usersService: UsersService;
   let prismaMock: DeepMockProxy<PrismaClient>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     prismaMock = mockDeep<PrismaClient>();
 
     const module: TestingModule = await Test.createTestingModule({
@@ -30,40 +30,30 @@ describe('UsersService', () => {
   });
 
   describe('findMany', () => {
-    beforeEach(() => {
-      prismaMock.user.findMany.mockResolvedValue([]);
-    });
-
     it('should be defined', () => {
       expect(usersService.findMany).toBeDefined();
     });
 
     it('should call the prisma service', () => {
+      prismaMock.user.findMany.mockResolvedValue([]);
       usersService.findMany();
       expect(prismaMock.user.findMany).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('findOne', () => {
-    beforeEach(() => {
-      prismaMock.user.findUnique.mockResolvedValue({} as User);
-    });
-
     it('should be defined', () => {
       expect(usersService.findUnique).toBeDefined();
     });
 
     it('should call the prisma service', () => {
+      prismaMock.user.findUnique.mockResolvedValue({} as User);
       usersService.findUnique({ id: 1 });
       expect(prismaMock.user.findUnique).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('create', () => {
-    beforeEach(() => {
-      prismaMock.user.create.mockResolvedValue({} as User);
-    });
-
     it('should be defined', () => {
       expect(usersService.create).toBeDefined();
     });
@@ -75,10 +65,6 @@ describe('UsersService', () => {
   });
 
   describe('update', () => {
-    beforeEach(() => {
-      prismaMock.user.update.mockResolvedValue({} as User);
-    });
-
     it('should be defined', () => {
       expect(usersService.update).toBeDefined();
     });
@@ -90,10 +76,6 @@ describe('UsersService', () => {
   });
 
   describe('delete', () => {
-    beforeEach(() => {
-      prismaMock.user.delete.mockResolvedValue({} as User);
-    });
-
     it('should be defined', () => {
       expect(usersService.delete).toBeDefined();
     });
