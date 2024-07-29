@@ -8,6 +8,7 @@ import { compareValue } from '../src/helpers/hash';
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
+  let role;
   let user: {
     id: number | null;
     username: string;
@@ -21,22 +22,19 @@ describe('UsersController (e2e)', () => {
 
   beforeAll(async () => {
     ({ app, prismaClient } = await buildApp());
-    await prismaClient.$executeRaw`TRUNCATE "public"."User" RESTART IDENTITY CASCADE;`;
-    await prismaClient.role.upsert({
-      where: { name: 'Role-1' },
-      update: {},
-      create: { name: 'Role-1', description: 'Description Role-1' },
-    });
     const res = await request(app.getHttpServer())
       .post('/auth/local/signup')
       .send(user)
       .expect(201);
     accessToken = await res.body.access_token;
+    role = await prismaClient.role.upsert({
+      where: { name: 'Role 1' },
+      update: {},
+      create: { name: 'Role 1', description: 'Description Role-1' },
+    });
   }, 3000);
 
   afterAll(async () => {
-    await prismaClient.$executeRaw`TRUNCATE "public"."User" RESTART IDENTITY CASCADE;`;
-    await prismaClient.$executeRaw`TRUNCATE "public"."Role" RESTART IDENTITY CASCADE;`;
     await app.close();
     await prismaClient.$disconnect();
   });
@@ -136,7 +134,7 @@ describe('UsersController (e2e)', () => {
       await request(app.getHttpServer())
         .patch('/users/1000')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ role: {} })
+        .send({})
         .expect(404);
     });
 
@@ -148,7 +146,7 @@ describe('UsersController (e2e)', () => {
         password: 'aaaaa',
         image: 'imagepath',
         blocked: true,
-        roleId: 1,
+        roleId: role.id,
       };
       const postRes = await request(app.getHttpServer())
         .post('/users')
@@ -199,9 +197,9 @@ describe('UsersController (e2e)', () => {
         .delete(`/users/${newUser.id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
-      const data = await res.body;
-      expect(data.username).toEqual(newUser.username);
-      expect(data.password).toEqual(newUser.password);
+      const { username, password } = await res.body;
+      expect(username).toEqual(newUser.username);
+      expect(password).toEqual(newUser.password);
     });
   });
 });
