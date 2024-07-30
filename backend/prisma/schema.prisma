@@ -28,7 +28,6 @@ model User {
   updated      Order?   @relation(name: "UpdatedBy")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  orderId      String?
 }
 
 model Role {
