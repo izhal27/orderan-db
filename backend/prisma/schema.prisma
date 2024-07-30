@@ -24,17 +24,18 @@ model User {
   refreshToken String?
   role         Role?    @relation(fields: [roleId], references: [id])
   roleId       Int?
+  orders       Order[]  @relation(name: "Orders")
+  updated      Order?   @relation(name: "UpdatedBy")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  order        Order[]
-  updated      Order[]  @relation(name: "updated")
+  orderId      String?
 }
 
 model Role {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   description String?
-  User        User[]
+  user        User[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -72,10 +73,10 @@ model Order {
   customer     String
   description  String?
   orderDetails OrderDetail[]
-  User         User?         @relation(fields: [userId], references: [id])
+  user         User          @relation(fields: [userId], references: [id], name: "Orders")
   userId       Int
-  updated      User?         @relation(fields: [updatedBy], references: [id], name: "updated")
-  updatedBy    Int?
+  updatedBy    User?         @relation(fields: [updatedById], references: [id], name: "UpdatedBy")
+  updatedById  Int?          @unique
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
