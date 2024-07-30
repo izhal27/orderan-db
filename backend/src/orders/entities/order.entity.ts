@@ -21,7 +21,7 @@ export class OrderEntity implements Order {
   userId: number;
 
   @ApiProperty({ required: false, nullable: true })
-  updatedBy: number | null;
+  updatedById: number | null;
 
   @ApiProperty({ isArray: true })
   orderDetails: OrderDetail[]
