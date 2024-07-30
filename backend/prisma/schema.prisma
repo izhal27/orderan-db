@@ -21,11 +21,13 @@ model User {
   name         String?
   image        String?
   blocked      Boolean  @default(false)
+  refreshToken String?
   role         Role?    @relation(fields: [roleId], references: [id])
   roleId       Int?
-  refreshToken String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  order        Order[]
+  updated      Order[]  @relation(name: "updated")
 }
 
 model Role {
@@ -44,4 +46,36 @@ model OrderType {
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model OrderDetail {
+  id          String   @id @default(cuid())
+  name        String
+  price       Decimal  @default(0)
+  width       Int
+  height      Int
+  qty         Int
+  design      Int
+  eyelets     Boolean  @default(false)
+  shiming     Boolean  @default(false)
+  description String?
+  order       Order    @relation(fields: [orderId], references: [id])
+  orderId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  id           String        @id @default(cuid())
+  number       String
+  date         DateTime
+  customer     String
+  description  String?
+  orderDetails OrderDetail[]
+  User         User          @relation(fields: [userId], references: [id])
+  userId       Int
+  updated      User?         @relation(fields: [updatedBy], references: [id], name: "updated")
+  updatedBy    Int?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
