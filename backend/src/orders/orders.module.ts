@@ -8,4 +8,4 @@ import { PrismaModule } from 'nestjs-prisma';
   controllers: [OrdersController],
   providers: [OrdersService],
 })
-export class OrdersModule { }
+export class OrdersModule {}

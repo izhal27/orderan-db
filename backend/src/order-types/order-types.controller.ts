@@ -18,7 +18,7 @@ import { UpdateOrderTypeDto } from './dto/update-order-type.dto';
 @ApiTags('order-types')
 @ApiBearerAuth()
 export class OrderTypesController {
-  constructor(private readonly orderTypeService: OrderTypesService) { }
+  constructor(private readonly orderTypeService: OrderTypesService) {}
 
   @Post()
   create(@Body() createOrderTypeDto: CreateOrderTypeDto) {
