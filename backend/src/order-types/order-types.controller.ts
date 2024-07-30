@@ -8,14 +8,17 @@ import {
   Delete,
   ParseIntPipe,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { OrderTypesService } from './order-types.service';
 import { CreateOrderTypeDto } from './dto/create-order-type.dto';
 import { UpdateOrderTypeDto } from './dto/update-order-type.dto';
 
 @Controller('order-types')
+@ApiTags('order-types')
+@ApiBearerAuth()
 export class OrderTypesController {
-  constructor(private readonly orderTypeService: OrderTypesService) {}
+  constructor(private readonly orderTypeService: OrderTypesService) { }
 
   @Post()
   create(@Body() createOrderTypeDto: CreateOrderTypeDto) {
