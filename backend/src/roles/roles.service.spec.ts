@@ -6,7 +6,7 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { RolesService } from './roles.service';
 
 describe('RolesService', () => {
-  let roleService: RolesService;
+  let service: RolesService;
   let prismaMock: DeepMockProxy<PrismaClient>;
 
   beforeAll(async () => {
@@ -22,65 +22,65 @@ describe('RolesService', () => {
       ],
     }).compile();
 
-    roleService = module.get<RolesService>(RolesService);
+    service = module.get<RolesService>(RolesService);
   });
 
   it('should have the service defined', () => {
-    expect(roleService).toBeDefined();
+    expect(service).toBeDefined();
   });
 
   describe('findMany', () => {
     it('should be defined', () => {
-      expect(roleService.findMany).toBeDefined();
+      expect(service.findMany).toBeDefined();
     });
 
     it('should call the prisma service', () => {
-      roleService.findMany();
+      service.findMany();
       expect(prismaMock.role.findMany).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('findUnique', () => {
     it('should be defined', () => {
-      expect(roleService.findUnique).toBeDefined();
+      expect(service.findUnique).toBeDefined();
     });
 
     it('should call the prisma service', () => {
       prismaMock.role.findUnique.mockResolvedValue({} as Role);
-      roleService.findUnique({ id: 1 });
+      service.findUnique({ id: 1 });
       expect(prismaMock.role.findUnique).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('create', () => {
     it('should be defined', () => {
-      expect(roleService.create).toBeDefined();
+      expect(service.create).toBeDefined();
     });
 
     it('should call the prisma service', async () => {
-      await roleService.create({} as Role);
+      await service.create({} as Role);
       expect(prismaMock.role.create).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('update', () => {
     it('should be defined', () => {
-      expect(roleService.update).toBeDefined();
+      expect(service.update).toBeDefined();
     });
 
     it('should call the prisma service', () => {
-      roleService.update({ where: { id: 1 }, data: {} as Role });
+      service.update({ where: { id: 1 }, data: {} as Role });
       expect(prismaMock.role.update).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('delete', () => {
     it('should be defined', () => {
-      expect(roleService.delete).toBeDefined();
+      expect(service.delete).toBeDefined();
     });
 
     it('should call the prisma service', () => {
-      roleService.delete({ id: 1 });
+      service.delete({ id: 1 });
       expect(prismaMock.role.delete).toHaveBeenCalledTimes(1);
     });
   });
