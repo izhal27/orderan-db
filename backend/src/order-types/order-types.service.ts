@@ -4,7 +4,7 @@ import { PrismaService } from 'nestjs-prisma';
 
 @Injectable()
 export class OrderTypesService {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   create(data: Prisma.OrderTypeCreateInput): Promise<OrderType> {
     return this.prismaService.orderType.create({ data });
