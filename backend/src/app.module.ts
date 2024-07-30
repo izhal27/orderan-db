@@ -9,6 +9,7 @@ import { OrderTypesModule } from './order-types/order-types.module';
 import { validate } from './config/env.config';
 import { AuthModule } from './auth/auth.module';
 import { AccessTokenGuard } from './common/guards';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AccessTokenGuard } from './common/guards';
     UsersModule,
     AuthModule,
     OrderTypesModule,
+    OrdersModule,
   ],
   providers: [
     {
