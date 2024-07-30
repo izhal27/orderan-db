@@ -4,7 +4,7 @@ import { PrismaService } from 'nestjs-prisma';
 
 @Injectable()
 export class OrderTypesService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   create(data: Prisma.OrderTypeCreateInput): Promise<OrderType> {
     return this.prismaService.orderType.create({ data });
@@ -24,7 +24,7 @@ export class OrderTypesService {
     return orderType;
   }
 
-  async update(params: {
+  update(params: {
     where: Prisma.OrderTypeWhereUniqueInput;
     data: Prisma.OrderTypeUpdateInput;
   }): Promise<OrderType> {
@@ -32,7 +32,7 @@ export class OrderTypesService {
     return this.prismaService.orderType.update({ where, data });
   }
 
-  async delete(where: Prisma.OrderTypeWhereUniqueInput): Promise<OrderType> {
+  delete(where: Prisma.OrderTypeWhereUniqueInput): Promise<OrderType> {
     return this.prismaService.orderType.delete({ where });
   }
 }
