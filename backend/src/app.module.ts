@@ -35,4 +35,4 @@ import { OrderDetailsModule } from './order-details/order-details.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

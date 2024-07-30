@@ -19,7 +19,7 @@ describe('OrderTypesController (e2e)', () => {
       create: {
         name: 'default',
         price: new Decimal(1000),
-        description: 'Default Description'
+        description: 'Default Description',
       },
     });
     const res = await request(app.getHttpServer())
