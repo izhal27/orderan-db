@@ -30,14 +30,14 @@ describe('OrderDetailsService', () => {
 
   describe('createMany', () => {
     it('should be defined', () => {
-      expect(service.createMany).toBeDefined();
+      expect(service.createManyAndReturn).toBeDefined();
     });
 
     it('should call the prisma service', () => {
       prismaMock.orderDetail.createManyAndReturn.mockResolvedValue(
         {} as OrderDetail[],
       );
-      service.createMany({} as Prisma.OrderDetailCreateManyAndReturnArgs);
+      service.createManyAndReturn({} as Prisma.OrderDetailCreateManyAndReturnArgs);
       expect(prismaMock.orderDetail.createManyAndReturn).toHaveBeenCalledTimes(
         1,
       );

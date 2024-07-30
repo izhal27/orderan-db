@@ -1,3 +1,4 @@
+import { GetCurrentUserId } from './../common/decorators/get-current-userId.decorator';
 import {
   Controller,
   Get,
@@ -16,18 +17,19 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+
 import { OrderEntity } from './entities/order.entity';
 
 @Controller('orders')
 @ApiTags('orders')
 @ApiBearerAuth()
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @Post()
   @ApiCreatedResponse({ type: OrderEntity })
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
+  create(@Body() createOrderDto: CreateOrderDto, @GetCurrentUserId() userId: number) {
+    return this.ordersService.create(createOrderDto, userId);
   }
 
   @Get()
@@ -43,7 +45,7 @@ export class OrdersController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update({ where: { id }, data: updateOrderDto });
+    return this.ordersService.update(id, updateOrderDto);
   }
 
   @Delete(':id')

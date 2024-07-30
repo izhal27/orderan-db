@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { OrderDetail } from '@prisma/client';
 import {
+  IsArray,
   IsDate,
   IsNotEmpty,
   IsNumber,
@@ -7,8 +9,16 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
+import * as randomstring from 'randomstring';
 
 export class CreateOrderDto {
+  constructor() {
+    this.number = 'DB-' + randomstring.generate({
+      charset: 'alphanumeric',
+      length: 10,
+      capitalization: 'uppercase',
+    })
+  }
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
@@ -40,4 +50,9 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @ApiProperty()
   updatedBy: number | null;
+
+  @IsArray()
+  @IsNotEmpty()
+  @ApiProperty()
+  orderDetails: OrderDetail[]
 }

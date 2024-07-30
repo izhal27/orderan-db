@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Order } from '@prisma/client';
+import { Order, OrderDetail } from '@prisma/client';
 
 export class OrderEntity implements Order {
   @ApiProperty()
@@ -22,6 +22,9 @@ export class OrderEntity implements Order {
 
   @ApiProperty({ required: false, nullable: true })
   updatedBy: number | null;
+
+  @ApiProperty({ isArray: true })
+  orderDetails: OrderDetail[]
 
   @ApiProperty()
   createdAt: Date;
