@@ -44,11 +44,6 @@ export class CreateOrderDto {
   @IsNumber()
   @IsNotEmpty()
   @ApiProperty()
-  userId: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty()
   updatedBy: number | null;
 
   @IsArray()
