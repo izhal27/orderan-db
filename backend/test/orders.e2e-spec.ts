@@ -90,7 +90,7 @@ describe('OrderController (e2e)', () => {
         fakeDesc,
         fakeOrderDetails,
         body: { date, customer, description, orderDetails },
-      } = await generateDummyOrder(app, accessToken);
+      } = await generateDummyOrder();
       expect(date).toEqual(fakeDate);
       expect(customer).toEqual(fakeCustomer);
       expect(description).toEqual(fakeDesc);
@@ -125,7 +125,7 @@ describe('OrderController (e2e)', () => {
         fakeDesc,
         fakeOrderDetails,
         body: { id },
-      } = await generateDummyOrder(app, accessToken);
+      } = await generateDummyOrder();
       const res = await request(app.getHttpServer())
         .get(`/orders/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -141,7 +141,7 @@ describe('OrderController (e2e)', () => {
   // <---------------- UPDATE ---------------->
   describe('Update', () => {
     it('should throw error 400 when date is missing', async () => {
-      const { body: { id } } = await generateDummyOrder(app, accessToken);
+      const { body: { id } } = await generateDummyOrder();
       await request(app.getHttpServer())
         .patch(`/orders/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -160,66 +160,69 @@ describe('OrderController (e2e)', () => {
     it('should return updated order', async () => {
       const {
         body: { id, orderDetails },
-      } = await generateDummyOrder(app, accessToken);
-      console.log(orderDetails);
-
-      const updateOrder = {
+      } = await generateDummyOrder();
+      const updatedOrderDetail = {
+        id: orderDetails[0].id,
+        name: faker.internet.displayName(),
+        price: +faker.finance.amount({ min: 1000, max: 10000, dec: 0 }),
+        width: +faker.finance.amount({ min: 100, max: 1000, dec: 0 }),
+        height: +faker.finance.amount({ min: 100, max: 1000, dec: 0 }),
+        qty: +faker.finance.amount({ min: 1, max: 100, dec: 0 }),
+        design: +faker.finance.amount({ min: 1, max: 10, dec: 0 }),
+        eyelets: false,
+        shiming: false,
+        description: faker.lorem.words(),
+      }
+      let updateOrder = {
         date: new Date().toISOString(),
         customer: faker.internet.displayName(),
         description: faker.lorem.words(),
-        orderDetails,
+        orderDetails: [...orderDetails, updatedOrderDetail]
       };
-      // updateOrder.orderDetails[0] = {
-      //   name: faker.internet.displayName(),
-      //   price: +faker.finance.amount({ min: 1000, max: 10000, dec: 2 }),
-      //   width: +faker.finance.amount({ min: 100, max: 1000, dec: 0 }),
-      //   height: +faker.finance.amount({ min: 100, max: 1000, dec: 0 }),
-      //   qty: +faker.finance.amount({ min: 1, max: 100, dec: 0 }),
-      //   design: +faker.finance.amount({ min: 1, max: 10, dec: 0 }),
-      //   eyelets: true,
-      //   shiming: true,
-      //   description: faker.lorem.words(),
-      // }
       const res = await request(app.getHttpServer())
         .patch(`/orders/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateOrder)
-      // .expect(200);
-      console.log(res.body);
-
-      const { date, customer, description } = await res.body;
+        .expect(200);
+      const {
+        date,
+        customer,
+        description,
+        updatedById,
+        createdAt,
+        updatedAt,
+        orderDetails: upOd } = await res.body;
       expect(date).toEqual(updateOrder.date);
       expect(customer).toEqual(updateOrder.customer);
       expect(description).toEqual(updateOrder.description);
-      expect(orderDetails[0].name).toEqual(updateOrder.orderDetails[0].name);
-      expect(orderDetails[0].customer).toEqual(updateOrder.orderDetails[0].customer);
+      expect(updatedById).not.toBeNull();
+      expect(createdAt).not.toEqual(updatedAt);
+      expect(updatedOrderDetail.name).toEqual(upOd[0].name);
+      expect(updatedOrderDetail.price).toEqual(upOd[0].price);
+      expect(updatedOrderDetail.width).toEqual(upOd[0].width);
+      expect(updatedOrderDetail.height).toEqual(upOd[0].height);
+      expect(updatedOrderDetail.qty).toEqual(upOd[0].qty);
+      expect(updatedOrderDetail.design).toEqual(upOd[0].design);
     });
   });
 
   // <---------------- DELETE ---------------->
   describe('Delete', () => {
-    it.skip('should throw error 400 when param input wrong', async () => {
-      await request(app.getHttpServer())
-        .delete('/orders/a')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .expect(400);
-    });
-
-    it.skip('should throw error 404 when order not found', async () => {
+    it('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
         .delete('/orders/1000')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
 
-    it.skip('should return a order', async () => {
+    it('should return a order', async () => {
       const {
         fakeDate,
         fakeCustomer,
         fakeDesc,
         fakeOrderDetails,
         body: { id },
-      } = await generateDummyOrder(app, accessToken);
+      } = await generateDummyOrder();
       const res = await request(app.getHttpServer())
         .delete(`/orders/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -232,41 +235,38 @@ describe('OrderController (e2e)', () => {
       expect(orderDetails[0]).toEqual(fakeOrderDetails[0]);
     });
   });
-});
 
-async function generateDummyOrder(
-  app: INestApplication<any>,
-  accessToken: string,
-) {
-  const fakeDate = new Date().toISOString();
-  const fakeCustomer = faker.internet.displayName();
-  const fakeDesc = faker.lorem.words();
-  const fakeOrderDetails = Array.from({ length: 10 }).map(() => ({
-    name: faker.internet.displayName(),
-    price: +faker.finance.amount({ min: 1000, max: 10000, dec: 2 }),
-    width: +faker.finance.amount({ min: 100, max: 1000, dec: 0 }),
-    height: +faker.finance.amount({ min: 100, max: 1000, dec: 0 }),
-    qty: +faker.finance.amount({ min: 1, max: 100, dec: 0 }),
-    design: +faker.finance.amount({ min: 1, max: 10, dec: 0 }),
-    eyelets: true,
-    shiming: true,
-    description: faker.lorem.words(),
-  }));
-  const postRes = await request(app.getHttpServer())
-    .post('/orders')
-    .set('Authorization', `Bearer ${accessToken}`)
-    .send({
-      date: fakeDate,
-      customer: fakeCustomer,
-      description: fakeDesc,
-      orderDetails: fakeOrderDetails,
-    })
-    .expect(201);
-  return {
-    fakeDate,
-    fakeCustomer,
-    fakeDesc,
-    fakeOrderDetails,
-    body: postRes.body,
-  };
-}
+  async function generateDummyOrder() {
+    const fakeDate = new Date().toISOString();
+    const fakeCustomer = faker.internet.displayName();
+    const fakeDesc = faker.lorem.words();
+    const fakeOrderDetails = Array.from({ length: 10 }).map(() => ({
+      name: faker.internet.displayName(),
+      price: +faker.finance.amount({ min: 1000, max: 10000, dec: 0 }),
+      width: +faker.finance.amount({ min: 100, max: 1000, dec: 0 }),
+      height: +faker.finance.amount({ min: 100, max: 1000, dec: 0 }),
+      qty: +faker.finance.amount({ min: 1, max: 100, dec: 0 }),
+      design: +faker.finance.amount({ min: 1, max: 10, dec: 0 }),
+      eyelets: true,
+      shiming: true,
+      description: faker.lorem.words(),
+    }));
+    const postRes = await request(app.getHttpServer())
+      .post('/orders')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        date: fakeDate,
+        customer: fakeCustomer,
+        description: fakeDesc,
+        orderDetails: fakeOrderDetails,
+      })
+      .expect(201);
+    return {
+      fakeDate,
+      fakeCustomer,
+      fakeDesc,
+      fakeOrderDetails,
+      body: postRes.body,
+    };
+  }
+});
