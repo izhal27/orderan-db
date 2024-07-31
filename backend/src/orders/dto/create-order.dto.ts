@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OrderDetail } from '@prisma/client';
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsDate,
@@ -8,8 +9,10 @@ import {
   IsOptional,
   IsString,
   MaxLength,
+  ValidateNested,
 } from 'class-validator';
 import * as randomstring from 'randomstring';
+import { OrderDetailEntity } from 'src/order-details/entities/order-detail.entity';
 
 export class CreateOrderDto {
   constructor() {
@@ -47,7 +50,8 @@ export class CreateOrderDto {
   updatedBy: number | null;
 
   @IsArray()
-  @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => OrderDetailEntity)
   @ApiProperty()
-  orderDetails: OrderDetail[]
+  orderDetails: OrderDetailEntity[]
 }
