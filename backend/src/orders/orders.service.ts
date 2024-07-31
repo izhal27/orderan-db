@@ -102,6 +102,9 @@ export class OrdersService {
         orderDetails: {
           updateMany: updatedOd
         }
+      },
+      include: {
+        orderDetails: true
       }
     });
   }
