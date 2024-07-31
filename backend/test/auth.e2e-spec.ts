@@ -40,6 +40,10 @@ describe('AuthController (e2e)', () => {
     it('GET: /users - should return Unauthorized', async () => {
       await request(app.getHttpServer()).get('/users').expect(401);
     });
+
+    it('GET: /orders - should return Unauthorized', async () => {
+      await request(app.getHttpServer()).get('/orders').expect(401);
+    });
   });
 
   // <---------------- AUTHENTICATED ---------------->
@@ -83,6 +87,16 @@ describe('AuthController (e2e)', () => {
       const users = await res.body;
       expect(users).not.toBeNull();
       expect(users).toBeInstanceOf(Array);
+    });
+
+    it('GET: /orders - should return orders array', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/orders')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+      const orders = await res.body;
+      expect(orders).not.toBeNull();
+      expect(orders).toBeInstanceOf(Array);
     });
   });
 });
