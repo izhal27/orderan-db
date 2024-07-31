@@ -1,6 +1,5 @@
 import { INestApplication } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
 import * as request from 'supertest';
 import { faker } from '@faker-js/faker';
 
@@ -101,11 +100,10 @@ describe('OrderController (e2e)', () => {
   // <---------------- READ ---------------->
   describe('Read', () => {
     it('should throw error 404 when order not found', async () => {
-      const res = await request(app.getHttpServer())
+      await request(app.getHttpServer())
         .get('/orders/abc123')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
-
     });
 
     it('should return list of order', async () => {
@@ -142,7 +140,9 @@ describe('OrderController (e2e)', () => {
   // <---------------- UPDATE ---------------->
   describe('Update', () => {
     it('should throw error 400 when date is missing', async () => {
-      const { body: { id } } = await generateDummyOrder();
+      const {
+        body: { id },
+      } = await generateDummyOrder();
       await request(app.getHttpServer())
         .patch(`/orders/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -173,12 +173,12 @@ describe('OrderController (e2e)', () => {
         eyelets: false,
         shiming: false,
         description: faker.lorem.words(),
-      }
-      let updateOrder = {
+      };
+      const updateOrder = {
         date: new Date().toISOString(),
         customer: faker.internet.displayName(),
         description: faker.lorem.words(),
-        orderDetails: [...orderDetails, updatedOrderDetail]
+        orderDetails: [...orderDetails, updatedOrderDetail],
       };
       const res = await request(app.getHttpServer())
         .patch(`/orders/${id}`)
@@ -192,7 +192,8 @@ describe('OrderController (e2e)', () => {
         updatedById,
         createdAt,
         updatedAt,
-        orderDetails: upOd } = await res.body;
+        orderDetails: upOd,
+      } = await res.body;
       expect(date).toEqual(updateOrder.date);
       expect(customer).toEqual(updateOrder.customer);
       expect(description).toEqual(updateOrder.description);

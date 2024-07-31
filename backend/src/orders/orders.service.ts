@@ -16,7 +16,7 @@ import { OrderEntity } from './entities/order.entity';
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
 
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(
     createOrderDto: CreateOrderDto,
@@ -57,7 +57,7 @@ export class OrdersService {
       );
     } catch (error) {
       this.logger.error(error);
-      throw new Error(error)
+      throw new Error(error);
     }
   }
 
@@ -68,7 +68,7 @@ export class OrdersService {
       });
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException(error)
+      throw new BadRequestException(error);
     }
   }
 
@@ -91,17 +91,18 @@ export class OrdersService {
     userId: number,
   ): Promise<OrderEntity | any> {
     const { date, customer, description, orderDetails } = updateOrderDto;
-    const updatedOd = orderDetails?.map(od => ({
+    const updatedOd = orderDetails?.map((od) => ({
       where: {
-        id: od.id
-      }, data: {
-        ...od
-      }
+        id: od.id,
+      },
+      data: {
+        ...od,
+      },
     }));
     try {
       return this.prismaService.order.update({
         where: {
-          id
+          id,
         },
         data: {
           date,
@@ -109,26 +110,28 @@ export class OrdersService {
           description,
           updatedById: userId,
           orderDetails: {
-            updateMany: updatedOd
-          }
+            updateMany: updatedOd,
+          },
         },
         include: {
-          orderDetails: true
-        }
+          orderDetails: true,
+        },
       });
     } catch (error) {
       this.logger.error(error);
       throw new Error(error);
     }
-
   }
 
   delete(where: Prisma.OrderWhereUniqueInput): Promise<OrderEntity> {
     try {
-      return this.prismaService.order.delete({ where, include: { orderDetails: true } });
+      return this.prismaService.order.delete({
+        where,
+        include: { orderDetails: true },
+      });
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException(error)
+      throw new BadRequestException(error);
     }
   }
 }

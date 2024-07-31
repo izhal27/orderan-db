@@ -24,7 +24,7 @@ import { OrderEntity } from './entities/order.entity';
 @ApiTags('orders')
 @ApiBearerAuth()
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
   @ApiCreatedResponse({ type: OrderEntity })
@@ -50,7 +50,8 @@ export class OrdersController {
   update(
     @Param('id') id: string,
     @Body() updateOrderDto: UpdateOrderDto,
-    @GetCurrentUserId() userId: number) {
+    @GetCurrentUserId() userId: number,
+  ) {
     return this.ordersService.update(id, updateOrderDto, userId);
   }
 
