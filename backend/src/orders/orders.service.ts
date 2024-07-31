@@ -11,6 +11,8 @@ import * as randomstring from 'randomstring';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderEntity } from './entities/order.entity';
+import { features } from 'process';
+import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class OrdersService {
@@ -78,9 +80,31 @@ export class OrdersService {
   async update(
     id: string,
     updateOrderDto: UpdateOrderDto,
-  ): Promise<OrderEntity> {
-    throw new NotImplementedException('This method is Under Construction');
-    // return this.prismaService.order.update({ where: { id }, data: updateOrderDto });
+    userId: number,
+  ): Promise<OrderEntity | any> {
+    const { date, customer, description, orderDetails } = updateOrderDto;
+    const updatedOd = orderDetails?.map(od => ({
+      where: {
+        id: od.id
+      }, data: {
+        ...od,
+        price: new Decimal(+od.price)
+      }
+    }));
+    return this.prismaService.order.update({
+      where: {
+        id
+      },
+      data: {
+        date,
+        customer,
+        description,
+        updatedById: userId,
+        orderDetails: {
+          updateMany: updatedOd
+        }
+      }
+    });
   }
 
   delete(where: Prisma.OrderWhereUniqueInput): Promise<OrderEntity | any> {

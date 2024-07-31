@@ -35,7 +35,7 @@ export class CreateOrderDto {
   @IsNumber()
   @IsOptional()
   @ApiProperty()
-  updatedBy: number | null;
+  updatedById: number | null;
 
   @IsArray()
   @IsNotEmpty()
