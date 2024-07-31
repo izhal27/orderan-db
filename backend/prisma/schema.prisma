@@ -22,7 +22,7 @@ model User {
   image        String?
   blocked      Boolean  @default(false)
   refreshToken String?
-  role         Role?    @relation(fields: [roleId], references: [id])
+  role         Role?    @relation(fields: [roleId], references: [id], onDelete: SetNull)
   roleId       Int?
   orders       Order[]  @relation(name: "Orders")
   updated      Order?   @relation(name: "UpdatedBy")
@@ -59,7 +59,7 @@ model OrderDetail {
   eyelets     Boolean  @default(false)
   shiming     Boolean  @default(false)
   description String?
-  order       Order    @relation(fields: [orderId], references: [id])
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -72,9 +72,9 @@ model Order {
   customer     String
   description  String?
   orderDetails OrderDetail[]
-  user         User          @relation(fields: [userId], references: [id], name: "Orders")
+  user         User          @relation(fields: [userId], references: [id], name: "Orders", onDelete: Cascade)
   userId       Int
-  updatedBy    User?         @relation(fields: [updatedById], references: [id], name: "UpdatedBy")
+  updatedBy    User?         @relation(fields: [updatedById], references: [id], name: "UpdatedBy", onDelete: SetNull)
   updatedById  Int?          @unique
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
