@@ -43,7 +43,6 @@ export class CreateOrderDto {
     each: true,
     message: 'Order detail is missing',
   })
-
   @IsNotEmpty()
   @Type(() => CreateOrderDetailDto)
   @ApiProperty()

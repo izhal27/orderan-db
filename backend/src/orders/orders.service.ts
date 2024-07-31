@@ -4,23 +4,24 @@ import {
   NotFoundException,
   NotImplementedException,
 } from '@nestjs/common';
-import { Order, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import * as randomstring from 'randomstring';
 
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { OrderEntity } from './entities/order.entity';
 
 @Injectable()
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async create(
     createOrderDto: CreateOrderDto,
     userId: number,
-  ): Promise<Order[]> {
+  ): Promise<OrderEntity[]> {
     const { date, customer, description, orderDetails } = createOrderDto;
     const number =
       'DB-' +
@@ -30,9 +31,9 @@ export class OrdersService {
         capitalization: 'uppercase',
       });
     return await this.prismaService.$transaction(
-      async (prisma): Promise<Order[] | any> => {
+      async (prisma): Promise<OrderEntity[] | any> => {
         try {
-          await prisma.order.create({
+          return await prisma.order.create({
             data: {
               number,
               date,
@@ -55,13 +56,15 @@ export class OrdersService {
     );
   }
 
-  findMany(): Promise<Order[] | null> {
+  findMany(): Promise<OrderEntity[] | null> {
     return this.prismaService.order.findMany({
       include: { orderDetails: true },
     });
   }
 
-  async findUnique(where: Prisma.OrderWhereUniqueInput): Promise<Order | null> {
+  async findUnique(
+    where: Prisma.OrderWhereUniqueInput,
+  ): Promise<OrderEntity | null> {
     const order = await this.prismaService.order.findUnique({
       where,
       include: { orderDetails: true },
@@ -72,12 +75,15 @@ export class OrdersService {
     return order;
   }
 
-  async update(id: string, updateOrderDto: UpdateOrderDto): Promise<Order> {
+  async update(
+    id: string,
+    updateOrderDto: UpdateOrderDto,
+  ): Promise<OrderEntity> {
     throw new NotImplementedException('This method is Under Construction');
     // return this.prismaService.order.update({ where: { id }, data: updateOrderDto });
   }
 
-  delete(where: Prisma.OrderWhereUniqueInput): Promise<Order> {
+  delete(where: Prisma.OrderWhereUniqueInput): Promise<OrderEntity | any> {
     return this.prismaService.order.delete({ where });
   }
 }
