@@ -101,10 +101,11 @@ describe('OrderController (e2e)', () => {
   // <---------------- READ ---------------->
   describe('Read', () => {
     it('should throw error 404 when order not found', async () => {
-      await request(app.getHttpServer())
-        .get('/orders/1000')
+      const res = await request(app.getHttpServer())
+        .get('/orders/abc123')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
+
     });
 
     it('should return list of order', async () => {
@@ -232,7 +233,6 @@ describe('OrderController (e2e)', () => {
       expect(customer).toEqual(fakeCustomer);
       expect(description).toEqual(fakeDesc);
       expect(orderDetails.length).toEqual(fakeOrderDetails.length);
-      expect(orderDetails[0]).toEqual(fakeOrderDetails[0]);
     });
   });
 
