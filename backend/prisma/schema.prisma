@@ -51,11 +51,11 @@ model OrderType {
 model OrderDetail {
   id          String   @id @default(uuid())
   name        String
-  price       Decimal  @default(0)
-  width       Int
-  height      Int
-  qty         Int
-  design      Int
+  price       Int      @default(0)
+  width       Int      @default(0)
+  height      Int      @default(0)
+  qty         Int      @default(0)
+  design      Int      @default(0)
   eyelets     Boolean  @default(false)
   shiming     Boolean  @default(false)
   description String?
@@ -68,7 +68,7 @@ model OrderDetail {
 model Order {
   id           String        @id @default(uuid())
   number       String
-  date         DateTime
+  date         DateTime      @default(now())
   customer     String
   description  String?
   orderDetails OrderDetail[]
