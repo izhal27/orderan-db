@@ -24,7 +24,7 @@ describe('OrderTypesController (e2e)', () => {
     });
     const res = await request(app.getHttpServer())
       .post('/auth/local/signup')
-      .send({ username: 'userordertype', password: '12345' })
+      .send({ username: 'userorder', password: '12345' })
       .expect(201);
     accessToken = await res.body.access_token;
   }, 30000);

@@ -14,12 +14,12 @@ describe('OrderTypesController (e2e)', () => {
   beforeAll(async () => {
     ({ app, prismaClient } = await buildApp());
     await prismaClient.orderType.upsert({
-      where: { name: 'default' },
+      where: { name: 'Order Type default' },
       update: {},
       create: {
-        name: 'default',
+        name: 'Order Type default',
         price: new Decimal(1000),
-        description: 'Default Description',
+        description: 'Order Type default Description',
       },
     });
     const res = await request(app.getHttpServer())
@@ -49,7 +49,7 @@ describe('OrderTypesController (e2e)', () => {
       await request(app.getHttpServer())
         .post('/order-types')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ name: 'default' })
+        .send({ name: 'Order Type default' })
         .expect(409);
     });
 
