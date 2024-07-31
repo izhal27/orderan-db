@@ -90,23 +90,32 @@ export class OrdersService {
         ...od
       }
     }));
-    return this.prismaService.order.update({
-      where: {
-        id
-      },
-      data: {
-        date,
-        customer,
-        description,
-        updatedById: userId,
-        orderDetails: {
-          updateMany: updatedOd
+    return await this.prismaService.$transaction(
+      async (prisma): Promise<OrderEntity[] | any> => {
+        try {
+          return prisma.order.update({
+            where: {
+              id
+            },
+            data: {
+              date,
+              customer,
+              description,
+              updatedById: userId,
+              orderDetails: {
+                updateMany: updatedOd
+              }
+            },
+            include: {
+              orderDetails: true
+            }
+          });
+        } catch (error) {
+          this.logger.error(error);
+          throw new Error(error);
         }
       },
-      include: {
-        orderDetails: true
-      }
-    });
+    );
   }
 
   delete(where: Prisma.OrderWhereUniqueInput): Promise<OrderEntity | any> {
