@@ -1,6 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Decimal } from '@prisma/client/runtime/library';
-import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrderDetailDto {
@@ -12,26 +10,26 @@ export class CreateOrderDetailDto {
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({ default: 0 })
-  price: Decimal;
+  price: number;
 
   @IsNotEmpty()
   @IsNumber()
-  @ApiProperty()
+  @ApiProperty({ default: 0 })
   width: number;
 
   @IsNotEmpty()
   @IsNumber()
-  @ApiProperty()
+  @ApiProperty({ default: 0 })
   height: number;
 
   @IsNotEmpty()
   @IsNumber()
-  @ApiProperty()
+  @ApiProperty({ default: 0 })
   qty: number;
 
   @IsNotEmpty()
   @IsNumber()
-  @ApiProperty()
+  @ApiProperty({ default: 0 })
   design: number;
 
   @IsNotEmpty()

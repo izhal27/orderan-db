@@ -87,8 +87,7 @@ export class OrdersService {
       where: {
         id: od.id
       }, data: {
-        ...od,
-        price: new Decimal(+od.price)
+        ...od
       }
     }));
     return this.prismaService.order.update({
