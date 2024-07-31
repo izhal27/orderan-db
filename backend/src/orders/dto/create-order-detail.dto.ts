@@ -1,6 +1,6 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Decimal } from "@prisma/client/runtime/library";
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { Decimal } from '@prisma/client/runtime/library';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateOrderDetailDto {
   @IsString()
@@ -40,8 +40,6 @@ export class CreateOrderDetailDto {
   @ApiProperty({ required: false, nullable: true })
   description: string | null;
 
-  @IsNotEmpty()
-  @IsString()
   @ApiProperty()
   orderId: string;
 }

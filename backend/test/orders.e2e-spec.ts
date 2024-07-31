@@ -6,6 +6,23 @@ import { faker } from '@faker-js/faker';
 
 import { buildApp } from './setup.e2e';
 
+const dummyOrder = {
+  date: new Date(),
+  customer: 'customer name',
+  orderDetails: [
+    {
+      name: 'Detail order',
+      width: 200,
+      height: 100,
+      qty: 1,
+      design: 1,
+      eyelets: true,
+      shiming: false,
+      userId: 1,
+    },
+  ],
+};
+
 describe('OrderTypesController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
@@ -13,18 +30,12 @@ describe('OrderTypesController (e2e)', () => {
 
   beforeAll(async () => {
     ({ app, prismaClient } = await buildApp());
-    await prismaClient.orderType.upsert({
-      where: { name: 'default' },
-      update: {},
-      create: {
-        name: 'default',
-        price: new Decimal(1000),
-        description: 'Default Description',
-      },
-    });
     const res = await request(app.getHttpServer())
       .post('/auth/local/signup')
-      .send({ username: 'userorder', password: '12345' })
+      .send({
+        username: faker.internet.userName(),
+        password: faker.internet.password({ length: 5 })
+      })
       .expect(201);
     accessToken = await res.body.access_token;
   }, 30000);
@@ -37,29 +48,45 @@ describe('OrderTypesController (e2e)', () => {
 
   // <---------------- CREATE ---------------->
   describe('Create', () => {
-    it('should throw error 400 when name is missing', async () => {
+    it('should throw error 400 when date is missing', async () => {
       await request(app.getHttpServer())
-        .post('/order-types')
+        .post('/orders')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ name: '' })
+        .send({ ...dummyOrder, date: '' })
         .expect(400);
     });
 
-    it.skip('should throw error 409 when duplicate entry', async () => {
+    it('should throw error 400 when customer is missing', async () => {
       await request(app.getHttpServer())
-        .post('/order-types')
+        .post('/orders')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ name: 'default' })
-        .expect(409);
+        .send({ ...dummyOrder, customer: '' })
+        .expect(400);
     });
 
-    it.skip('should create a orderType', async () => {
+    it('should throw error 400 when order detail is missing', async () => {
+      await request(app.getHttpServer())
+        .post('/orders')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyOrder, orderDetails: null })
+        .expect(400);
+    });
+
+    it('should throw error 400 when some order detail field is missing', async () => {
+      await request(app.getHttpServer())
+        .post('/orders')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyOrder, orderDetails: [{ ...dummyOrder.orderDetails, name: '' }] })
+        .expect(400);
+    });
+
+    it('should create a order', async () => {
       const {
         fakeName,
         fakePrice,
         fakeDesc,
         body: { name, price, description },
-      } = await generateDummyOrderType(app, accessToken);
+      } = await generateDummyOrder(app, accessToken);
       expect(name).toEqual(fakeName);
       expect(new Decimal(price)).toEqual(fakePrice);
       expect(description).toEqual(fakeDesc);
@@ -70,36 +97,36 @@ describe('OrderTypesController (e2e)', () => {
   describe('Read', () => {
     it.skip('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
-        .get('/order-types/a')
+        .get('/orders/a')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
     });
 
-    it.skip('should throw error 404 when orderType not found', async () => {
+    it.skip('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
-        .get('/order-types/1000')
+        .get('/orders/1000')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
 
-    it.skip('should return list of orderType', async () => {
+    it.skip('should return list of order', async () => {
       const res = await request(app.getHttpServer())
-        .get('/order-types')
+        .get('/orders')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
-      const orderType = await res.body;
-      expect(orderType).not.toBe(null);
-      expect(orderType).toBeInstanceOf(Array);
+      const order = await res.body;
+      expect(order).not.toBe(null);
+      expect(order).toBeInstanceOf(Array);
     });
 
-    it.skip('should return a orderType', async () => {
+    it.skip('should return a order', async () => {
       const {
         fakeName,
         fakeDesc,
         body: { id },
-      } = await generateDummyOrderType(app, accessToken);
+      } = await generateDummyOrder(app, accessToken);
       const res = await request(app.getHttpServer())
-        .get(`/order-types/${id}`)
+        .get(`/orders/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const { name, description } = await res.body;
@@ -112,14 +139,14 @@ describe('OrderTypesController (e2e)', () => {
   describe('Update', () => {
     it.skip('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
-        .patch('/order-types/a')
+        .patch('/orders/a')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
     });
 
     it.skip('should throw error 400 when name is missing', async () => {
       const res = await request(app.getHttpServer())
-        .post('/order-types')
+        .post('/orders')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           name: faker.string.alphanumeric({ length: 5 }),
@@ -128,30 +155,30 @@ describe('OrderTypesController (e2e)', () => {
         .expect(201);
       const { id } = await res.body;
       await request(app.getHttpServer())
-        .patch(`/order-types/${id}`)
+        .patch(`/orders/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ name: '' })
         .expect(400);
     });
 
-    it.skip('should throw error 404 when orderType not found', async () => {
+    it.skip('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
-        .patch('/order-types/1000')
+        .patch('/orders/1000')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({})
         .expect(404);
     });
 
-    it.skip('should return updated orderType', async () => {
+    it.skip('should return updated order', async () => {
       const updateRole = {
         name: 'updatedrole',
         description: faker.lorem.words(),
       };
       const {
         body: { id },
-      } = await generateDummyOrderType(app, accessToken);
+      } = await generateDummyOrder(app, accessToken);
       const res = await request(app.getHttpServer())
-        .patch(`/order-types/${id}`)
+        .patch(`/orders/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateRole)
         .expect(200);
@@ -165,26 +192,26 @@ describe('OrderTypesController (e2e)', () => {
   describe('Delete', () => {
     it.skip('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
-        .delete('/order-types/a')
+        .delete('/orders/a')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
     });
 
-    it.skip('should throw error 404 when orderType not found', async () => {
+    it.skip('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
-        .delete('/order-types/1000')
+        .delete('/orders/1000')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
 
-    it.skip('should return a orderType', async () => {
+    it.skip('should return a order', async () => {
       const {
         fakeName,
         fakeDesc,
         body: { id },
-      } = await generateDummyOrderType(app, accessToken);
+      } = await generateDummyOrder(app, accessToken);
       const res = await request(app.getHttpServer())
-        .delete(`/order-types/${id}`)
+        .delete(`/orders/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const { name, description } = await res.body;
@@ -194,7 +221,7 @@ describe('OrderTypesController (e2e)', () => {
   });
 });
 
-async function generateDummyOrderType(
+async function generateDummyOrder(
   app: INestApplication<any>,
   accessToken: string,
 ) {
@@ -202,7 +229,7 @@ async function generateDummyOrderType(
   const fakePrice = new Decimal(5000);
   const fakeDesc = faker.lorem.words();
   const postRes = await request(app.getHttpServer())
-    .post('/order-types')
+    .post('/orders')
     .set('Authorization', `Bearer ${accessToken}`)
     .send({ name: fakeName, price: fakePrice, description: fakeDesc })
     .expect(201);

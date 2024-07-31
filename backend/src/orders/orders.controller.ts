@@ -24,11 +24,14 @@ import { OrderEntity } from './entities/order.entity';
 @ApiTags('orders')
 @ApiBearerAuth()
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
   @ApiCreatedResponse({ type: OrderEntity })
-  create(@Body() createOrderDto: CreateOrderDto, @GetCurrentUserId() userId: number) {
+  create(
+    @Body() createOrderDto: CreateOrderDto,
+    @GetCurrentUserId() userId: number,
+  ) {
     return this.ordersService.create(createOrderDto, userId);
   }
 

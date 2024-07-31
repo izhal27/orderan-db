@@ -24,7 +24,7 @@ export class OrderEntity implements Order {
   updatedById: number | null;
 
   @ApiProperty({ isArray: true })
-  orderDetails: OrderDetail[]
+  orderDetails: OrderDetail[];
 
   @ApiProperty()
   createdAt: Date;

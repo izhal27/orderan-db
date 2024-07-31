@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OrderDetail } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import {
   IsArray,
-  IsDate,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -11,26 +10,16 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import * as randomstring from 'randomstring';
-import { OrderDetailEntity } from 'src/order-details/entities/order-detail.entity';
+import { CreateOrderDetailDto } from './create-order-detail.dto';
 
 export class CreateOrderDto {
-  constructor() {
-    this.number = 'DB-' + randomstring.generate({
-      charset: 'alphanumeric',
-      length: 10,
-      capitalization: 'uppercase',
-    })
-  }
+  @Exclude()
+  number: string;
+
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  number: string;
-
-  @IsDate()
-  @IsNotEmpty()
-  @ApiProperty()
-  date: Date;
+  date: string;
 
   @IsString()
   @IsNotEmpty()
@@ -39,19 +28,24 @@ export class CreateOrderDto {
 
   @IsString()
   @IsOptional()
-  @IsNotEmpty()
   @MaxLength(300)
   @ApiProperty({ required: false })
   description: string | null;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty()
   updatedBy: number | null;
 
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => OrderDetailEntity)
+  @IsNotEmpty()
+  @ValidateNested({
+    each: true,
+    message: 'Order detail is missing',
+  })
+
+  @IsNotEmpty()
+  @Type(() => CreateOrderDetailDto)
   @ApiProperty()
-  orderDetails: OrderDetailEntity[]
+  orderDetails: OrderDetail[];
 }
