@@ -4,6 +4,8 @@ import { PrismaService } from 'nestjs-prisma';
 import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 
 import { OrdersService } from './orders.service';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 describe('OrdersService', () => {
   let service: OrdersService;
@@ -57,8 +59,9 @@ describe('OrdersService', () => {
     });
 
     it('should call the prisma service', async () => {
-      await service.create({} as Prisma.OrderCreateInput);
-      expect(prismaMock.order.create).toHaveBeenCalledTimes(1);
+      prismaMock.$transaction.mockResolvedValue({} as Order);
+      await service.create({} as CreateOrderDto, 1);
+      expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -68,10 +71,7 @@ describe('OrdersService', () => {
     });
 
     it('should call the prisma service', () => {
-      service.update({
-        where: {} as Prisma.OrderWhereUniqueInput,
-        data: {} as Order,
-      });
+      service.update('1', {} as UpdateOrderDto, 1);
       expect(prismaMock.order.update).toHaveBeenCalledTimes(1);
     });
   });
