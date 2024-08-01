@@ -25,6 +25,7 @@ const dummyOrder = {
 describe('OrderController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
+  const url = '/orders';
   let accessToken = '';
 
   beforeAll(async () => {
@@ -49,7 +50,7 @@ describe('OrderController (e2e)', () => {
   describe('Create', () => {
     it('should throw error 400 when date is missing', async () => {
       await request(app.getHttpServer())
-        .post('/orders')
+        .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ ...dummyOrder, date: '' })
         .expect(400);
@@ -57,7 +58,7 @@ describe('OrderController (e2e)', () => {
 
     it('should throw error 400 when customer is missing', async () => {
       await request(app.getHttpServer())
-        .post('/orders')
+        .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ ...dummyOrder, customer: '' })
         .expect(400);
@@ -65,7 +66,7 @@ describe('OrderController (e2e)', () => {
 
     it('should throw error 400 when order detail is missing', async () => {
       await request(app.getHttpServer())
-        .post('/orders')
+        .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ ...dummyOrder, orderDetails: null })
         .expect(400);
@@ -73,7 +74,7 @@ describe('OrderController (e2e)', () => {
 
     it('should throw error 400 when some order detail field is missing', async () => {
       await request(app.getHttpServer())
-        .post('/orders')
+        .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           ...dummyOrder,
@@ -101,14 +102,14 @@ describe('OrderController (e2e)', () => {
   describe('Read', () => {
     it('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
-        .get('/orders/abc123')
+        .get(`${url}/abc123`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
 
     it('should return list of order', async () => {
       const res = await request(app.getHttpServer())
-        .get('/orders')
+        .get(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const orders = await res.body;
@@ -126,7 +127,7 @@ describe('OrderController (e2e)', () => {
         body: { id },
       } = await generateDummyOrder();
       const res = await request(app.getHttpServer())
-        .get(`/orders/${id}`)
+        .get(`${url}/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const { date, customer, description, orderDetails } = await res.body;
@@ -144,7 +145,7 @@ describe('OrderController (e2e)', () => {
         body: { id },
       } = await generateDummyOrder();
       await request(app.getHttpServer())
-        .patch(`/orders/${id}`)
+        .patch(`${url}/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ ...dummyOrder, date: '' })
         .expect(400);
@@ -152,7 +153,7 @@ describe('OrderController (e2e)', () => {
 
     it('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
-        .patch('/orders/1000')
+        .patch(`${url}/1000`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({})
         .expect(404);
@@ -181,7 +182,7 @@ describe('OrderController (e2e)', () => {
         orderDetails: [...orderDetails, updatedOrderDetail],
       };
       const res = await request(app.getHttpServer())
-        .patch(`/orders/${id}`)
+        .patch(`${url}/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateOrder)
         .expect(200);
@@ -212,7 +213,7 @@ describe('OrderController (e2e)', () => {
   describe('Delete', () => {
     it('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
-        .delete('/orders/1000')
+        .delete(`${url}/1000`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
@@ -226,7 +227,7 @@ describe('OrderController (e2e)', () => {
         body: { id },
       } = await generateDummyOrder();
       const res = await request(app.getHttpServer())
-        .delete(`/orders/${id}`)
+        .delete(`${url}/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const { date, customer, description, orderDetails } = await res.body;
@@ -253,7 +254,7 @@ describe('OrderController (e2e)', () => {
       description: faker.lorem.words(),
     }));
     const postRes = await request(app.getHttpServer())
-      .post('/orders')
+      .post(`${url}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         date: fakeDate,
