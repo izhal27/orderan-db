@@ -67,7 +67,7 @@ model OrderDetail {
 
 model Order {
   id           String        @id @default(uuid())
-  number       String
+  number       String        @unique()
   date         DateTime      @default(now())
   customer     String
   description  String?
