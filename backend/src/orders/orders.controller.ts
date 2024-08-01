@@ -8,9 +8,6 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -19,12 +16,14 @@ import {
 } from '@nestjs/swagger';
 
 import { OrderEntity } from './entities/order.entity';
+import { CreateOrderDto, UpdateOrderDto } from './dto';
+import { OrdersService } from './orders.service';
 
 @Controller('orders')
 @ApiTags('orders')
 @ApiBearerAuth()
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @Post()
   @ApiCreatedResponse({ type: OrderEntity })
@@ -42,11 +41,13 @@ export class OrdersController {
   }
 
   @Get(':id')
+  @ApiOkResponse({ type: OrderEntity })
   findUnique(@Param('id') id: string) {
     return this.ordersService.findUnique({ id });
   }
 
   @Patch(':id')
+  @ApiOkResponse({ type: OrderEntity })
   update(
     @Param('id') id: string,
     @Body() updateOrderDto: UpdateOrderDto,
@@ -56,6 +57,7 @@ export class OrdersController {
   }
 
   @Delete(':id')
+  @ApiOkResponse({ type: OrderEntity })
   delete(@Param('id') id: string) {
     return this.ordersService.delete({ id });
   }

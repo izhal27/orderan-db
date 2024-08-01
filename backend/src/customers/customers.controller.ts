@@ -3,8 +3,7 @@ import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nest
 
 import { CustomerEntity } from './entities/customer.entity';
 import { CustomersService } from './customers.service';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
-import { CreateCustomerDto } from './dto/create-customer.dto';
+import { UpdateCustomerDto, CreateCustomerDto } from './dto';
 import { GetCurrentUserId } from '../common/decorators';
 
 @Controller('customers')

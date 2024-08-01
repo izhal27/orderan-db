@@ -3,8 +3,8 @@ import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 
 import { OrderTypesController } from './order-types.controller';
 import { OrderTypesService } from './order-types.service';
-import { CreateOrderTypeDto } from './dto/create-order-type.dto';
-import { UpdateOrderTypeDto } from './dto/update-order-type.dto';
+import { CreateOrderTypeDto, UpdateOrderTypeDto } from './dto';
+
 
 describe('OrderTypesController', () => {
   let controller: OrderTypesController;
