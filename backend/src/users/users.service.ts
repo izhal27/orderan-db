@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
@@ -7,7 +7,9 @@ import { hashValue } from '../helpers/hash';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) {}
+  private readonly logger = new Logger();
+
+  constructor(private readonly prismaService: PrismaService) { }
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
     data.password = await hashValue(data.password);
@@ -21,12 +23,17 @@ export class UsersService {
   }
 
   async findMany(): Promise<User[]> {
-    const users = await this.prismaService.user.findMany({
-      include: {
-        role: true,
-      },
-    });
-    return users.map((user) => this.sanitizeUser(user));
+    try {
+      const users = await this.prismaService.user.findMany({
+        include: {
+          role: true,
+        },
+      });
+      return users.map((user) => this.sanitizeUser(user));
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   async findUnique(
