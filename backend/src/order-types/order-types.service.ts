@@ -1,17 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { OrderType, Prisma } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 @Injectable()
 export class OrderTypesService {
-  constructor(private readonly prismaService: PrismaService) {}
+  private readonly logger = new Logger();
+
+  constructor(private readonly prismaService: PrismaService) { }
 
   create(data: Prisma.OrderTypeCreateInput): Promise<OrderType> {
-    return this.prismaService.orderType.create({ data });
+    try {
+      return this.prismaService.orderType.create({ data });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
-  findMany(): Promise<OrderType[] | null> {
-    return this.prismaService.orderType.findMany();
+  findMany(): Promise<OrderType[]> {
+    try {
+      return this.prismaService.orderType.findMany();
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   async findUnique(
@@ -28,11 +40,21 @@ export class OrderTypesService {
     where: Prisma.OrderTypeWhereUniqueInput;
     data: Prisma.OrderTypeUpdateInput;
   }): Promise<OrderType> {
-    const { where, data } = params;
-    return this.prismaService.orderType.update({ where, data });
+    try {
+      const { where, data } = params;
+      return this.prismaService.orderType.update({ where, data });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   delete(where: Prisma.OrderTypeWhereUniqueInput): Promise<OrderType> {
-    return this.prismaService.orderType.delete({ where });
+    try {
+      return this.prismaService.orderType.delete({ where });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 }
