@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Decimal } from '@prisma/client/runtime/library';
 import {
   IsDecimal,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -16,15 +16,13 @@ export class CreateOrderTypeDto {
   @ApiProperty()
   name: string;
 
-  @IsDecimal()
+  @IsNumber()
   @IsOptional()
-  @IsNotEmpty()
   @ApiProperty({ required: false, default: 0 })
-  price: Decimal;
+  price: number;
 
   @IsString()
   @IsOptional()
-  @IsNotEmpty()
   @MaxLength(300)
   @ApiProperty({ required: false })
   description: string | null;

@@ -1,6 +1,5 @@
 import { INestApplication } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
 import * as request from 'supertest';
 import { faker } from '@faker-js/faker';
 
@@ -9,6 +8,7 @@ import { buildApp } from './setup.e2e';
 describe('OrderTypesController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
+  const url = '/order-types';
   let accessToken = '';
 
   beforeAll(async () => {
@@ -18,7 +18,7 @@ describe('OrderTypesController (e2e)', () => {
       update: {},
       create: {
         name: 'Order Type default',
-        price: new Decimal(1000),
+        price: 1000,
         description: 'Order Type default Description',
       },
     });
@@ -39,7 +39,7 @@ describe('OrderTypesController (e2e)', () => {
   describe('Create', () => {
     it('should throw error 400 when name is missing', async () => {
       await request(app.getHttpServer())
-        .post('/order-types')
+        .post(url)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ name: '' })
         .expect(400);
@@ -47,7 +47,7 @@ describe('OrderTypesController (e2e)', () => {
 
     it('should throw error 409 when duplicate entry', async () => {
       await request(app.getHttpServer())
-        .post('/order-types')
+        .post(url)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ name: 'Order Type default' })
         .expect(409);
@@ -59,9 +59,9 @@ describe('OrderTypesController (e2e)', () => {
         fakePrice,
         fakeDesc,
         body: { name, price, description },
-      } = await generateDummyOrderType(app, accessToken);
+      } = await generateDummyOrderType();
       expect(name).toEqual(fakeName);
-      expect(new Decimal(price)).toEqual(fakePrice);
+      expect(price).toEqual(fakePrice);
       expect(description).toEqual(fakeDesc);
     });
   });
@@ -70,21 +70,21 @@ describe('OrderTypesController (e2e)', () => {
   describe('Read', () => {
     it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
-        .get('/order-types/a')
+        .get(`${url}/a`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
     });
 
     it('should throw error 404 when orderType not found', async () => {
       await request(app.getHttpServer())
-        .get('/order-types/1000')
+        .get(`${url}/1000`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
 
     it('should return list of orderType', async () => {
       const res = await request(app.getHttpServer())
-        .get('/order-types')
+        .get(url)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const orderType = await res.body;
@@ -97,9 +97,9 @@ describe('OrderTypesController (e2e)', () => {
         fakeName,
         fakeDesc,
         body: { id },
-      } = await generateDummyOrderType(app, accessToken);
+      } = await generateDummyOrderType();
       const res = await request(app.getHttpServer())
-        .get(`/order-types/${id}`)
+        .get(`${url}/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const { name, description } = await res.body;
@@ -112,14 +112,14 @@ describe('OrderTypesController (e2e)', () => {
   describe('Update', () => {
     it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
-        .patch('/order-types/a')
+        .patch(`${url}/a`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
     });
 
     it('should throw error 400 when name is missing', async () => {
       const res = await request(app.getHttpServer())
-        .post('/order-types')
+        .post(url)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           name: faker.string.alphanumeric({ length: 5 }),
@@ -128,7 +128,7 @@ describe('OrderTypesController (e2e)', () => {
         .expect(201);
       const { id } = await res.body;
       await request(app.getHttpServer())
-        .patch(`/order-types/${id}`)
+        .patch(`${url}/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ name: '' })
         .expect(400);
@@ -136,7 +136,7 @@ describe('OrderTypesController (e2e)', () => {
 
     it('should throw error 404 when orderType not found', async () => {
       await request(app.getHttpServer())
-        .patch('/order-types/1000')
+        .patch(`${url}/1000`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({})
         .expect(404);
@@ -149,9 +149,9 @@ describe('OrderTypesController (e2e)', () => {
       };
       const {
         body: { id },
-      } = await generateDummyOrderType(app, accessToken);
+      } = await generateDummyOrderType();
       const res = await request(app.getHttpServer())
-        .patch(`/order-types/${id}`)
+        .patch(`${url}/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateRole)
         .expect(200);
@@ -165,14 +165,14 @@ describe('OrderTypesController (e2e)', () => {
   describe('Delete', () => {
     it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
-        .delete('/order-types/a')
+        .delete(`${url}/a`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
     });
 
     it('should throw error 404 when orderType not found', async () => {
       await request(app.getHttpServer())
-        .delete('/order-types/1000')
+        .delete(`${url}/1000`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
@@ -182,9 +182,9 @@ describe('OrderTypesController (e2e)', () => {
         fakeName,
         fakeDesc,
         body: { id },
-      } = await generateDummyOrderType(app, accessToken);
+      } = await generateDummyOrderType();
       const res = await request(app.getHttpServer())
-        .delete(`/order-types/${id}`)
+        .delete(`${url}/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const { name, description } = await res.body;
@@ -192,19 +192,16 @@ describe('OrderTypesController (e2e)', () => {
       expect(description).toEqual(fakeDesc);
     });
   });
-});
 
-async function generateDummyOrderType(
-  app: INestApplication<any>,
-  accessToken: string,
-) {
-  const fakeName = faker.string.alphanumeric({ length: 5 });
-  const fakePrice = new Decimal(5000);
-  const fakeDesc = faker.lorem.words();
-  const postRes = await request(app.getHttpServer())
-    .post('/order-types')
-    .set('Authorization', `Bearer ${accessToken}`)
-    .send({ name: fakeName, price: fakePrice, description: fakeDesc })
-    .expect(201);
-  return { fakeName, fakePrice, fakeDesc, body: postRes.body };
-}
+  async function generateDummyOrderType() {
+    const fakeName = faker.string.alphanumeric({ length: 5 });
+    const fakePrice = +faker.commerce.price({ min: 1000, max: 10000, dec: 0 });
+    const fakeDesc = faker.lorem.words();
+    const postRes = await request(app.getHttpServer())
+      .post(url)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ name: fakeName, price: fakePrice, description: fakeDesc })
+      .expect(201);
+    return { fakeName, fakePrice, fakeDesc, body: postRes.body };
+  }
+});

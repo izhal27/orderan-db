@@ -10,7 +10,7 @@ export class OrderTypeEntity implements OrderType {
   name: string;
 
   @ApiProperty({ required: false, default: 0 })
-  price: Decimal;
+  price: number;
 
   @ApiProperty({ required: false, nullable: true })
   description: string | null;
