@@ -9,7 +9,7 @@ describe('CustomersService', () => {
   let service: CustomersService;
   let prismaMock: DeepMockProxy<PrismaClient>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     prismaMock = mockDeep<PrismaClient>();
 
     const module: TestingModule = await Test.createTestingModule({
