@@ -18,7 +18,7 @@ export class OrderEntity implements Order {
   description: string | null;
 
   @ApiProperty()
-  userId: number;
+  userId: number | null;
 
   @ApiProperty({ required: false, nullable: true })
   updatedById: number | null;

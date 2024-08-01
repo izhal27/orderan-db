@@ -14,26 +14,27 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  username     String   @unique
-  email        String?  @unique
-  password     String
-  name         String?
-  image        String?
-  blocked      Boolean  @default(false)
-  refreshToken String?
-  role         Role?    @relation(fields: [roleId], references: [id], onDelete: SetNull)
-  roleId       Int?
-  orders       Order[]  @relation(name: "Orders")
-  updated      Order?   @relation(name: "UpdatedBy")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               Int        @id @default(autoincrement())
+  username         String     @unique
+  email            String?    @unique
+  password         String
+  name             String?
+  image            String?
+  blocked          Boolean    @default(false)
+  refreshToken     String?
+  role             Role?      @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  roleId           Int?
+  orders           Order[]    @relation(name: "Orders")
+  updatedOrders    Order[]    @relation(name: "UpdatedOrders")
+  createdCustomers Customer[] @relation(name: "CreatedCustomers")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 }
 
 model Role {
   id          Int      @id @default(autoincrement())
   name        String   @unique
-  description String?
+  description String?  @default("")
   user        User[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -43,7 +44,7 @@ model OrderType {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   price       Decimal  @default(0)
-  description String?
+  description String?  @default("")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -68,14 +69,27 @@ model OrderDetail {
 model Order {
   id           String        @id @default(uuid())
   number       String        @unique()
-  date         DateTime      @default(now())
+  date         DateTime
   customer     String
-  description  String?
+  description  String?       @default("")
   orderDetails OrderDetail[]
-  user         User          @relation(fields: [userId], references: [id], name: "Orders", onDelete: Cascade)
-  userId       Int
-  updatedBy    User?         @relation(fields: [updatedById], references: [id], name: "UpdatedBy", onDelete: SetNull)
+  user         User?         @relation(fields: [userId], references: [id], name: "Orders", onDelete: SetNull)
+  userId       Int?
+  updatedBy    User?         @relation(fields: [updatedById], references: [id], name: "UpdatedOrders", onDelete: SetNull)
   updatedById  Int?          @unique
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+}
+
+model Customer {
+  id          String   @id @default(uuid())
+  name        String   @unique()
+  address     String?  @default("")
+  contact     String?  @default("")
+  email       String?  @default("")
+  description String?  @default("")
+  createdBy   User?    @relation(fields: [createdById], references: [id], name: "CreatedCustomers", onDelete: SetNull)
+  createdById Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
