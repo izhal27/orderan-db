@@ -43,7 +43,7 @@ model Role {
 model OrderType {
   id          Int      @id @default(autoincrement())
   name        String   @unique
-  price       Decimal  @default(0)
+  price       Int      @default(0)
   description String?  @default("")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
