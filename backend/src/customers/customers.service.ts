@@ -1,26 +1,80 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Customer, Prisma } from '@prisma/client';
+import { PrismaService } from 'nestjs-prisma';
 
 @Injectable()
 export class CustomersService {
-  create(createCustomerDto: CreateCustomerDto) {
-    return 'This action adds a new customer';
+  private readonly logger = new Logger();
+
+  constructor(private readonly prismaService: PrismaService) { }
+
+  create(data: Prisma.CustomerCreateInput, userId: number): Promise<Customer> {
+    const { name, address, contact, email, description } = data;
+    try {
+      return this.prismaService.customer.upsert({
+        where: {
+          name: data.name
+        },
+        update: {},
+        create: {
+          name,
+          address,
+          contact,
+          email,
+          description,
+          createdById: userId
+        }
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
-  findAll() {
-    return `This action returns all customers`;
+  findMany(): Promise<Customer[]> {
+    try {
+      return this.prismaService.customer.findMany();
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} customer`;
+  async findUnique(where: Prisma.CustomerWhereUniqueInput): Promise<Customer> {
+    const article = await this.prismaService.customer.findUnique({
+      where,
+    });
+    if (!article) {
+      throw new NotFoundException('Article not found');
+    }
+    return article;
   }
 
-  update(id: number, updateCustomerDto: UpdateCustomerDto) {
-    return `This action updates a #${id} customer`;
+  update(params: {
+    where: Prisma.CustomerWhereUniqueInput;
+    data: Prisma.CustomerUpdateInput;
+  }
+  ): Promise<Customer> {
+    try {
+      const { where, data } = params;
+      return this.prismaService.customer.update({
+        where,
+        data,
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} customer`;
+  delete(where: Prisma.CustomerWhereUniqueInput): Promise<Customer> {
+    try {
+      return this.prismaService.customer.delete({
+        where,
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 }
