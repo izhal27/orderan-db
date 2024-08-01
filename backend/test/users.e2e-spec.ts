@@ -13,6 +13,7 @@ describe('UsersController (e2e)', () => {
     username: 'dummy',
     password: '12345',
   };
+  const url = '/users';
   let role: Role;
   let accessToken = '';
 
@@ -42,7 +43,7 @@ describe('UsersController (e2e)', () => {
   describe('Create', () => {
     it('should throw error 400 when username is missing', async () => {
       await request(app.getHttpServer())
-        .post('/users')
+        .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ ...dummyUser, username: '' })
         .expect(400);
@@ -50,7 +51,7 @@ describe('UsersController (e2e)', () => {
 
     it('should throw error 400 when password is missing', async () => {
       await request(app.getHttpServer())
-        .post('/users')
+        .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ ...dummyUser, password: '' })
         .expect(400);
@@ -58,7 +59,7 @@ describe('UsersController (e2e)', () => {
 
     it('should throw error 400 when email is wrong', async () => {
       await request(app.getHttpServer())
-        .post('/users')
+        .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ ...dummyUser, email: 'testemail' })
         .expect(400);
@@ -66,7 +67,7 @@ describe('UsersController (e2e)', () => {
 
     it('should throw error 409 when duplicate entry', async () => {
       await request(app.getHttpServer())
-        .post('/users')
+        .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(dummyUser)
         .expect(409);
@@ -77,7 +78,7 @@ describe('UsersController (e2e)', () => {
         fakeUsername,
         fakePass,
         body: { username, password },
-      } = await generateDummyUser(app, accessToken);
+      } = await generateDummyUser();
       expect(username).toEqual(fakeUsername);
       expect(await compareValue(fakePass, password)).toEqual(true);
     });
@@ -87,21 +88,21 @@ describe('UsersController (e2e)', () => {
   describe('Read', () => {
     it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
-        .get('/users/a')
+        .get(`${url}/a`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
     });
 
     it('should throw error 404 when user not found', async () => {
       await request(app.getHttpServer())
-        .get('/users/1000')
+        .get(`${url}/1000`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
 
     it('should return list of users', async () => {
       const res = await request(app.getHttpServer())
-        .get('/users')
+        .get(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const users = await res.body;
@@ -114,9 +115,9 @@ describe('UsersController (e2e)', () => {
         fakeUsername,
         fakePass,
         body: { id },
-      } = await generateDummyUser(app, accessToken);
+      } = await generateDummyUser();
       const res = await request(app.getHttpServer())
-        .get(`/users/${id}`)
+        .get(`${url}/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const { username, password } = await res.body;
@@ -129,14 +130,14 @@ describe('UsersController (e2e)', () => {
   describe('Update', () => {
     it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
-        .patch('/users/a')
+        .patch(`${url}/a`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
     });
 
     it('should throw error 404 when user not found', async () => {
       await request(app.getHttpServer())
-        .patch('/users/1000')
+        .patch(`${url}/1000`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({})
         .expect(404);
@@ -154,9 +155,9 @@ describe('UsersController (e2e)', () => {
       };
       const {
         body: { id },
-      } = await generateDummyUser(app, accessToken);
+      } = await generateDummyUser();
       const res = await request(app.getHttpServer())
-        .patch(`/users/${id}`)
+        .patch(`${url}/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updatedData)
         .expect(200);
@@ -176,14 +177,14 @@ describe('UsersController (e2e)', () => {
   describe('Delete', () => {
     it('should throw error 400 when param input wrong', async () => {
       await request(app.getHttpServer())
-        .delete('/users/a')
+        .delete(`${url}/a`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
     });
 
     it('should throw error 404 when user not found', async () => {
       await request(app.getHttpServer())
-        .delete('/users/1000')
+        .delete(`${url}/1000`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
@@ -191,9 +192,9 @@ describe('UsersController (e2e)', () => {
     it('should return a deleted user', async () => {
       const {
         body: { id, username: newUsername, password: newPassword },
-      } = await generateDummyUser(app, accessToken);
+      } = await generateDummyUser();
       const res = await request(app.getHttpServer())
-        .delete(`/users/${id}`)
+        .delete(`${url}/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
       const { username, password } = await res.body;
@@ -201,18 +202,15 @@ describe('UsersController (e2e)', () => {
       expect(password).toEqual(newPassword);
     });
   });
-});
 
-async function generateDummyUser(
-  app: INestApplication<any>,
-  accessToken: string,
-) {
-  const fakeUsername = faker.string.alphanumeric({ length: 5 });
-  const fakePass = faker.internet.password();
-  const postRes = await request(app.getHttpServer())
-    .post('/users')
-    .set('Authorization', `Bearer ${accessToken}`)
-    .send({ username: fakeUsername, password: fakePass })
-    .expect(201);
-  return { fakeUsername, fakePass, body: postRes.body };
-}
+  async function generateDummyUser() {
+    const fakeUsername = faker.string.alphanumeric({ length: 5 });
+    const fakePass = faker.internet.password();
+    const postRes = await request(app.getHttpServer())
+      .post(`${url}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ username: fakeUsername, password: fakePass })
+      .expect(201);
+    return { fakeUsername, fakePass, body: postRes.body };
+  }
+});

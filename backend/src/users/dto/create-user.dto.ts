@@ -20,13 +20,6 @@ export class CreateUserDto {
   username: string;
 
   @IsString()
-  @IsOptional()
-  @IsNotEmpty()
-  @IsEmail()
-  @ApiProperty({ required: false, nullable: true })
-  email?: string | null;
-
-  @IsString()
   @IsNotEmpty()
   @MinLength(3)
   @ApiProperty()
@@ -34,14 +27,18 @@ export class CreateUserDto {
 
   @IsString()
   @IsOptional()
-  @IsNotEmpty()
+  @IsEmail()
+  @ApiProperty({ required: false, nullable: true })
+  email?: string | null;
+
+  @IsString()
+  @IsOptional()
   @MaxLength(50)
   @ApiProperty({ required: false, nullable: true })
   name?: string | null;
 
   @IsString()
   @IsOptional()
-  @IsNotEmpty()
   @ApiProperty({ required: false, nullable: true })
   image?: string | null;
 
@@ -52,10 +49,11 @@ export class CreateUserDto {
 
   @IsNumber()
   @IsOptional()
-  @IsNotEmpty()
   @ApiProperty({ required: false, nullable: true })
   roleId?: number;
 
+  @IsString()
+  @IsOptional()
   @ApiProperty({ required: false, nullable: true })
   refreshToken?: string | null;
 }
