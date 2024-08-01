@@ -1,17 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { Prisma, Role } from '@prisma/client';
 
 @Injectable()
 export class RolesService {
-  constructor(private readonly prismaService: PrismaService) {}
+  private readonly logger = new Logger();
+
+  constructor(private readonly prismaService: PrismaService) { }
 
   create(data: Prisma.RoleCreateInput): Promise<Role> {
-    return this.prismaService.role.create({ data });
+    try {
+      return this.prismaService.role.create({ data });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   findMany(): Promise<Role[]> {
-    return this.prismaService.role.findMany();
+    try {
+      return this.prismaService.role.findMany();
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   async findUnique(where: Prisma.RoleWhereUniqueInput): Promise<Role | null> {
@@ -28,16 +40,26 @@ export class RolesService {
     where: Prisma.RoleWhereUniqueInput;
     data: Prisma.RoleUpdateInput;
   }): Promise<Role> {
-    const { where, data } = params;
-    return this.prismaService.role.update({
-      where,
-      data,
-    });
+    try {
+      const { where, data } = params;
+      return this.prismaService.role.update({
+        where,
+        data,
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   delete(where: Prisma.RoleWhereUniqueInput): Promise<Role> {
-    return this.prismaService.role.delete({
-      where,
-    });
+    try {
+      return this.prismaService.role.delete({
+        where,
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 }
