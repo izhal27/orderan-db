@@ -6,17 +6,17 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
-import * as randomstring from 'randomstring';
 
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderEntity } from './entities/order.entity';
+import { orderNumber } from '../helpers';
 
 @Injectable()
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async create(
     createOrderDto: CreateOrderDto,
@@ -24,13 +24,7 @@ export class OrdersService {
   ): Promise<OrderEntity[]> {
     try {
       const { date, customer, description, orderDetails } = createOrderDto;
-      const number =
-        'DB-' +
-        randomstring.generate({
-          charset: 'alphanumeric',
-          length: 10,
-          capitalization: 'uppercase',
-        });
+      const number = orderNumber('DB-', 4);
       return await this.prismaService.$transaction(
         async (prisma): Promise<OrderEntity[] | any> => {
           try {
