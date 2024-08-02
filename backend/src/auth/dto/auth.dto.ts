@@ -11,12 +11,18 @@ export class AuthDto {
   @IsNotEmpty()
   @MinLength(5)
   @IsAlphanumeric()
-  @ApiProperty()
+  @ApiProperty({
+    example: 'johndoe',
+    description: 'Alphanumeric only  [A–Z,a–z,0–9]'
+  })
   username: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
-  @ApiProperty()
+  @ApiProperty({
+    example: 'secret',
+    description: 'Minimal length 3'
+  })
   password: string;
 }

@@ -1,3 +1,4 @@
+import { Tokens } from './../types/tokens.type';
 import {
   Body,
   Controller,
@@ -15,18 +16,29 @@ import {
 
 import { AuthDto } from './dto/auth.dto';
 import { AuthService } from './auth.service';
-import { Tokens } from '../types';
 import { AccessTokenGuard, RefreshTokenGuard } from '../common/guards';
 import { GetCurrentUser, GetCurrentUserId, Public } from '../common/decorators';
+
+class TokensEntity {
+  access_token: string;
+  refresh_token: string;
+}
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Public()
   @Post('/local/signup')
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({
+    type: TokensEntity,
+    example: {
+      access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+      refresh_token: 'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI...',
+    },
+    description: 'Signup with username and password'
+  })
   signupLocal(@Body() authDto: AuthDto): Promise<Tokens> {
     return this.authService.signupLocal(authDto);
   }
@@ -34,7 +46,14 @@ export class AuthController {
   @Public()
   @Post('/local/signin')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse()
+  @ApiOkResponse({
+    type: TokensEntity,
+    example: {
+      access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+      refresh_token: 'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI...',
+    },
+    description: 'Signin with username and password'
+  })
   signinLocal(@Body() authDto: AuthDto): Promise<Tokens> {
     return this.authService.signinLocal(authDto);
   }

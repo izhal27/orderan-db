@@ -16,44 +16,72 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(5)
   @IsAlphanumeric()
-  @ApiProperty()
+  @ApiProperty({
+    example: 'heloise37',
+    description: 'Alphanumeric only  [A–Z,a–z,0–9]'
+  })
   username: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
-  @ApiProperty()
+  @ApiProperty({
+    example: '12345',
+    description: 'Minimal length 3'
+  })
   password: string;
 
   @IsString()
   @IsOptional()
   @IsEmail()
-  @ApiProperty({ required: false, nullable: true })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    example: 'Lorenzo.Cormier42@hotmail.com',
+    description: 'User email'
+  })
   email?: string | null;
 
   @IsString()
   @IsOptional()
   @MaxLength(50)
-  @ApiProperty({ required: false, nullable: true })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    example: 'Vera Emmerich',
+    description: 'Name for user, Max length 50',
+  })
   name?: string | null;
 
   @IsString()
   @IsOptional()
-  @ApiProperty({ required: false, nullable: true })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    example: '/image/path',
+    description: 'Path for user image'
+  })
   image?: string | null;
 
   @IsBoolean()
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({
+    required: false, default: false,
+    example: true,
+    description: 'True if user has been blocked'
+  })
   blocked?: boolean;
 
   @IsNumber()
   @IsOptional()
-  @ApiProperty({ required: false, nullable: true })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    example: 1,
+  })
   roleId?: number;
 
   @IsString()
   @IsOptional()
-  @ApiProperty({ required: false, nullable: true })
   refreshToken?: string | null;
 }

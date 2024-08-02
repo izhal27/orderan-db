@@ -13,12 +13,19 @@ export class CreateRoleDto {
   @IsNotEmpty()
   @MinLength(3)
   @IsAlphanumeric()
-  @ApiProperty()
+  @ApiProperty({
+    example: "Admin",
+    description: "Role name"
+  })
   name: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(300)
-  @ApiProperty({ required: false })
+  @ApiProperty({
+    required: false,
+    example: "Role for admin",
+    description: "Role description"
+  })
   description: string | null;
 }

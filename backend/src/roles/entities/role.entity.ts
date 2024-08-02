@@ -2,18 +2,36 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
 export class RoleEntity implements Role {
-  @ApiProperty()
+  @ApiProperty({
+    required: false,
+    example: 1,
+    description: 'Role id'
+  })
   id: number;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'Admin',
+    description: 'Role name'
+  })
   name: string;
 
-  @ApiProperty({ required: false, nullable: true })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    example: 'Role for admin',
+    description: 'Role description'
+  })
   description: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    required: false,
+    example: new Date().toISOString()
+  })
   createdAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({
+    required: false,
+    example: new Date().toISOString()
+  })
   updatedAt: Date;
 }
