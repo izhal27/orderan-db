@@ -25,7 +25,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async signupLocal({ username, password }: AuthDto) {
     const user = await this.userService.create({
@@ -44,7 +44,7 @@ export class AuthService {
     if (!isValid) {
       throw new UnauthorizedException('Username or password is incorect');
     }
-    if (user.blocked || user.roleId) {
+    if (user.blocked || !user.roleId) {
       throw new UnauthorizedException(
         'User has been blocked or does not have any roles',
       );

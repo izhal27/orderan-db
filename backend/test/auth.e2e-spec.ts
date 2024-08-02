@@ -9,11 +9,6 @@ describe('AuthController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
   let accessToken;
-  const user = {
-    username: faker.string.alphanumeric({ length: 5 }),
-    password: faker.internet.password(),
-  };
-
   beforeAll(async () => {
     ({ app, prismaClient } = await buildApp());
     const fakeRoleName = faker.string.alphanumeric({ length: 5 });
@@ -55,7 +50,10 @@ describe('AuthController (e2e)', () => {
     it('POST: /auth/local/signup - should return tokens', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/local/signup')
-        .send(user)
+        .send({
+          username: faker.string.alphanumeric({ length: 5 }),
+          password: faker.internet.password()
+        })
         .expect(201);
       const { access_token, refresh_token } = await res.body;
       accessToken = access_token;
@@ -66,7 +64,7 @@ describe('AuthController (e2e)', () => {
     it('POST: /auth/local/signin - should return tokens', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/local/signin')
-        .send(user)
+        .send({ username: 'admin', password: '12345' })
         .expect(200);
       const { access_token, refresh_token } = await res.body;
       expect(access_token).not.toBeNull();
@@ -112,5 +110,28 @@ describe('AuthController (e2e)', () => {
       expect(orders).not.toBeNull();
       expect(orders).toBeInstanceOf(Array);
     });
+  });
+
+
+  // <---------------- ROLE BASED ---------------->
+  describe('Authenticated', () => {
+    it('GET: /Users - Only admin can access user resource', async () => {
+      const username = 'admin';
+      const password = '12345';
+      // signin
+      const res = await request(app.getHttpServer())
+        .post('/auth/local/signin')
+        .send({
+          username: 'admin',
+          password: '12345',
+        })
+        .expect(200);
+      console.log(JSON.stringify(await res.body, null, 4))
+      const { access_token, refresh_token } = await res.body;
+      await request(app.getHttpServer())
+        .get('/users')
+        .set('Authorization', `Bearer ${access_token}`)
+        .expect(200);
+    })
   });
 });

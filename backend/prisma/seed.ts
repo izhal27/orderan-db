@@ -65,6 +65,7 @@ async function main() {
       name: 'Admin',
       password: hashPassword,
       roleId: 1,
+      blocked: false,
     },
   });
 

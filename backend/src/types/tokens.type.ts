@@ -6,4 +6,5 @@ export type Tokens = {
 export type JwtPayload = {
   sub: string;
   username: string;
+  role: string;
 };

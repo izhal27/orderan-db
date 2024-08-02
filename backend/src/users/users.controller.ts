@@ -18,12 +18,15 @@ import {
 import { UserEntity } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
+import { Roles } from '../common/decorators';
+import { Role } from '../common';
 
 @Controller('users')
+@Roles(Role.Admin)
 @ApiTags('users')
 @ApiBearerAuth()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   @ApiCreatedResponse({ type: UserEntity })

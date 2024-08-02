@@ -6,3 +6,5 @@ export const REFRESH_TOKEN_SECRET = 'REFRESH_TOKEN_SECRET';
 export const REFRESH_TOKEN_EXPIRES = 'REFRESH_TOKEN_EXPIRES';
 
 export const IS_PUBLIC = 'isPublic';
+
+export const ROLES_KEY = 'roles';
