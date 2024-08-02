@@ -1,5 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { CustomerEntity } from './entities/customer.entity';
 import { CustomersService } from './customers.service';
@@ -10,11 +23,14 @@ import { GetCurrentUserId } from '../common/decorators';
 @ApiTags('customers')
 @ApiBearerAuth()
 export class CustomersController {
-  constructor(private readonly customersService: CustomersService) { }
+  constructor(private readonly customersService: CustomersService) {}
 
   @Post()
   @ApiCreatedResponse({ type: CustomerEntity })
-  create(@Body() createCustomerDto: CreateCustomerDto, @GetCurrentUserId() userId: number) {
+  create(
+    @Body() createCustomerDto: CreateCustomerDto,
+    @GetCurrentUserId() userId: number,
+  ) {
     return this.customersService.create(createCustomerDto, userId);
   }
 
@@ -32,8 +48,14 @@ export class CustomersController {
 
   @Patch(':id')
   @ApiOkResponse({ type: CustomerEntity })
-  update(@Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto) {
-    return this.customersService.update({ where: { id }, data: updateCustomerDto });
+  update(
+    @Param('id') id: string,
+    @Body() updateCustomerDto: UpdateCustomerDto,
+  ) {
+    return this.customersService.update({
+      where: { id },
+      data: updateCustomerDto,
+    });
   }
 
   @Delete(':id')

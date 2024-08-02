@@ -8,7 +8,12 @@ import {
   Delete,
   ParseIntPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { OrderTypesService } from './order-types.service';
 import { CreateOrderTypeDto, UpdateOrderTypeDto } from './dto';
@@ -18,7 +23,7 @@ import { OrderTypeEntity } from './entities/order-type.entity';
 @ApiTags('order-types')
 @ApiBearerAuth()
 export class OrderTypesController {
-  constructor(private readonly orderTypeService: OrderTypesService) { }
+  constructor(private readonly orderTypeService: OrderTypesService) {}
 
   @Post()
   @ApiCreatedResponse({ type: OrderTypeEntity })

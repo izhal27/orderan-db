@@ -15,4 +15,4 @@ export const orderNumber = (preFix: string, length: number = 4): string => {
   // result => DB-240801xxxx
   const number = preFix + year + month + date + randomStr;
   return number;
-}
+};

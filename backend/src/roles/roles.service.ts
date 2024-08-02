@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { Prisma, Role } from '@prisma/client';
 
@@ -6,7 +11,7 @@ import { Prisma, Role } from '@prisma/client';
 export class RolesService {
   private readonly logger = new Logger();
 
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   create(data: Prisma.RoleCreateInput): Promise<Role> {
     try {

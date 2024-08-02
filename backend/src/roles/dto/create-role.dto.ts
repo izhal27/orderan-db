@@ -14,8 +14,8 @@ export class CreateRoleDto {
   @MinLength(3)
   @IsAlphanumeric()
   @ApiProperty({
-    example: "Admin",
-    description: "Role name"
+    example: 'Admin',
+    description: 'Role name',
   })
   name: string;
 
@@ -24,8 +24,8 @@ export class CreateRoleDto {
   @MaxLength(300)
   @ApiProperty({
     required: false,
-    example: "Role for admin",
-    description: "Role description"
+    example: 'Role for admin',
+    description: 'Role description',
   })
   description: string | null;
 }

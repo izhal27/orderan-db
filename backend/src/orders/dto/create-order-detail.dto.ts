@@ -6,7 +6,7 @@ export class CreateOrderDetailDto {
   @IsNotEmpty()
   @ApiProperty({
     example: 'FLEXY BANNER 280 GSM',
-    description: 'Order detail name'
+    description: 'Order detail name',
   })
   name: string;
 
@@ -16,7 +16,7 @@ export class CreateOrderDetailDto {
     required: false,
     default: 0,
     example: 27000,
-    description: 'Order type price'
+    description: 'Order type price',
   })
   price: number;
 
@@ -25,7 +25,7 @@ export class CreateOrderDetailDto {
   @ApiProperty({
     default: 0,
     example: 200,
-    description: 'Order type width'
+    description: 'Order type width',
   })
   width: number;
 
@@ -34,7 +34,7 @@ export class CreateOrderDetailDto {
   @ApiProperty({
     default: 0,
     example: 200,
-    description: 'Order type height'
+    description: 'Order type height',
   })
   height: number;
 
@@ -43,7 +43,7 @@ export class CreateOrderDetailDto {
   @ApiProperty({
     default: 0,
     example: 200,
-    description: 'Order type qty'
+    description: 'Order type qty',
   })
   qty: number;
 
@@ -52,7 +52,7 @@ export class CreateOrderDetailDto {
   @ApiProperty({
     default: 0,
     example: 200,
-    description: 'Order type design'
+    description: 'Order type design',
   })
   design: number;
 
@@ -61,7 +61,7 @@ export class CreateOrderDetailDto {
     required: false,
     default: false,
     example: true,
-    description: 'True if eyelets'
+    description: 'True if eyelets',
   })
   eyelets: boolean;
 
@@ -70,7 +70,7 @@ export class CreateOrderDetailDto {
     required: false,
     default: false,
     example: true,
-    description: 'True if shiming'
+    description: 'True if shiming',
   })
   shiming: boolean;
 
@@ -81,13 +81,13 @@ export class CreateOrderDetailDto {
     default: false,
     nullable: true,
     example: 'Fusce egestas elit eget lorem',
-    description: 'Order detail description'
+    description: 'Order detail description',
   })
   description: string | null;
 
   @ApiProperty({
     example: 'ad1a17e7-efd9-4b5b-a70f-38e804be9740',
-    description: 'Order ID'
+    description: 'Order ID',
   })
   orderId: string;
 }

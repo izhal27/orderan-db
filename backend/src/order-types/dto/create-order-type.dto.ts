@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsDecimal,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -15,7 +14,7 @@ export class CreateOrderTypeDto {
   @MinLength(5)
   @ApiProperty({
     example: 'FLEXY BANNER 280 GSM',
-    description: 'Unique order type'
+    description: 'Unique order type',
   })
   name: string;
 
@@ -25,7 +24,7 @@ export class CreateOrderTypeDto {
     required: false,
     default: 0,
     example: 27000,
-    description: 'Order type price'
+    description: 'Order type price',
   })
   price: number;
 
@@ -35,7 +34,7 @@ export class CreateOrderTypeDto {
   @ApiProperty({
     required: false,
     example: 'Aenean tellus metus bibendum sed',
-    description: 'Order type description'
+    description: 'Order type description',
   })
   description: string | null;
 }

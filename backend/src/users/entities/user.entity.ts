@@ -12,13 +12,13 @@ export class UserEntity implements User {
   @ApiProperty({
     required: false,
     example: 1,
-    description: 'User id'
+    description: 'User id',
   })
   id: number;
 
   @ApiProperty({
     example: 'heloise37',
-    description: 'Alphanumeric only  [A–Z,a–z,0–9]'
+    description: 'Alphanumeric only  [A–Z,a–z,0–9]',
   })
   username: string;
 
@@ -26,7 +26,7 @@ export class UserEntity implements User {
     required: false,
     nullable: true,
     example: 'Lorenzo.Cormier42@hotmail.com',
-    description: 'User email'
+    description: 'User email',
   })
   email: string | null;
 
@@ -37,7 +37,7 @@ export class UserEntity implements User {
     required: false,
     nullable: true,
     example: 'Vera Emmerich',
-    description: 'Name for user'
+    description: 'Name for user',
   })
   name: string | null;
 
@@ -45,7 +45,7 @@ export class UserEntity implements User {
     required: false,
     nullable: true,
     example: '/image/path',
-    description: 'Path for user image'
+    description: 'Path for user image',
   })
   image: string | null;
 
@@ -54,7 +54,7 @@ export class UserEntity implements User {
     required: false,
     default: false,
     example: true,
-    description: 'True if user has been blocked'
+    description: 'True if user has been blocked',
   })
   blocked: boolean;
 
@@ -62,13 +62,12 @@ export class UserEntity implements User {
     required: false,
     nullable: true,
     example: 1,
-
   })
   roleId: number | null;
 
   @ApiProperty({
     required: false,
-    type: RoleEntity
+    type: RoleEntity,
   })
   role?: RoleEntity;
 
@@ -76,19 +75,19 @@ export class UserEntity implements User {
   @ApiProperty({
     required: false,
     nullable: true,
-    example: null
+    example: null,
   })
   refreshToken: string | null;
 
   @ApiProperty({
     required: false,
-    example: new Date().toISOString()
+    example: new Date().toISOString(),
   })
   createdAt: Date;
 
   @ApiProperty({
     required: false,
-    example: new Date().toISOString()
+    example: new Date().toISOString(),
   })
   updatedAt: Date;
 }

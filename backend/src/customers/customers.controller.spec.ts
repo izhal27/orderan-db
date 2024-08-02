@@ -18,7 +18,8 @@ describe('CustomersController', () => {
         {
           provide: CustomersService,
           useValue: serviceMock,
-        },],
+        },
+      ],
     }).compile();
 
     controller = module.get<CustomersController>(CustomersController);

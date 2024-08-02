@@ -5,7 +5,6 @@ import { OrderTypesController } from './order-types.controller';
 import { OrderTypesService } from './order-types.service';
 import { CreateOrderTypeDto, UpdateOrderTypeDto } from './dto';
 
-
 describe('OrderTypesController', () => {
   let controller: OrderTypesController;
   let serviceMock: DeepMockProxy<OrderTypesService>;

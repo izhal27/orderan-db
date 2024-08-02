@@ -5,13 +5,13 @@ export class RoleEntity implements Role {
   @ApiProperty({
     required: false,
     example: 1,
-    description: 'Role id'
+    description: 'Role id',
   })
   id: number;
 
   @ApiProperty({
     example: 'Admin',
-    description: 'Role name'
+    description: 'Role name',
   })
   name: string;
 
@@ -19,19 +19,19 @@ export class RoleEntity implements Role {
     required: false,
     nullable: true,
     example: 'Role for admin',
-    description: 'Role description'
+    description: 'Role description',
   })
   description: string;
 
   @ApiProperty({
     required: false,
-    example: new Date().toISOString()
+    example: new Date().toISOString(),
   })
   createdAt: Date;
 
   @ApiProperty({
     required: false,
-    example: new Date().toISOString()
+    example: new Date().toISOString(),
   })
   updatedAt: Date;
 }

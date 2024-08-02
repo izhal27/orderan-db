@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { OrderType, Prisma } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
@@ -6,7 +11,7 @@ import { PrismaService } from 'nestjs-prisma';
 export class OrderTypesService {
   private readonly logger = new Logger();
 
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   create(data: Prisma.OrderTypeCreateInput): Promise<OrderType> {
     try {

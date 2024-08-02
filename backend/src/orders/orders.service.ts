@@ -16,7 +16,7 @@ import { orderNumber } from '../helpers';
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
 
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(
     createOrderDto: CreateOrderDto,

@@ -13,7 +13,7 @@ export class AuthDto {
   @IsAlphanumeric()
   @ApiProperty({
     example: 'johndoe',
-    description: 'Alphanumeric only  [A–Z,a–z,0–9]'
+    description: 'Alphanumeric only  [A–Z,a–z,0–9]',
   })
   username: string;
 
@@ -22,7 +22,7 @@ export class AuthDto {
   @MinLength(3)
   @ApiProperty({
     example: 'secret',
-    description: 'Minimal length 3'
+    description: 'Minimal length 3',
   })
   password: string;
 }

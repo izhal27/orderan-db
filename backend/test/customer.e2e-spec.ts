@@ -210,7 +210,7 @@ describe('CustomersController (e2e)', () => {
         address: fakeAddress,
         contact: fakeContact,
         email: fakeEmail,
-        description: fakeDesc
+        description: fakeDesc,
       })
       .expect(201);
     return {
@@ -219,7 +219,7 @@ describe('CustomersController (e2e)', () => {
       fakeContact,
       fakeEmail,
       fakeDesc,
-      body: postRes.body
+      body: postRes.body,
     };
   }
 });

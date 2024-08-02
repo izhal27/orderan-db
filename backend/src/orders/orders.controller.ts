@@ -23,7 +23,7 @@ import { OrdersService } from './orders.service';
 @ApiTags('orders')
 @ApiBearerAuth()
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
   @ApiCreatedResponse({ type: OrderEntity })

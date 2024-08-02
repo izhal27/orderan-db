@@ -18,7 +18,7 @@ export class CreateUserDto {
   @IsAlphanumeric()
   @ApiProperty({
     example: 'heloise37',
-    description: 'Alphanumeric only  [A–Z,a–z,0–9]'
+    description: 'Alphanumeric only  [A–Z,a–z,0–9]',
   })
   username: string;
 
@@ -27,7 +27,7 @@ export class CreateUserDto {
   @MinLength(3)
   @ApiProperty({
     example: '12345',
-    description: 'Minimal length 3'
+    description: 'Minimal length 3',
   })
   password: string;
 
@@ -38,7 +38,7 @@ export class CreateUserDto {
     required: false,
     nullable: true,
     example: 'Lorenzo.Cormier42@hotmail.com',
-    description: 'User email'
+    description: 'User email',
   })
   email?: string | null;
 
@@ -59,16 +59,17 @@ export class CreateUserDto {
     required: false,
     nullable: true,
     example: '/image/path',
-    description: 'Path for user image'
+    description: 'Path for user image',
   })
   image?: string | null;
 
   @IsBoolean()
   @IsOptional()
   @ApiProperty({
-    required: false, default: false,
+    required: false,
+    default: false,
     example: true,
-    description: 'True if user has been blocked'
+    description: 'True if user has been blocked',
   })
   blocked?: boolean;
 

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { Customer, Prisma } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
@@ -6,14 +11,14 @@ import { PrismaService } from 'nestjs-prisma';
 export class CustomersService {
   private readonly logger = new Logger();
 
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   create(data: Prisma.CustomerCreateInput, userId: number): Promise<Customer> {
     const { name, address, contact, email, description } = data;
     try {
       return this.prismaService.customer.upsert({
         where: {
-          name: data.name
+          name: data.name,
         },
         update: {},
         create: {
@@ -22,8 +27,8 @@ export class CustomersService {
           contact,
           email,
           description,
-          createdById: userId
-        }
+          createdById: userId,
+        },
       });
     } catch (error) {
       this.logger.error(error);
@@ -53,8 +58,7 @@ export class CustomersService {
   update(params: {
     where: Prisma.CustomerWhereUniqueInput;
     data: Prisma.CustomerUpdateInput;
-  }
-  ): Promise<Customer> {
+  }): Promise<Customer> {
     try {
       const { where, data } = params;
       return this.prismaService.customer.update({

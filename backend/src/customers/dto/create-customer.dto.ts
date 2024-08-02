@@ -1,14 +1,20 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Exclude } from "class-transformer";
-import { IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateCustomerDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
   @ApiProperty({
-    example: "John Doe",
-    description: "Customer name"
+    example: 'John Doe',
+    description: 'Customer name',
   })
   name: string;
 
@@ -16,8 +22,8 @@ export class CreateCustomerDto {
   @IsOptional()
   @ApiProperty({
     required: false,
-    example: "27th Street",
-    description: "Customer address"
+    example: '27th Street',
+    description: 'Customer address',
   })
   address: string | null;
 
@@ -26,8 +32,8 @@ export class CreateCustomerDto {
   @MaxLength(50)
   @ApiProperty({
     required: false,
-    example: "+6212345",
-    description: "Customer contact"
+    example: '+6212345',
+    description: 'Customer contact',
   })
   contact: string | null;
 
@@ -36,8 +42,8 @@ export class CreateCustomerDto {
   @MaxLength(50)
   @ApiProperty({
     required: false,
-    example: "customer@email.com",
-    description: "Customer email"
+    example: 'customer@email.com',
+    description: 'Customer email',
   })
   email: string | null;
 
@@ -46,8 +52,8 @@ export class CreateCustomerDto {
   @MaxLength(300)
   @ApiProperty({
     required: false,
-    example: "Donec elit libero sodales nec",
-    description: "Customer description"
+    example: 'Donec elit libero sodales nec',
+    description: 'Customer description',
   })
   description: string | null;
 
