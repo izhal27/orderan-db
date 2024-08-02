@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OrderType } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
 
 export class OrderTypeEntity implements OrderType {
   @ApiProperty()
