@@ -3,8 +3,7 @@ import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 
 import { RolesController } from './roles.controller';
 import { RolesService } from './roles.service';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { CreateRoleDto } from './dto/create-role.dto';
+import { CreateRoleDto, UpdateRoleDto } from './dto';
 
 describe('RolesController', () => {
   let controller: RolesController;
