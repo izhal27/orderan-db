@@ -99,6 +99,7 @@ describe('OrderController (e2e)', () => {
       expect(orderDetails.length).toEqual(fakeOrderDetails.length);
     });
   });
+  // <---------------------------------------->
 
   // <---------------- READ ---------------->
   describe('Read', () => {
@@ -139,6 +140,7 @@ describe('OrderController (e2e)', () => {
       expect(orderDetails.length).toEqual(fakeOrderDetails.length);
     });
   });
+  // <---------------------------------------->
 
   // <---------------- UPDATE ---------------->
   describe('Update', () => {
@@ -221,6 +223,7 @@ describe('OrderController (e2e)', () => {
       expect(updatedOrderDetail.design).toEqual(upOd[0].design);
     });
   });
+  // <---------------------------------------->
 
   // <---------------- DELETE ---------------->
   describe('Delete', () => {
@@ -250,6 +253,80 @@ describe('OrderController (e2e)', () => {
       expect(orderDetails.length).toEqual(fakeOrderDetails.length);
     });
   });
+  // <---------------------------------------->
+
+  // <-------------- MARK PRINT -------------->
+  describe('Mark Print', () => {
+    it('should can set status to true and false', async () => {
+      const { body: { orderDetails },
+      } = await generateDummyOrder();
+      const orderDetailId = orderDetails[0].id;
+      const firstRes = await request(app.getHttpServer())
+        .post(`${url}/detail/${orderDetailId}/print`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ status: true })
+        .expect(200);
+      const { status: firstStatus, printAt: firstDate } = await firstRes.body;
+      expect(firstStatus).toEqual(true);
+      const secondRes = await request(app.getHttpServer())
+        .post(`${url}/detail/${orderDetailId}/print`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ status: false })
+        .expect(200);
+      const { status: secondStatus, printAt: secondDate } = await secondRes.body;
+      expect(secondStatus).toEqual(false);
+      expect(firstDate).not.toEqual(secondDate);
+    });
+  });
+  // <---------------------------------------->
+
+  // <-------------- MARK PRINT -------------->
+  describe('Mark Pay', () => {
+    it('should can set status to true and false', async () => {
+      const { body: { id },
+      } = await generateDummyOrder();
+      const firstRes = await request(app.getHttpServer())
+        .post(`${url}/${id}/pay`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ status: true })
+        .expect(200);
+      const { status: firstStatus, payAt: firstDate } = await firstRes.body;
+      expect(firstStatus).toEqual(true);
+      const secondRes = await request(app.getHttpServer())
+        .post(`${url}/${id}/pay`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ status: false })
+        .expect(200);
+      const { status: secondStatus, payAt: secondDate } = await secondRes.body;
+      expect(secondStatus).toEqual(false);
+      expect(firstDate).not.toEqual(secondDate);
+    });
+  });
+  // <---------------------------------------->
+
+  // <-------------- MARK TAKEN -------------->
+  describe('Mark Taken', () => {
+    it('should can set status to true and false', async () => {
+      const { body: { id },
+      } = await generateDummyOrder();
+      const firstRes = await request(app.getHttpServer())
+        .post(`${url}/${id}/taken`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ status: true })
+        .expect(200);
+      const { status: firstStatus, takenAt: firstDate } = await firstRes.body;
+      expect(firstStatus).toEqual(true);
+      const secondRes = await request(app.getHttpServer())
+        .post(`${url}/${id}/taken`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ status: false })
+        .expect(200);
+      const { status: secondStatus, takenAt: secondDate } = await secondRes.body;
+      expect(secondStatus).toEqual(false);
+      expect(firstDate).not.toEqual(secondDate);
+    });
+  });
+  // <---------------------------------------->
 
   async function generateDummyOrder() {
     const fakeDate = new Date().toISOString();

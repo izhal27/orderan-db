@@ -70,9 +70,9 @@ export class OrdersController {
     return this.ordersService.delete({ id });
   }
 
-  @Post('/:id/print')
+  @Post('/detail/:orderDetailId/print')
   @HttpCode(200)
-  markPrinted(@Param('id') id: string,
+  markPrinted(@Param('orderDetailId') id: string,
     @Body('status') status: boolean,
     @GetCurrentUserId() userId: number) {
     return this.ordersService.markPrint(id, status, userId);
