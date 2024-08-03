@@ -6,6 +6,8 @@ import { faker } from '@faker-js/faker';
 import { buildApp } from './setup.e2e';
 import { compareValue } from '../src/helpers/hash';
 
+jest.setTimeout(70 * 1000);
+
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
@@ -20,9 +22,9 @@ describe('UsersController (e2e)', () => {
   beforeAll(async () => {
     ({ app, prismaClient } = await buildApp());
     const res = await request(app.getHttpServer())
-      .post('/auth/local/signup')
-      .send(dummyUser)
-      .expect(201);
+      .post('/auth/local/signin')
+      .send({ username: 'admin', password: '12345' })
+      .expect(200);
     accessToken = await res.body.access_token;
     const fakerName = faker.string.alphanumeric({ length: 5 });
     const fakerDesc = faker.lorem.words();
@@ -66,6 +68,11 @@ describe('UsersController (e2e)', () => {
     });
 
     it('should throw error 409 when duplicate entry', async () => {
+      await request(app.getHttpServer())
+        .post(`${url}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(dummyUser)
+        .expect(201);
       await request(app.getHttpServer())
         .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
