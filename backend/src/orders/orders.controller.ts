@@ -7,6 +7,7 @@ import {
   Patch,
   Param,
   Delete,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -18,6 +19,8 @@ import {
 import { OrderEntity } from './entities/order.entity';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { OrdersService } from './orders.service';
+import { GetCurrentUser } from '../common/decorators';
+import { ADMIN } from '../types';
 
 @Controller('orders')
 @ApiTags('orders')
@@ -58,7 +61,11 @@ export class OrdersController {
 
   @Delete(':id')
   @ApiOkResponse({ type: OrderEntity })
-  delete(@Param('id') id: string) {
+  delete(@Param('id') id: string,
+    @GetCurrentUser('role') role: string) {
+    if (role !== ADMIN) {
+      throw new ForbiddenException('403 Forbidden');
+    }
     return this.ordersService.delete({ id });
   }
 }
