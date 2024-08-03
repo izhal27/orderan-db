@@ -8,7 +8,6 @@ import { buildApp } from './setup.e2e';
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
-  let accessToken;
   beforeAll(async () => {
     ({ app, prismaClient } = await buildApp());
     const fakeRoleName = faker.string.alphanumeric({ length: 5 });
@@ -47,6 +46,8 @@ describe('AuthController (e2e)', () => {
 
   // <---------------- AUTHENTICATED ---------------->
   describe('Authenticated', () => {
+    let newUser;
+
     it('POST: /auth/local/signup - should return tokens', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/local/signup')
@@ -56,7 +57,7 @@ describe('AuthController (e2e)', () => {
         })
         .expect(201);
       const { access_token, refresh_token } = await res.body;
-      accessToken = access_token;
+      newUser = access_token;
       expect(access_token).not.toBeNull();
       expect(refresh_token).not.toBeNull();
     });
@@ -71,30 +72,24 @@ describe('AuthController (e2e)', () => {
       expect(refresh_token).not.toBeNull();
     });
 
-    it('GET: /roles - should return roles array', async () => {
-      const res = await request(app.getHttpServer())
-        .get('/roles')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .expect(200);
-      const roles = await res.body;
-      expect(roles).not.toBeNull();
-      expect(roles).toBeInstanceOf(Array);
+    it('GET: /users - should throw 403 Forbidden', async () => {
+      await request(app.getHttpServer())
+        .get('/users')
+        .set('Authorization', `Bearer ${newUser}`)
+        .expect(403);
     });
 
-    it('GET: /users - should return users array', async () => {
-      const res = await request(app.getHttpServer())
-        .get('/users')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .expect(200);
-      const users = await res.body;
-      expect(users).not.toBeNull();
-      expect(users).toBeInstanceOf(Array);
+    it('GET: /roles - should throw 403 Forbidden', async () => {
+      await request(app.getHttpServer())
+        .get('/roles')
+        .set('Authorization', `Bearer ${newUser}`)
+        .expect(403);
     });
 
     it('GET: /order-types - should return order types array', async () => {
       const res = await request(app.getHttpServer())
         .get('/order-types')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${newUser}`)
         .expect(200);
       const orderTypes = await res.body;
       expect(orderTypes).not.toBeNull();
@@ -104,7 +99,7 @@ describe('AuthController (e2e)', () => {
     it('GET: /orders - should return orders array', async () => {
       const res = await request(app.getHttpServer())
         .get('/orders')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${newUser}`)
         .expect(200);
       const orders = await res.body;
       expect(orders).not.toBeNull();
@@ -112,26 +107,33 @@ describe('AuthController (e2e)', () => {
     });
   });
 
-
   // <---------------- ROLE BASED ---------------->
-  describe('Authenticated', () => {
-    it('GET: /Users - Only admin can access user resource', async () => {
-      const username = 'admin';
-      const password = '12345';
-      // signin
-      const res = await request(app.getHttpServer())
-        .post('/auth/local/signin')
-        .send({
-          username: 'admin',
-          password: '12345',
-        })
-        .expect(200);
-      console.log(JSON.stringify(await res.body, null, 4))
-      const { access_token, refresh_token } = await res.body;
-      await request(app.getHttpServer())
-        .get('/users')
-        .set('Authorization', `Bearer ${access_token}`)
-        .expect(200);
-    })
+  describe('Role Authorization', () => {
+    describe('Admin', () => {
+      let adminToken;
+
+      beforeEach(async () => {
+        // signin
+        const res = await request(app.getHttpServer())
+          .post('/auth/local/signin')
+          .send({
+            username: 'admin',
+            password: '12345',
+          })
+          .expect(200);
+        const { access_token } = await res.body;
+        adminToken = access_token;
+      });
+
+      it('GET: /users - should return users array', async () => {
+        const res = await request(app.getHttpServer())
+          .get('/users')
+          .set('Authorization', `Bearer ${adminToken}`)
+          .expect(200);
+        const users = await res.body;
+        expect(users).not.toBeNull();
+        expect(users).toBeInstanceOf(Array);
+      });
+    });
   });
 });

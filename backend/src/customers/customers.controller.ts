@@ -17,13 +17,14 @@ import {
 import { CustomerEntity } from './entities/customer.entity';
 import { CustomersService } from './customers.service';
 import { UpdateCustomerDto, CreateCustomerDto } from './dto';
-import { GetCurrentUserId } from '../common/decorators';
+import { GetCurrentUserId, Roles } from '../common/decorators';
+import { Role } from '../common';
 
 @Controller('customers')
 @ApiTags('customers')
 @ApiBearerAuth()
 export class CustomersController {
-  constructor(private readonly customersService: CustomersService) {}
+  constructor(private readonly customersService: CustomersService) { }
 
   @Post()
   @ApiCreatedResponse({ type: CustomerEntity })
@@ -59,6 +60,7 @@ export class CustomersController {
   }
 
   @Delete(':id')
+  @Roles(Role.Admin, Role.Administrasi)
   @ApiOkResponse({ type: CustomerEntity })
   delete(@Param('id') id: string) {
     return this.customersService.delete({ id });

@@ -16,7 +16,7 @@ import { orderNumber } from '../helpers';
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async create(
     createOrderDto: CreateOrderDto,
@@ -41,6 +41,15 @@ export class OrdersService {
               },
               include: {
                 orderDetails: true,
+                user: {
+                  select: {
+                    id: true,
+                    username: true,
+                    name: true,
+                    image: true,
+                    password: false
+                  },
+                },
               },
             });
           } catch (error) {
@@ -58,7 +67,18 @@ export class OrdersService {
   findMany(): Promise<OrderEntity[] | null> {
     try {
       return this.prismaService.order.findMany({
-        include: { orderDetails: true },
+        include: {
+          orderDetails: true,
+          user: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              image: true,
+              password: false
+            },
+          },
+        },
       });
     } catch (error) {
       this.logger.error(error);
@@ -71,7 +91,7 @@ export class OrdersService {
   ): Promise<OrderEntity | null> {
     const order = await this.prismaService.order.findUnique({
       where,
-      include: { orderDetails: true },
+      include: { orderDetails: true, user: true, updatedBy: true },
     });
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -86,18 +106,12 @@ export class OrdersService {
   ): Promise<OrderEntity | any> {
     const { date, customer, description, orderDetails } = updateOrderDto;
     const updatedOd = orderDetails?.map((od) => ({
-      where: {
-        id: od.id,
-      },
-      data: {
-        ...od,
-      },
+      where: { id: od.id },
+      data: { ...od },
     }));
     try {
-      return this.prismaService.order.update({
-        where: {
-          id,
-        },
+      return await this.prismaService.order.update({
+        where: { id },
         data: {
           date,
           customer,
@@ -109,11 +123,20 @@ export class OrdersService {
         },
         include: {
           orderDetails: true,
+          user: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              image: true,
+              password: false
+            },
+          },
         },
       });
     } catch (error) {
       this.logger.error(error);
-      throw new Error(error);
+      throw new NotFoundException(error);
     }
   }
 

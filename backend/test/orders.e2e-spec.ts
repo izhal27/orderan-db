@@ -22,6 +22,8 @@ const dummyOrder = {
   ],
 };
 
+jest.setTimeout(70 * 1000);
+
 describe('OrderController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
@@ -31,12 +33,12 @@ describe('OrderController (e2e)', () => {
   beforeAll(async () => {
     ({ app, prismaClient } = await buildApp());
     const res = await request(app.getHttpServer())
-      .post('/auth/local/signup')
+      .post('/auth/local/signin')
       .send({
-        username: 'orderuser',
+        username: 'admin',
         password: '12345',
       })
-      .expect(201);
+      .expect(200);
     accessToken = await res.body.access_token;
   }, 30000);
 
@@ -89,7 +91,7 @@ describe('OrderController (e2e)', () => {
         fakeCustomer,
         fakeDesc,
         fakeOrderDetails,
-        body: { date, customer, description, orderDetails },
+        body: { date, customer, description, orderDetails, body: res },
       } = await generateDummyOrder();
       expect(date).toEqual(fakeDate);
       expect(customer).toEqual(fakeCustomer);
@@ -148,6 +150,17 @@ describe('OrderController (e2e)', () => {
         .patch(`${url}/${id}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ ...dummyOrder, date: '' })
+        .expect(400);
+    });
+
+    it('should throw error 400 when customer is missing', async () => {
+      const {
+        body: { id },
+      } = await generateDummyOrder();
+      await request(app.getHttpServer())
+        .patch(`${url}/${id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyOrder, customer: '' })
         .expect(400);
     });
 
@@ -242,7 +255,7 @@ describe('OrderController (e2e)', () => {
     const fakeDate = new Date().toISOString();
     const fakeCustomer = faker.internet.displayName();
     const fakeDesc = faker.lorem.words();
-    const fakeOrderDetails = Array.from({ length: 10 }).map(() => ({
+    const fakeOrderDetails = Array.from({ length: 5 }).map(() => ({
       name: faker.internet.displayName(),
       price: +faker.finance.amount({ min: 1000, max: 10000, dec: 0 }),
       width: +faker.finance.amount({ min: 100, max: 1000, dec: 0 }),

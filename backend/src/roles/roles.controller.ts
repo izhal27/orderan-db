@@ -11,6 +11,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiExcludeController,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -18,12 +19,15 @@ import {
 import { RoleEntity } from './entities/role.entity';
 import { RolesService } from './roles.service';
 import { CreateRoleDto, UpdateRoleDto } from './dto';
+import { Roles } from '../common/decorators';
+import { Role } from '../common';
 
 @Controller('roles')
-@ApiTags('roles')
+@Roles(Role.Admin)
+@ApiExcludeController()
 @ApiBearerAuth()
 export class RolesController {
-  constructor(private readonly rolesService: RolesService) {}
+  constructor(private readonly rolesService: RolesService) { }
 
   @Post()
   @ApiCreatedResponse({ type: RoleEntity })

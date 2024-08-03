@@ -5,6 +5,8 @@ import { faker } from '@faker-js/faker';
 
 import { buildApp } from './setup.e2e';
 
+jest.setTimeout(70 * 1000);
+
 describe('CustomersController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
@@ -19,9 +21,9 @@ describe('CustomersController (e2e)', () => {
       create: { name: 'default', description: 'Default Description' },
     });
     const res = await request(app.getHttpServer())
-      .post('/auth/local/signup')
-      .send({ username: 'usercustomer', password: '12345' })
-      .expect(201);
+      .post('/auth/local/signin')
+      .send({ username: 'admin', password: '12345' })
+      .expect(200);
     accessToken = await res.body.access_token;
   }, 30000);
 

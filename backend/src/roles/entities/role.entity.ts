@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiExcludeController, ApiProperty } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
 export class RoleEntity implements Role {
