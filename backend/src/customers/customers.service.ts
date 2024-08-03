@@ -20,7 +20,13 @@ export class CustomersService {
         where: {
           name: data.name,
         },
-        update: {},
+        update: {
+          name,
+          address,
+          contact,
+          email,
+          description,
+        },
         create: {
           name,
           address,
