@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   ForbiddenException,
+  HttpCode,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -67,5 +68,29 @@ export class OrdersController {
       throw new ForbiddenException('403 Forbidden');
     }
     return this.ordersService.delete({ id });
+  }
+
+  @Post('/:id/print')
+  @HttpCode(200)
+  markPrinted(@Param('id') id: string,
+    @Body('status') status: boolean,
+    @GetCurrentUserId() userId: number) {
+    return this.ordersService.markPrint(id, status, userId);
+  }
+
+  @Post('/:id/pay')
+  @HttpCode(200)
+  markPay(@Param('id') id: string,
+    @Body('status') status: boolean,
+    @GetCurrentUserId() userId: number) {
+    return this.ordersService.markPay(id, status, userId);
+  }
+
+  @Post('/:id/taken')
+  @HttpCode(200)
+  markTaken(@Param('id') id: string,
+    @Body('status') status: boolean,
+    @GetCurrentUserId() userId: number) {
+    return this.ordersService.markTaken(id, status, userId);
   }
 }

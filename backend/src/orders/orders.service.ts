@@ -161,4 +161,70 @@ export class OrdersService {
       throw new BadRequestException(error);
     }
   }
+
+  markPrint(id: string, status: boolean, printedById: number) {
+    try {
+      return this.prismaService.printedStatus.upsert({
+        where: { orderDetailId: id },
+        update: {
+          status,
+          printedById,
+          printAt: new Date().toISOString(),
+        },
+        create: {
+          orderDetailId: id,
+          status,
+          printedById,
+          printAt: new Date().toISOString(),
+        },
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
+  }
+
+  markPay(id: string, status: boolean, markedById: number) {
+    try {
+      return this.prismaService.payStatus.upsert({
+        where: { orderId: id },
+        update: {
+          status,
+          markedById,
+          payAt: new Date().toISOString(),
+        },
+        create: {
+          orderId: id,
+          status,
+          markedById,
+          payAt: new Date().toISOString(),
+        },
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
+  }
+
+  markTaken(id: string, status: boolean, markedById: number) {
+    try {
+      return this.prismaService.takenStatus.upsert({
+        where: { orderId: id },
+        update: {
+          status,
+          markedById,
+          takenAt: new Date().toISOString(),
+        },
+        create: {
+          orderId: id,
+          status,
+          markedById,
+          takenAt: new Date().toISOString(),
+        },
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
+  }
 }

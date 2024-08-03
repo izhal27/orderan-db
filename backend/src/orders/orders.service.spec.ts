@@ -86,4 +86,37 @@ describe('OrdersService', () => {
       expect(prismaMock.order.delete).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('markPrint', () => {
+    it('should be defined', () => {
+      expect(service.markPrint).toBeDefined();
+    });
+
+    it('should call the prisma service', () => {
+      service.markPrint('aaa', true, 1);
+      expect(prismaMock.printedStatus.upsert).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('markPay', () => {
+    it('should be defined', () => {
+      expect(service.markPay).toBeDefined();
+    });
+
+    it('should call the prisma service', () => {
+      service.markPay('aaa', true, 1);
+      expect(prismaMock.payStatus.upsert).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('markTaken', () => {
+    it('should be defined', () => {
+      expect(service.markTaken).toBeDefined();
+    });
+
+    it('should call the prisma service', () => {
+      service.markTaken('aaa', true, 1);
+      expect(prismaMock.takenStatus.upsert).toHaveBeenCalledTimes(1);
+    });
+  });
 });
