@@ -18,8 +18,6 @@ import {
 import { OrderEntity } from './entities/order.entity';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { OrdersService } from './orders.service';
-import { Roles } from 'src/common/decorators';
-import { Role } from 'src/common';
 
 @Controller('orders')
 @ApiTags('orders')
@@ -59,7 +57,6 @@ export class OrdersController {
   }
 
   @Delete(':id')
-  @Roles(Role.Admin, Role.Administrasi)
   @ApiOkResponse({ type: OrderEntity })
   delete(@Param('id') id: string) {
     return this.ordersService.delete({ id });
