@@ -28,26 +28,28 @@ export class OrderTypesController {
   constructor(private readonly orderTypeService: OrderTypesService) { }
 
   @Post()
-  @Roles(Role.Admin, Role.Administrasi)
+  @Roles(Role.Admin, Role.Administrasi, Role.Designer)
   @ApiCreatedResponse({ type: OrderTypeEntity })
   create(@Body() createOrderTypeDto: CreateOrderTypeDto) {
     return this.orderTypeService.create(createOrderTypeDto);
   }
 
   @Get()
+  @Roles(Role.Admin, Role.Administrasi, Role.Designer)
   @ApiOkResponse({ type: OrderTypeEntity, isArray: true })
   findAll() {
     return this.orderTypeService.findMany();
   }
 
   @Get(':id')
+  @Roles(Role.Admin, Role.Administrasi, Role.Designer)
   @ApiOkResponse({ type: OrderTypeEntity })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.orderTypeService.findUnique({ id });
   }
 
   @Patch(':id')
-  @Roles(Role.Admin, Role.Administrasi)
+  @Roles(Role.Admin, Role.Administrasi, Role.Designer)
   @ApiOkResponse({ type: OrderTypeEntity })
   update(
     @Param('id', ParseIntPipe) id: number,
