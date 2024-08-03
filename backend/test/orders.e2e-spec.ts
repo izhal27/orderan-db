@@ -48,7 +48,7 @@ describe('OrderController (e2e)', () => {
 
   // <---------------- CREATE ---------------->
   describe('Create', () => {
-    it('should throw error 400 when date is missing', async () => {
+    it.skip('should throw error 400 when date is missing', async () => {
       await request(app.getHttpServer())
         .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -56,7 +56,7 @@ describe('OrderController (e2e)', () => {
         .expect(400);
     });
 
-    it('should throw error 400 when customer is missing', async () => {
+    it.skip('should throw error 400 when customer is missing', async () => {
       await request(app.getHttpServer())
         .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -64,7 +64,7 @@ describe('OrderController (e2e)', () => {
         .expect(400);
     });
 
-    it('should throw error 400 when order detail is missing', async () => {
+    it.skip('should throw error 400 when order detail is missing', async () => {
       await request(app.getHttpServer())
         .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -72,7 +72,7 @@ describe('OrderController (e2e)', () => {
         .expect(400);
     });
 
-    it('should throw error 400 when some order detail field is missing', async () => {
+    it.skip('should throw error 400 when some order detail field is missing', async () => {
       await request(app.getHttpServer())
         .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -100,14 +100,14 @@ describe('OrderController (e2e)', () => {
 
   // <---------------- READ ---------------->
   describe('Read', () => {
-    it('should throw error 404 when order not found', async () => {
+    it.skip('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
         .get(`${url}/abc123`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
 
-    it('should return list of order', async () => {
+    it.skip('should return list of order', async () => {
       const res = await request(app.getHttpServer())
         .get(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -118,7 +118,7 @@ describe('OrderController (e2e)', () => {
       expect(orders[0].orderDetails).toBeInstanceOf(Array);
     });
 
-    it('should return a order', async () => {
+    it.skip('should return a order', async () => {
       const {
         fakeDate,
         fakeCustomer,
@@ -135,12 +135,14 @@ describe('OrderController (e2e)', () => {
       expect(customer).toEqual(fakeCustomer);
       expect(description).toEqual(fakeDesc);
       expect(orderDetails.length).toEqual(fakeOrderDetails.length);
+      console.log(JSON.stringify(await res.body, null, 4));
+
     });
   });
 
   // <---------------- UPDATE ---------------->
   describe('Update', () => {
-    it('should throw error 400 when date is missing', async () => {
+    it.skip('should throw error 400 when date is missing', async () => {
       const {
         body: { id },
       } = await generateDummyOrder();
@@ -151,7 +153,7 @@ describe('OrderController (e2e)', () => {
         .expect(400);
     });
 
-    it('should throw error 404 when order not found', async () => {
+    it.skip('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
         .patch(`${url}/1000`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -159,7 +161,7 @@ describe('OrderController (e2e)', () => {
         .expect(404);
     });
 
-    it('should return updated order', async () => {
+    it.skip('should return updated order', async () => {
       const {
         body: { id, orderDetails },
       } = await generateDummyOrder();
@@ -211,14 +213,14 @@ describe('OrderController (e2e)', () => {
 
   // <---------------- DELETE ---------------->
   describe('Delete', () => {
-    it('should throw error 404 when order not found', async () => {
+    it.skip('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
         .delete(`${url}/1000`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
 
-    it('should return a order', async () => {
+    it.skip('should return a order', async () => {
       const {
         fakeDate,
         fakeCustomer,

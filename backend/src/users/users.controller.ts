@@ -22,31 +22,34 @@ import { Roles } from '../common/decorators';
 import { Role } from '../common';
 
 @Controller('users')
-@Roles(Role.Admin)
 @ApiTags('users')
 @ApiBearerAuth()
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
+  @Roles(Role.Admin, Role.Administrasi)
   @ApiCreatedResponse({ type: UserEntity })
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
+  @Roles(Role.Admin, Role.Administrasi)
   @ApiOkResponse({ type: UserEntity, isArray: true })
   findAll() {
     return this.usersService.findMany();
   }
 
   @Get(':id')
+  @Roles(Role.Admin, Role.Administrasi, Role.Designer, Role.Operator)
   @ApiOkResponse({ type: UserEntity })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findUnique({ id });
   }
 
   @Patch(':id')
+  @Roles(Role.Admin, Role.Administrasi, Role.Designer, Role.Operator)
   @ApiOkResponse({ type: UserEntity })
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -56,6 +59,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @Roles(Role.Admin)
   @ApiOkResponse({ type: UserEntity })
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.delete({ id });

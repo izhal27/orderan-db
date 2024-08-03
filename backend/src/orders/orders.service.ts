@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Order, Prisma } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -16,7 +16,7 @@ import { orderNumber } from '../helpers';
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async create(
     createOrderDto: CreateOrderDto,
@@ -28,7 +28,7 @@ export class OrdersService {
       return await this.prismaService.$transaction(
         async (prisma): Promise<OrderEntity[] | any> => {
           try {
-            return await prisma.order.create({
+            const orders = await prisma.order.create({
               data: {
                 number,
                 date,
@@ -41,6 +41,13 @@ export class OrdersService {
               },
               include: {
                 orderDetails: true,
+                user: {
+                  select: {
+                    name: true,
+                    image: true,
+                    password: false
+                  }
+                },
               },
             });
           } catch (error) {
@@ -58,7 +65,23 @@ export class OrdersService {
   findMany(): Promise<OrderEntity[] | null> {
     try {
       return this.prismaService.order.findMany({
-        include: { orderDetails: true },
+        include: {
+          orderDetails: true,
+          user: {
+            select: {
+              name: true,
+              image: true,
+              password: false
+            }
+          },
+          updatedBy: {
+            select: {
+              name: true,
+              image: true,
+              password: false
+            },
+          },
+        },
       });
     } catch (error) {
       this.logger.error(error);
@@ -71,7 +94,7 @@ export class OrdersService {
   ): Promise<OrderEntity | null> {
     const order = await this.prismaService.order.findUnique({
       where,
-      include: { orderDetails: true },
+      include: { orderDetails: true, user: true, updatedBy: true },
     });
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -94,7 +117,7 @@ export class OrdersService {
       },
     }));
     try {
-      return this.prismaService.order.update({
+      return await this.prismaService.order.update({
         where: {
           id,
         },
@@ -109,6 +132,20 @@ export class OrdersService {
         },
         include: {
           orderDetails: true,
+          user: {
+            select: {
+              name: true,
+              image: true,
+              password: false
+            }
+          },
+          updatedBy: {
+            select: {
+              name: true,
+              image: true,
+              password: false
+            },
+          },
         },
       });
     } catch (error) {

@@ -17,7 +17,7 @@ import {
 } from '../types/constants';
 import { compareValue, hashValue } from '../helpers/hash';
 import { Tokens } from '../types';
-import { User } from '@prisma/client';
+import { UserEntity } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -36,7 +36,7 @@ export class AuthService {
   }
 
   async signinLocal({ username, password }: AuthDto): Promise<Tokens> {
-    const user = await this.userService.findUnique({ username });
+    const user = await this.userService.findUnique({ username }, true);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -72,7 +72,7 @@ export class AuthService {
   }
 
   async refreshTokens(username: string, refreshToken: string): Promise<Tokens> {
-    const user = await this.userService.findUnique({ username });
+    const user = await this.userService.findUnique({ username }, true);
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access denied');
     }
@@ -83,18 +83,19 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  private async generateTokens(user: User): Promise<Tokens> {
-    const tokens = await this.getTokens(user.id, user.username);
+  private async generateTokens(user: UserEntity): Promise<Tokens> {
+    const tokens = await this.getTokens(user.id, user.username, user.role?.name);
     await this.updateRefreshTokenHash(user.username, tokens.refresh_token);
     return tokens;
   }
 
-  async getTokens(userId: number, username: string) {
-    const [at, rt] = await Promise.all([
+  async getTokens(userId: number, username: string, role: string | undefined) {
+    const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
           username,
+          role,
         },
         {
           secret: this.configService.get(JWT_SECRET),
@@ -105,6 +106,7 @@ export class AuthService {
         {
           sub: userId,
           username,
+          role,
         },
         {
           secret: this.configService.get(REFRESH_TOKEN_SECRET),
@@ -113,10 +115,7 @@ export class AuthService {
       ),
     ]);
 
-    return {
-      access_token: at,
-      refresh_token: rt,
-    };
+    return { access_token, refresh_token };
   }
 
   private async updateRefreshTokenHash(username: string, refreshToken: string) {

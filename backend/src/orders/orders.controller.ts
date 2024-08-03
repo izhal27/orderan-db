@@ -18,12 +18,14 @@ import {
 import { OrderEntity } from './entities/order.entity';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { OrdersService } from './orders.service';
+import { Roles } from 'src/common/decorators';
+import { Role } from 'src/common';
 
 @Controller('orders')
 @ApiTags('orders')
 @ApiBearerAuth()
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @Post()
   @ApiCreatedResponse({ type: OrderEntity })
@@ -57,6 +59,7 @@ export class OrdersController {
   }
 
   @Delete(':id')
+  @Roles(Role.Admin, Role.Administrasi)
   @ApiOkResponse({ type: OrderEntity })
   delete(@Param('id') id: string) {
     return this.ordersService.delete({ id });
