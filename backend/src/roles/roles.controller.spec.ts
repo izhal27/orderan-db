@@ -78,7 +78,7 @@ describe('RolesController', () => {
       expect(serviceMock.delete).toBeDefined();
     });
 
-    it('should call UsersService.delete', () => {
+    it('should call RolesService.delete', () => {
       controller.delete(1);
       expect(serviceMock.delete).toHaveBeenCalledTimes(1);
     });

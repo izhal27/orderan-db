@@ -34,7 +34,7 @@ describe('OrderTypesController', () => {
       expect(serviceMock.findMany).toBeDefined();
     });
 
-    it('should call RolesService.findMany', () => {
+    it('should call OrderTypesService.findMany', () => {
       controller.findAll();
       expect(serviceMock.findMany).toHaveBeenCalledTimes(1);
     });
@@ -45,7 +45,7 @@ describe('OrderTypesController', () => {
       expect(serviceMock.findUnique).toBeDefined();
     });
 
-    it('should call RolesService.findUnique', () => {
+    it('should call OrderTypesService.findUnique', () => {
       controller.findOne(1);
       expect(serviceMock.findUnique).toHaveBeenCalledTimes(1);
     });
@@ -56,7 +56,7 @@ describe('OrderTypesController', () => {
       expect(serviceMock.create).toBeDefined();
     });
 
-    it('should call RolesService.create', () => {
+    it('should call OrderTypesService.create', () => {
       controller.create({} as CreateOrderTypeDto);
       expect(serviceMock.create).toHaveBeenCalledTimes(1);
     });
@@ -67,7 +67,7 @@ describe('OrderTypesController', () => {
       expect(serviceMock.update).toBeDefined();
     });
 
-    it('should call RolesService.update', () => {
+    it('should call OrderTypesService.update', () => {
       controller.update(1, {} as UpdateOrderTypeDto);
       expect(serviceMock.update).toHaveBeenCalledTimes(1);
     });
@@ -78,7 +78,7 @@ describe('OrderTypesController', () => {
       expect(serviceMock.delete).toBeDefined();
     });
 
-    it('should call UsersService.delete', () => {
+    it('should call OrderTypesService.delete', () => {
       controller.delete(1);
       expect(serviceMock.delete).toHaveBeenCalledTimes(1);
     });
