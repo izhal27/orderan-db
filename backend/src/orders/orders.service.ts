@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Order, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -28,7 +28,7 @@ export class OrdersService {
       return await this.prismaService.$transaction(
         async (prisma): Promise<OrderEntity[] | any> => {
           try {
-            const orders = await prisma.order.create({
+            return await prisma.order.create({
               data: {
                 number,
                 date,
@@ -43,10 +43,12 @@ export class OrdersService {
                 orderDetails: true,
                 user: {
                   select: {
+                    id: true,
+                    username: true,
                     name: true,
                     image: true,
                     password: false
-                  }
+                  },
                 },
               },
             });
@@ -69,13 +71,8 @@ export class OrdersService {
           orderDetails: true,
           user: {
             select: {
-              name: true,
-              image: true,
-              password: false
-            }
-          },
-          updatedBy: {
-            select: {
+              id: true,
+              username: true,
               name: true,
               image: true,
               password: false
@@ -109,18 +106,12 @@ export class OrdersService {
   ): Promise<OrderEntity | any> {
     const { date, customer, description, orderDetails } = updateOrderDto;
     const updatedOd = orderDetails?.map((od) => ({
-      where: {
-        id: od.id,
-      },
-      data: {
-        ...od,
-      },
+      where: { id: od.id },
+      data: { ...od },
     }));
     try {
       return await this.prismaService.order.update({
-        where: {
-          id,
-        },
+        where: { id },
         data: {
           date,
           customer,
@@ -134,13 +125,8 @@ export class OrdersService {
           orderDetails: true,
           user: {
             select: {
-              name: true,
-              image: true,
-              password: false
-            }
-          },
-          updatedBy: {
-            select: {
+              id: true,
+              username: true,
               name: true,
               image: true,
               password: false
@@ -150,7 +136,7 @@ export class OrdersService {
       });
     } catch (error) {
       this.logger.error(error);
-      throw new Error(error);
+      throw new NotFoundException(error);
     }
   }
 

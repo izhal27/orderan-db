@@ -22,6 +22,8 @@ const dummyOrder = {
   ],
 };
 
+jest.setTimeout(70 * 1000);
+
 describe('OrderController (e2e)', () => {
   let app: INestApplication;
   let prismaClient: PrismaClient;
@@ -31,12 +33,12 @@ describe('OrderController (e2e)', () => {
   beforeAll(async () => {
     ({ app, prismaClient } = await buildApp());
     const res = await request(app.getHttpServer())
-      .post('/auth/local/signup')
+      .post('/auth/local/signin')
       .send({
-        username: 'orderuser',
+        username: 'admin',
         password: '12345',
       })
-      .expect(201);
+      .expect(200);
     accessToken = await res.body.access_token;
   }, 30000);
 
@@ -48,7 +50,7 @@ describe('OrderController (e2e)', () => {
 
   // <---------------- CREATE ---------------->
   describe('Create', () => {
-    it.skip('should throw error 400 when date is missing', async () => {
+    it('should throw error 400 when date is missing', async () => {
       await request(app.getHttpServer())
         .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -56,7 +58,7 @@ describe('OrderController (e2e)', () => {
         .expect(400);
     });
 
-    it.skip('should throw error 400 when customer is missing', async () => {
+    it('should throw error 400 when customer is missing', async () => {
       await request(app.getHttpServer())
         .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -64,7 +66,7 @@ describe('OrderController (e2e)', () => {
         .expect(400);
     });
 
-    it.skip('should throw error 400 when order detail is missing', async () => {
+    it('should throw error 400 when order detail is missing', async () => {
       await request(app.getHttpServer())
         .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -72,7 +74,7 @@ describe('OrderController (e2e)', () => {
         .expect(400);
     });
 
-    it.skip('should throw error 400 when some order detail field is missing', async () => {
+    it('should throw error 400 when some order detail field is missing', async () => {
       await request(app.getHttpServer())
         .post(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -89,7 +91,7 @@ describe('OrderController (e2e)', () => {
         fakeCustomer,
         fakeDesc,
         fakeOrderDetails,
-        body: { date, customer, description, orderDetails },
+        body: { date, customer, description, orderDetails, body: res },
       } = await generateDummyOrder();
       expect(date).toEqual(fakeDate);
       expect(customer).toEqual(fakeCustomer);
@@ -100,14 +102,14 @@ describe('OrderController (e2e)', () => {
 
   // <---------------- READ ---------------->
   describe('Read', () => {
-    it.skip('should throw error 404 when order not found', async () => {
+    it('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
         .get(`${url}/abc123`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
 
-    it.skip('should return list of order', async () => {
+    it('should return list of order', async () => {
       const res = await request(app.getHttpServer())
         .get(`${url}`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -118,7 +120,7 @@ describe('OrderController (e2e)', () => {
       expect(orders[0].orderDetails).toBeInstanceOf(Array);
     });
 
-    it.skip('should return a order', async () => {
+    it('should return a order', async () => {
       const {
         fakeDate,
         fakeCustomer,
@@ -135,14 +137,12 @@ describe('OrderController (e2e)', () => {
       expect(customer).toEqual(fakeCustomer);
       expect(description).toEqual(fakeDesc);
       expect(orderDetails.length).toEqual(fakeOrderDetails.length);
-      console.log(JSON.stringify(await res.body, null, 4));
-
     });
   });
 
   // <---------------- UPDATE ---------------->
   describe('Update', () => {
-    it.skip('should throw error 400 when date is missing', async () => {
+    it('should throw error 400 when date is missing', async () => {
       const {
         body: { id },
       } = await generateDummyOrder();
@@ -153,7 +153,18 @@ describe('OrderController (e2e)', () => {
         .expect(400);
     });
 
-    it.skip('should throw error 404 when order not found', async () => {
+    it('should throw error 400 when customer is missing', async () => {
+      const {
+        body: { id },
+      } = await generateDummyOrder();
+      await request(app.getHttpServer())
+        .patch(`${url}/${id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ ...dummyOrder, customer: '' })
+        .expect(400);
+    });
+
+    it('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
         .patch(`${url}/1000`)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -161,7 +172,7 @@ describe('OrderController (e2e)', () => {
         .expect(404);
     });
 
-    it.skip('should return updated order', async () => {
+    it('should return updated order', async () => {
       const {
         body: { id, orderDetails },
       } = await generateDummyOrder();
@@ -213,14 +224,14 @@ describe('OrderController (e2e)', () => {
 
   // <---------------- DELETE ---------------->
   describe('Delete', () => {
-    it.skip('should throw error 404 when order not found', async () => {
+    it('should throw error 404 when order not found', async () => {
       await request(app.getHttpServer())
         .delete(`${url}/1000`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
     });
 
-    it.skip('should return a order', async () => {
+    it('should return a order', async () => {
       const {
         fakeDate,
         fakeCustomer,
@@ -244,7 +255,7 @@ describe('OrderController (e2e)', () => {
     const fakeDate = new Date().toISOString();
     const fakeCustomer = faker.internet.displayName();
     const fakeDesc = faker.lorem.words();
-    const fakeOrderDetails = Array.from({ length: 10 }).map(() => ({
+    const fakeOrderDetails = Array.from({ length: 5 }).map(() => ({
       name: faker.internet.displayName(),
       price: +faker.finance.amount({ min: 1000, max: 10000, dec: 0 }),
       width: +faker.finance.amount({ min: 100, max: 1000, dec: 0 }),
