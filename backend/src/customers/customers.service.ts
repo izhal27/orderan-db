@@ -11,7 +11,7 @@ import { PrismaService } from 'nestjs-prisma';
 export class CustomersService {
   private readonly logger = new Logger();
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   create(data: Prisma.CustomerCreateInput, userId: number): Promise<Customer> {
     const { name, address, contact, email, description } = data;
@@ -29,6 +29,17 @@ export class CustomersService {
           description,
           createdById: userId,
         },
+        include: {
+          createdBy: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              image: true,
+              password: false,
+            },
+          }
+        }
       });
     } catch (error) {
       this.logger.error(error);
@@ -38,7 +49,19 @@ export class CustomersService {
 
   findMany(): Promise<Customer[]> {
     try {
-      return this.prismaService.customer.findMany();
+      return this.prismaService.customer.findMany({
+        include: {
+          createdBy: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              image: true,
+              password: false,
+            },
+          }
+        }
+      });
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(error);
@@ -48,6 +71,17 @@ export class CustomersService {
   async findUnique(where: Prisma.CustomerWhereUniqueInput): Promise<Customer> {
     const article = await this.prismaService.customer.findUnique({
       where,
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            image: true,
+            password: false,
+          },
+        }
+      }
     });
     if (!article) {
       throw new NotFoundException('Article not found');
@@ -64,6 +98,17 @@ export class CustomersService {
       return this.prismaService.customer.update({
         where,
         data,
+        include: {
+          createdBy: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              image: true,
+              password: false,
+            },
+          }
+        }
       });
     } catch (error) {
       this.logger.error(error);
