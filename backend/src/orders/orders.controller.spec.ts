@@ -79,7 +79,7 @@ describe('OrdersController', () => {
     });
 
     it('should call UsersService.delete', () => {
-      controller.delete('aaa');
+      controller.delete('aaa', 'admin');
       expect(serviceMock.delete).toHaveBeenCalledTimes(1);
     });
   });

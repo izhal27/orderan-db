@@ -91,7 +91,18 @@ export class OrdersService {
   ): Promise<OrderEntity | null> {
     const order = await this.prismaService.order.findUnique({
       where,
-      include: { orderDetails: true, user: true, updatedBy: true },
+      include: {
+        orderDetails: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            image: true,
+            password: false
+          },
+        },
+      },
     });
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -116,7 +127,6 @@ export class OrdersService {
           date,
           customer,
           description,
-          updatedById: userId,
           orderDetails: {
             updateMany: updatedOd,
           },

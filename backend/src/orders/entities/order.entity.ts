@@ -43,14 +43,6 @@ export class OrderEntity implements Order {
   userId: number | null;
 
   @ApiProperty({
-    required: false,
-    nullable: true,
-    example: 1,
-    description: 'Current user id',
-  })
-  updatedById: number | null;
-
-  @ApiProperty({
     isArray: true,
     example: [
       {

@@ -25,7 +25,6 @@ model User {
   role             Role?      @relation(fields: [roleId], references: [id], onDelete: SetNull)
   roleId           Int?
   orders           Order[]    @relation(name: "Orders")
-  updatedOrders    Order[]    @relation(name: "UpdatedOrders")
   createdCustomers Customer[] @relation(name: "CreatedCustomers")
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
@@ -75,8 +74,6 @@ model Order {
   orderDetails OrderDetail[]
   user         User?         @relation(fields: [userId], references: [id], name: "Orders", onDelete: SetNull)
   userId       Int?
-  updatedBy    User?         @relation(fields: [updatedById], references: [id], name: "UpdatedOrders", onDelete: SetNull)
-  updatedById  Int?          @unique
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
