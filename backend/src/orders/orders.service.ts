@@ -16,12 +16,16 @@ import {
 } from './dto';
 import { OrderEntity } from './entities/order.entity';
 import { orderNumber } from '../helpers';
+import { CustomersService } from '../customers/customers.service';
 
 @Injectable()
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
 
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly customersService: CustomersService,
+  ) { }
 
   async create(
     createOrderDto: CreateOrderDto,
@@ -33,6 +37,7 @@ export class OrdersService {
       return await this.prismaService.$transaction(
         async (prisma): Promise<OrderEntity[] | any> => {
           try {
+            await this.customersService.create({ name: customer }, userId);
             return await prisma.order.create({
               data: {
                 number,
