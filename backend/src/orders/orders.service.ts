@@ -137,6 +137,7 @@ export class OrdersService {
           date,
           customer,
           description,
+          userId,
           orderDetails: {
             updateMany: updatedOd,
           },

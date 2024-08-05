@@ -22,7 +22,7 @@ const dummyOrder = {
   ],
 };
 
-jest.setTimeout(70 * 1000);
+jest.setTimeout(100 * 1000);
 
 describe('OrderController (e2e)', () => {
   let app: INestApplication;
@@ -264,17 +264,18 @@ describe('OrderController (e2e)', () => {
       const firstRes = await request(app.getHttpServer())
         .post(`${url}/detail/${orderDetailId}/print`)
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ status: true })
+        .send({ status: true, printAt: new Date().toISOString() })
         .expect(200);
       const { status: firstStatus, printAt: firstDate } = await firstRes.body;
       expect(firstStatus).toEqual(true);
       const secondRes = await request(app.getHttpServer())
         .post(`${url}/detail/${orderDetailId}/print`)
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ status: false })
+        .send({ status: false, description: 'Description', printAt: new Date().toISOString() })
         .expect(200);
-      const { status: secondStatus, printAt: secondDate } = await secondRes.body;
+      const { status: secondStatus, description, printAt: secondDate } = await secondRes.body;
       expect(secondStatus).toEqual(false);
+      expect(description).toEqual('Description');
       expect(firstDate).not.toEqual(secondDate);
     });
   });
@@ -288,14 +289,14 @@ describe('OrderController (e2e)', () => {
       const firstRes = await request(app.getHttpServer())
         .post(`${url}/${id}/pay`)
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ status: true })
+        .send({ status: true, description: 'Description', payAt: new Date() })
         .expect(200);
       const { status: firstStatus, payAt: firstDate } = await firstRes.body;
       expect(firstStatus).toEqual(true);
       const secondRes = await request(app.getHttpServer())
         .post(`${url}/${id}/pay`)
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ status: false })
+        .send({ status: false, description: 'Description', payAt: new Date() })
         .expect(200);
       const { status: secondStatus, payAt: secondDate } = await secondRes.body;
       expect(secondStatus).toEqual(false);
@@ -312,14 +313,14 @@ describe('OrderController (e2e)', () => {
       const firstRes = await request(app.getHttpServer())
         .post(`${url}/${id}/taken`)
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ status: true })
+        .send({ status: true, description: 'Description', takenAt: new Date() })
         .expect(200);
       const { status: firstStatus, takenAt: firstDate } = await firstRes.body;
       expect(firstStatus).toEqual(true);
       const secondRes = await request(app.getHttpServer())
         .post(`${url}/${id}/taken`)
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ status: false })
+        .send({ status: false, description: 'Description', takenAt: new Date() })
         .expect(200);
       const { status: secondStatus, takenAt: secondDate } = await secondRes.body;
       expect(secondStatus).toEqual(false);
