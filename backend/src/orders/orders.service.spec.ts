@@ -4,8 +4,13 @@ import { PrismaService } from 'nestjs-prisma';
 import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 
 import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import {
+  CreateOrderDto,
+  UpdateOrderDto,
+  MarkPrintedDto,
+  MarkPayDto,
+  MarkTakenDto
+} from './dto';
 
 describe('OrdersService', () => {
   let service: OrdersService;
@@ -93,7 +98,7 @@ describe('OrdersService', () => {
     });
 
     it('should call the prisma service', () => {
-      service.markPrint('aaa', true, 1);
+      service.markPrint('aaa', {} as MarkPrintedDto, 1);
       expect(prismaMock.printedStatus.upsert).toHaveBeenCalledTimes(1);
     });
   });
@@ -104,7 +109,7 @@ describe('OrdersService', () => {
     });
 
     it('should call the prisma service', () => {
-      service.markPay('aaa', true, 1);
+      service.markPay('aaa', {} as MarkPayDto, 1);
       expect(prismaMock.payStatus.upsert).toHaveBeenCalledTimes(1);
     });
   });
@@ -115,7 +120,7 @@ describe('OrdersService', () => {
     });
 
     it('should call the prisma service', () => {
-      service.markTaken('aaa', true, 1);
+      service.markTaken('aaa', {} as MarkTakenDto, 1);
       expect(prismaMock.takenStatus.upsert).toHaveBeenCalledTimes(1);
     });
   });

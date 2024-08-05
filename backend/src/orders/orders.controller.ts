@@ -18,10 +18,11 @@ import {
 } from '@nestjs/swagger';
 
 import { OrderEntity } from './entities/order.entity';
-import { CreateOrderDto, UpdateOrderDto } from './dto';
+import { CreateOrderDto, MarkPayDto, MarkPrintedDto, UpdateOrderDto } from './dto';
 import { OrdersService } from './orders.service';
 import { GetCurrentUser } from '../common/decorators';
 import { ADMIN } from '../types';
+import { MarkTakenDto } from './dto/mark-taken.dto';
 
 @Controller('orders')
 @ApiTags('orders')
@@ -73,24 +74,24 @@ export class OrdersController {
   @Post('/detail/:orderDetailId/print')
   @HttpCode(200)
   markPrinted(@Param('orderDetailId') id: string,
-    @Body('status') status: boolean,
+    @Body() markPrintedDto: MarkPrintedDto,
     @GetCurrentUserId() userId: number) {
-    return this.ordersService.markPrint(id, status, userId);
+    return this.ordersService.markPrint(id, markPrintedDto, userId);
   }
 
   @Post('/:id/pay')
   @HttpCode(200)
   markPay(@Param('id') id: string,
-    @Body('status') status: boolean,
+    @Body() markPayDto: MarkPayDto,
     @GetCurrentUserId() userId: number) {
-    return this.ordersService.markPay(id, status, userId);
+    return this.ordersService.markPay(id, markPayDto, userId);
   }
 
   @Post('/:id/taken')
   @HttpCode(200)
   markTaken(@Param('id') id: string,
-    @Body('status') status: boolean,
+    @Body() markTakenDto: MarkTakenDto,
     @GetCurrentUserId() userId: number) {
-    return this.ordersService.markTaken(id, status, userId);
+    return this.ordersService.markTaken(id, markTakenDto, userId);
   }
 }

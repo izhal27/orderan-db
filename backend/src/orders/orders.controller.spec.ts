@@ -3,7 +3,13 @@ import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto, UpdateOrderDto } from './dto';
+import {
+  CreateOrderDto,
+  UpdateOrderDto,
+  MarkPrintedDto,
+  MarkPayDto,
+  MarkTakenDto
+} from './dto';
 
 describe('OrdersController', () => {
   let controller: OrdersController;
@@ -90,7 +96,7 @@ describe('OrdersController', () => {
     });
 
     it('should call OrdersService.markPrinted', () => {
-      controller.markPrinted('aaa', true, 1);
+      controller.markPrinted('aaa', {} as MarkPrintedDto, 1);
       expect(serviceMock.markPrint).toHaveBeenCalledTimes(1);
     });
   });
@@ -101,7 +107,7 @@ describe('OrdersController', () => {
     });
 
     it('should call OrdersService.markPay', () => {
-      controller.markPay('aaa', true, 1);
+      controller.markPay('aaa', {} as MarkPayDto, 1);
       expect(serviceMock.markPay).toHaveBeenCalledTimes(1);
     });
   });
@@ -112,7 +118,7 @@ describe('OrdersController', () => {
     });
 
     it('should call OrdersService.markTaken', () => {
-      controller.markTaken('aaa', true, 1);
+      controller.markTaken('aaa', {} as MarkTakenDto, 1);
       expect(serviceMock.markTaken).toHaveBeenCalledTimes(1);
     });
   });

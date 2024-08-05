@@ -7,8 +7,13 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import {
+  CreateOrderDto,
+  UpdateOrderDto,
+  MarkPrintedDto,
+  MarkPayDto,
+  MarkTakenDto,
+} from './dto';
 import { OrderEntity } from './entities/order.entity';
 import { orderNumber } from '../helpers';
 
@@ -162,20 +167,23 @@ export class OrdersService {
     }
   }
 
-  markPrint(id: string, status: boolean, printedById: number) {
+  markPrint(orderDetailId: string, markPrintedDto: MarkPrintedDto, printedById: number) {
+    const { status, description, printAt } = markPrintedDto;
     try {
       return this.prismaService.printedStatus.upsert({
-        where: { orderDetailId: id },
+        where: { orderDetailId },
         update: {
           status,
+          description,
+          printAt,
           printedById,
-          printAt: new Date().toISOString(),
         },
         create: {
-          orderDetailId: id,
+          orderDetailId,
           status,
+          description,
+          printAt,
           printedById,
-          printAt: new Date().toISOString(),
         },
       });
     } catch (error) {
@@ -184,20 +192,23 @@ export class OrdersService {
     }
   }
 
-  markPay(id: string, status: boolean, markedById: number) {
+  markPay(orderId: string, markPayDto: MarkPayDto, markedById: number) {
+    const { status, description, payAt } = markPayDto;
     try {
       return this.prismaService.payStatus.upsert({
-        where: { orderId: id },
+        where: { orderId },
         update: {
           status,
+          description,
+          payAt,
           markedById,
-          payAt: new Date().toISOString(),
         },
         create: {
-          orderId: id,
+          orderId,
           status,
+          description,
+          payAt,
           markedById,
-          payAt: new Date().toISOString(),
         },
       });
     } catch (error) {
@@ -206,20 +217,23 @@ export class OrdersService {
     }
   }
 
-  markTaken(id: string, status: boolean, markedById: number) {
+  markTaken(orderId: string, markTakenDto: MarkTakenDto, markedById: number) {
+    const { status, description, takenAt } = markTakenDto;
     try {
       return this.prismaService.takenStatus.upsert({
-        where: { orderId: id },
+        where: { orderId },
         update: {
           status,
+          description,
+          takenAt,
           markedById,
-          takenAt: new Date().toISOString(),
         },
         create: {
-          orderId: id,
+          orderId,
           status,
+          description,
+          takenAt,
           markedById,
-          takenAt: new Date().toISOString(),
         },
       });
     } catch (error) {
