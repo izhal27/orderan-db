@@ -101,7 +101,7 @@ model PrintedStatus {
   id            String      @id @default(uuid())
   status        Boolean     @default(true)
   printAt       DateTime    @default(now())
-  description   String?
+  description   String?     @default("")
   orderDetail   OrderDetail @relation(fields: [orderDetailId], references: [id], onDelete: Cascade)
   orderDetailId String      @unique
   printedBy     User?       @relation(fields: [printedById], references: [id], name: "PrintedOrders", onDelete: SetNull)
@@ -114,7 +114,7 @@ model PayStatus {
   id          String   @id @default(uuid())
   status      Boolean  @default(true)
   payAt       DateTime @default(now())
-  description String?
+  description String?  @default("")
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId     String   @unique
   markedBy    User?    @relation(fields: [markedById], references: [id], name: "MarkedPays", onDelete: SetNull)
@@ -127,7 +127,7 @@ model TakenStatus {
   id          String   @id @default(uuid())
   status      Boolean  @default(true)
   takenAt     DateTime @default(now())
-  description String?
+  description String?  @default("")
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId     String   @unique
   markedBy    User?    @relation(fields: [markedById], references: [id], name: "MarkedTakens", onDelete: SetNull)
