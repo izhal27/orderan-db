@@ -179,15 +179,15 @@ export class OrdersService {
         where: { orderDetailId },
         update: {
           status,
-          description,
           printAt,
+          description,
           printedById,
         },
         create: {
-          orderDetailId,
           status,
-          description,
           printAt,
+          description,
+          orderDetailId,
           printedById,
         },
       });
@@ -204,15 +204,15 @@ export class OrdersService {
         where: { orderId },
         update: {
           status,
-          description,
           payAt,
+          description,
           markedById,
         },
         create: {
-          orderId,
           status,
-          description,
           payAt,
+          description,
+          orderId,
           markedById,
         },
       });
@@ -229,15 +229,15 @@ export class OrdersService {
         where: { orderId },
         update: {
           status,
-          description,
           takenAt,
+          description,
           markedById,
         },
         create: {
-          orderId,
           status,
-          description,
           takenAt,
+          description,
+          orderId,
           markedById,
         },
       });
