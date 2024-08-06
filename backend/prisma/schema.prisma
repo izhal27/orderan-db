@@ -24,11 +24,11 @@ model User {
   refreshToken     String?
   role             Role?           @relation(fields: [roleId], references: [id], onDelete: SetNull)
   roleId           Int?
-  orders           Order[]         @relation(name: "Orders")
-  createdCustomers Customer[]      @relation(name: "CreatedCustomers")
-  printedOrders    PrintedStatus[] @relation(name: "PrintedOrders")
-  markedPays       PayStatus[]     @relation(name: "MarkedPays")
-  markedTakens     TakenStatus[]   @relation(name: "MarkedTakens")
+  Orders           Order[]         @relation(name: "Orders")
+  CreatedCustomers Customer[]      @relation(name: "CreatedCustomers")
+  PrintedOrders    PrintedStatus[] @relation(name: "PrintedOrders")
+  MarkedPays       PayStatus[]     @relation(name: "MarkedPays")
+  MarkedTakens     TakenStatus[]   @relation(name: "MarkedTakens")
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 }
@@ -37,7 +37,7 @@ model Role {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   description String?  @default("")
-  user        User[]
+  User        User[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -62,7 +62,7 @@ model OrderDetail {
   eyelets         Boolean        @default(false)
   shiming         Boolean        @default(false)
   description     String?
-  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId         String
   markedPrintered PrintedStatus?
   createdAt       DateTime       @default(now())
@@ -75,11 +75,11 @@ model Order {
   date         DateTime
   customer     String
   description  String?       @default("")
-  orderDetails OrderDetail[]
+  OrderDetails OrderDetail[]
   user         User?         @relation(fields: [userId], references: [id], name: "Orders", onDelete: SetNull)
   userId       Int?
-  markedPay    PayStatus?
-  markedTaken  TakenStatus?
+  MarkedPay    PayStatus?
+  MarkedTaken  TakenStatus?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -91,7 +91,7 @@ model Customer {
   contact     String?  @default("")
   email       String?  @default("")
   description String?  @default("")
-  createdBy   User?    @relation(fields: [createdById], references: [id], name: "CreatedCustomers", onDelete: SetNull)
+  CreatedBy   User?    @relation(fields: [createdById], references: [id], name: "CreatedCustomers", onDelete: SetNull)
   createdById Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -102,9 +102,9 @@ model PrintedStatus {
   status        Boolean     @default(true)
   printAt       DateTime    @default(now())
   description   String?     @default("")
-  orderDetail   OrderDetail @relation(fields: [orderDetailId], references: [id], onDelete: Cascade)
+  OrderDetail   OrderDetail @relation(fields: [orderDetailId], references: [id], onDelete: Cascade)
   orderDetailId String      @unique
-  printedBy     User?       @relation(fields: [printedById], references: [id], name: "PrintedOrders", onDelete: SetNull)
+  PrintedBy     User?       @relation(fields: [printedById], references: [id], name: "PrintedOrders", onDelete: SetNull)
   printedById   Int?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -115,9 +115,9 @@ model PayStatus {
   status      Boolean  @default(true)
   payAt       DateTime @default(now())
   description String?  @default("")
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId     String   @unique
-  markedBy    User?    @relation(fields: [markedById], references: [id], name: "MarkedPays", onDelete: SetNull)
+  MarkedBy    User?    @relation(fields: [markedById], references: [id], name: "MarkedPays", onDelete: SetNull)
   markedById  Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -128,9 +128,9 @@ model TakenStatus {
   status      Boolean  @default(true)
   takenAt     DateTime @default(now())
   description String?  @default("")
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  Order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId     String   @unique
-  markedBy    User?    @relation(fields: [markedById], references: [id], name: "MarkedTakens", onDelete: SetNull)
+  MarkedBy    User?    @relation(fields: [markedById], references: [id], name: "MarkedTakens", onDelete: SetNull)
   markedById  Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
