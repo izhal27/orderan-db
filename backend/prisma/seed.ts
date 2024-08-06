@@ -52,7 +52,7 @@ async function main() {
   const hashPassword = await bcrypt.hash('12345', 10);
 
   // create user
-  const user = await prisma.user.upsert({
+  const admin = await prisma.user.upsert({
     where: {
       username: 'admin',
       email: 'admin@duniabaliho.com',
@@ -69,7 +69,67 @@ async function main() {
     },
   });
 
-  console.log({ role1, role2, role3, role4, user });
+  const administrasi = await prisma.user.upsert({
+    where: {
+      username: 'administrasi',
+      email: 'administrasi@duniabaliho.com',
+      name: 'Administrasi',
+    },
+    update: {},
+    create: {
+      username: 'administrasi',
+      email: 'administrasi@duniabaliho.com',
+      name: 'Administrasi',
+      password: hashPassword,
+      roleId: 2,
+      blocked: false,
+    },
+  });
+
+  const designer = await prisma.user.upsert({
+    where: {
+      username: 'designer',
+      email: 'designer@duniabaliho.com',
+      name: 'Designer',
+    },
+    update: {},
+    create: {
+      username: 'designer',
+      email: 'designer@duniabaliho.com',
+      name: 'Designer',
+      password: hashPassword,
+      roleId: 3,
+      blocked: false,
+    },
+  });
+
+  const operator = await prisma.user.upsert({
+    where: {
+      username: 'operator',
+      email: 'operator@duniabaliho.com',
+      name: 'Operator',
+    },
+    update: {},
+    create: {
+      username: 'operator',
+      email: 'operator@duniabaliho.com',
+      name: 'Operator',
+      password: hashPassword,
+      roleId: 4,
+      blocked: false,
+    },
+  });
+
+  console.log({
+    role1,
+    role2,
+    role3,
+    role4,
+    admin,
+    administrasi,
+    designer,
+    operator,
+  });
 }
 
 main()
