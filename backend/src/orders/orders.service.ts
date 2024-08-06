@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -17,6 +18,7 @@ import {
 import { OrderEntity } from './entities/order.entity';
 import { orderNumber } from '../helpers';
 import { CustomersService } from '../customers/customers.service';
+import { ADMIN } from '../types';
 
 @Injectable()
 export class OrdersService {
@@ -45,12 +47,25 @@ export class OrdersService {
                 customer,
                 description,
                 userId,
-                orderDetails: {
+                OrderDetails: {
                   create: orderDetails,
                 },
               },
               include: {
-                orderDetails: true,
+                OrderDetails: {
+                  select: {
+                    name: true,
+                    price: true,
+                    width: true,
+                    height: true,
+                    qty: true,
+                    design: true,
+                    eyelets: true,
+                    shiming: true,
+                    description: true,
+                    MarkedPrintered: true,
+                  },
+                },
                 user: {
                   select: {
                     id: true,
@@ -78,7 +93,22 @@ export class OrdersService {
     try {
       return this.prismaService.order.findMany({
         include: {
-          orderDetails: true,
+          OrderDetails: {
+            select: {
+              name: true,
+              price: true,
+              width: true,
+              height: true,
+              qty: true,
+              design: true,
+              eyelets: true,
+              shiming: true,
+              description: true,
+              MarkedPrintered: true,
+            },
+          },
+          MarkedPay: true,
+          MarkedTaken: true,
           user: {
             select: {
               id: true,
@@ -102,7 +132,9 @@ export class OrdersService {
     const order = await this.prismaService.order.findUnique({
       where,
       include: {
-        orderDetails: true,
+        OrderDetails: true,
+        MarkedPay: true,
+        MarkedTaken: true,
         user: {
           select: {
             id: true,
@@ -138,12 +170,12 @@ export class OrdersService {
           customer,
           description,
           userId,
-          orderDetails: {
+          OrderDetails: {
             updateMany: updatedOd,
           },
         },
         include: {
-          orderDetails: true,
+          OrderDetails: true,
           user: {
             select: {
               id: true,
@@ -161,11 +193,22 @@ export class OrdersService {
     }
   }
 
-  delete(where: Prisma.OrderWhereUniqueInput): Promise<OrderEntity> {
+  async delete(where: Prisma.OrderWhereUniqueInput, role: string): Promise<OrderEntity> {
+    const order = await this.findUnique(where);
+    // selain admin,
+    // order hanya bisa dihapus jika belum dilakukan pembayaran atau
+    // belum diambil
+    if (role !== ADMIN && (order?.MarkedPay || order?.MarkedTaken)) {
+      throw new ForbiddenException('403 Forbidden');
+    }
     try {
       return this.prismaService.order.delete({
         where,
-        include: { orderDetails: true },
+        include: {
+          OrderDetails: true,
+          MarkedPay: true,
+          MarkedTaken: true,
+        },
       });
     } catch (error) {
       this.logger.error(error);

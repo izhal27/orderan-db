@@ -65,10 +65,7 @@ export class OrdersController {
   @ApiOkResponse({ type: OrderEntity })
   delete(@Param('id') id: string,
     @GetCurrentUser('role') role: string) {
-    if (role !== ADMIN) {
-      throw new ForbiddenException('403 Forbidden');
-    }
-    return this.ordersService.delete({ id });
+    return this.ordersService.delete({ id }, role);
   }
 
   @Post('/detail/:orderDetailId/print')

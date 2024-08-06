@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Order, OrderDetail } from '@prisma/client';
+import { Order, OrderDetail, PayStatus, PrintedStatus, TakenStatus } from '@prisma/client';
 
 export class OrderEntity implements Order {
   @ApiProperty({
@@ -76,7 +76,13 @@ export class OrderEntity implements Order {
       },
     ],
   })
-  orderDetails: OrderDetail[] | null;
+  OrderDetails: OrderDetail[] | null;
+
+  @ApiProperty({ required: false })
+  MarkedPay: PayStatus | null;
+
+  @ApiProperty({ required: false })
+  MarkedTaken: TakenStatus | null;
 
   @ApiProperty({
     required: false,

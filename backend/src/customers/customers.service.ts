@@ -36,7 +36,7 @@ export class CustomersService {
           createdById: userId,
         },
         include: {
-          createdBy: {
+          CreatedBy: {
             select: {
               id: true,
               username: true,
@@ -57,7 +57,7 @@ export class CustomersService {
     try {
       return this.prismaService.customer.findMany({
         include: {
-          createdBy: {
+          CreatedBy: {
             select: {
               id: true,
               username: true,
@@ -78,7 +78,7 @@ export class CustomersService {
     const article = await this.prismaService.customer.findUnique({
       where,
       include: {
-        createdBy: {
+        CreatedBy: {
           select: {
             id: true,
             username: true,
@@ -105,7 +105,7 @@ export class CustomersService {
         where,
         data,
         include: {
-          createdBy: {
+          CreatedBy: {
             select: {
               id: true,
               username: true,
