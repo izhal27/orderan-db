@@ -95,6 +95,7 @@ export class OrdersService {
         include: {
           OrderDetails: {
             select: {
+              id: true,
               name: true,
               price: true,
               width: true,
@@ -105,6 +106,9 @@ export class OrdersService {
               shiming: true,
               description: true,
               MarkedPrintered: true,
+              orderId: true,
+              createdAt: true,
+              updatedAt: true,
             },
           },
           MarkedPay: true,
