@@ -3,9 +3,7 @@ import * as request from 'supertest';
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 
-import { buildApp } from './setup.e2e';
-
-jest.setTimeout(70 * 1000);
+import { buildApp } from '../setup.e2e';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -31,13 +29,12 @@ describe('AuthController (e2e)', () => {
       .expect(200);
     const { access_token } = await res.body;
     adminToken = access_token;
-  }, 30000);
+  }, 3000);
 
   afterAll(async () => {
-    jest.clearAllMocks();
     await app.close();
     await prismaClient.$disconnect();
-  }, 30000);
+  }, 3000);
 
   // <---------------- UNAUTHENTICATED ---------------->
 
@@ -82,7 +79,7 @@ describe('AuthController (e2e)', () => {
       const res = await request(app.getHttpServer())
         .post('/auth/local/signup')
         .send({
-          username: faker.string.alphanumeric({ length: 5 }),
+          username: faker.string.alphanumeric({ length: 5 }).toLocaleLowerCase(),
           password: faker.internet.password()
         })
         .expect(201);
@@ -125,20 +122,4 @@ describe('AuthController (e2e)', () => {
   });
 
   // <-------------- END AUTHENTICATED -------------->
-
-  // <---------------- ROLE BASED ---------------->
-
-  describe('Role Authorization', () => {
-    describe('Operator', () => {
-      it('POST: /order-types - should throw 403 Forbidden', async () => {
-        await request(app.getHttpServer())
-          .post('/order-types')
-          .set('Authorization', `Bearer ${adminToken}`)
-          .send({ name: 'order operator' })
-          .expect(403);
-      });
-    });
-  });
-
-  // <-------------- END ROLE BASED -------------->
 });
