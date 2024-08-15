@@ -2,7 +2,7 @@ import { useState, type FC } from "react";
 import Image from "next/image";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { isSmallScreen } from "@/helpers/is-small-screen";
-import { DarkThemeToggle, Navbar } from "flowbite-react";
+import { Avatar, DarkThemeToggle, Dropdown, Navbar } from "flowbite-react";
 import { HiMenuAlt1, HiX } from "react-icons/hi";
 import Link from "next/link";
 
@@ -16,7 +16,7 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
         fluid
         className="fixed top-0 z-30 w-full border-b border-gray-200 bg-white p-0 dark:border-gray-700 dark:bg-gray-800 sm:p-0"
       >
-        <div className="w-full p-3 pr-4">
+        <div className="w-full p-3 pr-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <button
@@ -43,7 +43,25 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
                 </span>
               </Navbar.Brand>
             </div>
-            <DarkThemeToggle />
+            <div className="flex md:order-2 gap-x-5">
+              <DarkThemeToggle />
+              <Dropdown
+                arrowIcon={false}
+                inline
+                label={
+                  <Avatar alt="User settings" rounded />
+                }
+              >
+                <Dropdown.Header>
+                  <span className="block text-sm">@username</span>
+                  <span className="block truncate text-sm font-medium">John Doe</span>
+                </Dropdown.Header>
+                <Dropdown.Item>Settings</Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item>Sign out</Dropdown.Item>
+              </Dropdown>
+              <Navbar.Toggle />
+            </div>
           </div>
         </div>
       </Navbar>
