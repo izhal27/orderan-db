@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
 import { NextPage } from "next";
 import { useSidebarContext } from "@/context/SidebarContext";
-import { Sidebar } from "flowbite-react";
-import { BiBuoy } from "react-icons/bi";
+import { Avatar, Sidebar } from "flowbite-react";
+import { BiMaleFemale, BiSolidReport, BiSolidShoppingBag, BiSolidUserAccount } from "react-icons/bi";
 import {
-  HiArrowSmRight,
-  HiChartPie,
-  HiInbox,
-  HiShoppingBag,
-  HiTable,
-  HiUser,
-  HiViewBoards,
+  HiColorSwatch,
+  HiDocumentText,
+  HiFolder,
 } from "react-icons/hi";
 import { twMerge } from "tailwind-merge";
+import Link from "next/link";
 
 export const DashboardSidebar: NextPage = function () {
   const [isMounted, setIsMounted] = useState(false);
@@ -34,38 +31,22 @@ export const DashboardSidebar: NextPage = function () {
     >
       <Sidebar.Items>
         <Sidebar.ItemGroup>
-          <Sidebar.Item href="#" icon={HiChartPie}>
-            Dashboard
-          </Sidebar.Item>
-          <Sidebar.Item href="#" icon={HiViewBoards}>
-            Kanban
-          </Sidebar.Item>
-          <Sidebar.Item href="#" icon={HiInbox}>
-            Inbox
-          </Sidebar.Item>
-          <Sidebar.Item href="#" icon={HiUser}>
-            Users
-          </Sidebar.Item>
-          <Sidebar.Item href="#" icon={HiShoppingBag}>
-            Products
-          </Sidebar.Item>
-          <Sidebar.Item href="#" icon={HiArrowSmRight}>
-            Sign In
-          </Sidebar.Item>
-          <Sidebar.Item href="#" icon={HiTable}>
-            Sign Up
-          </Sidebar.Item>
-        </Sidebar.ItemGroup>
-        <Sidebar.ItemGroup>
-          <Sidebar.Item href="#" icon={HiChartPie}>
-            Upgrade to Pro
-          </Sidebar.Item>
-          <Sidebar.Item href="#" icon={HiViewBoards}>
-            Documentation
-          </Sidebar.Item>
-          <Sidebar.Item href="#" icon={BiBuoy}>
-            Help
-          </Sidebar.Item>
+          <div className={twMerge("flex flex-col items-center space-y-2 p-4", isCollapsed && "hidden w-16")}>
+            <Avatar alt="avatar of Jese" rounded size='xl' />
+            <div className="font-medium dark:text-white">
+              <div className="text-sm text-gray-500 dark:text-gray-400">@username</div>
+              <div>John Doe</div>
+            </div>
+          </div>
+          <Sidebar.Collapse icon={BiSolidShoppingBag} label="Pesanan">
+            <Sidebar.Item as={Link} href="#" icon={HiDocumentText}>Daftar</Sidebar.Item>
+            <Sidebar.Item as={Link} href="#" icon={BiSolidReport}>Laporan</Sidebar.Item>
+          </Sidebar.Collapse>
+          <Sidebar.Collapse icon={HiFolder} label="Data">
+            <Sidebar.Item as={Link} href="#" icon={HiColorSwatch}>Jenis Pesanan</Sidebar.Item>
+            <Sidebar.Item as={Link} href="#" icon={BiMaleFemale}>Pelanggan</Sidebar.Item>
+            <Sidebar.Item as={Link} href="#" icon={BiSolidUserAccount}>Users</Sidebar.Item>
+          </Sidebar.Collapse>
         </Sidebar.ItemGroup>
       </Sidebar.Items>
     </Sidebar>
