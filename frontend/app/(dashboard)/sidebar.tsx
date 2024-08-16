@@ -1,50 +1,46 @@
-import { useEffect, useState } from "react";
-import { NextPage } from "next";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { Avatar, Sidebar } from "flowbite-react";
+import type { NextPage } from "next";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   BiMaleFemale,
   BiSolidReport,
   BiSolidShoppingBag,
-  BiSolidUserAccount
+  BiSolidUserAccount,
 } from "react-icons/bi";
-import {
-  HiColorSwatch,
-  HiDocumentText,
-  HiFolder,
-} from "react-icons/hi";
+import { HiColorSwatch, HiDocumentText, HiFolder } from "react-icons/hi";
 import { twMerge } from "tailwind-merge";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 const pesananUrls = [
   {
-    url: '/pesanan/daftar',
+    url: "/pesanan/daftar",
     icon: HiDocumentText,
-    text: 'Daftar',
+    text: "Daftar",
   },
   {
-    url: '/pesanan/laporan',
+    url: "/pesanan/laporan",
     icon: BiSolidReport,
-    text: 'Laporan',
+    text: "Laporan",
   },
 ];
 
 const dataUrls = [
   {
-    url: '/data/jenis-pesanan',
+    url: "/data/jenis-pesanan",
     icon: HiColorSwatch,
-    text: 'Jenis Pesanan',
+    text: "Jenis Pesanan",
   },
   {
-    url: '/data/pelanggan',
+    url: "/data/pelanggan",
     icon: BiMaleFemale,
-    text: 'Pelanggan',
+    text: "Pelanggan",
   },
   {
-    url: '/data/users',
+    url: "/data/users",
     icon: BiSolidUserAccount,
-    text: 'Users',
+    text: "Users",
   },
 ];
 
@@ -55,55 +51,72 @@ export const DashboardSidebar: NextPage = function () {
 
   useEffect(() => {
     setIsMounted(true);
-  }, [])
+  }, []);
 
   return (
-    isMounted && <Sidebar
-      aria-label="Sidebar with multi-level dropdown example"
-      collapsed={isCollapsed}
-      id="sidebar"
-      className={twMerge(
-        "fixed inset-y-0 left-0 z-20 mt-16 flex h-full shrink-0 flex-col border-r border-gray-200 duration-75 dark:border-gray-700 lg:flex",
-        isCollapsed && "hidden w-16",
-      )}
-    >
-      <Sidebar.Items>
-        <Sidebar.ItemGroup>
-          <div className={twMerge("flex flex-col items-center space-y-2 p-4", isCollapsed && "hidden w-16")}>
-            <Avatar alt="avatar of Jese" rounded size='xl' />
-            <div className="font-medium dark:text-white">
-              <div className="text-sm text-gray-500 dark:text-gray-400">@username</div>
-              <div>John Doe</div>
+    isMounted && (
+      <Sidebar
+        aria-label="Sidebar with multi-level dropdown example"
+        collapsed={isCollapsed}
+        id="sidebar"
+        className={twMerge(
+          "fixed inset-y-0 left-0 z-20 mt-16 flex h-full shrink-0 flex-col border-r border-gray-200 duration-75 dark:border-gray-700 lg:flex",
+          isCollapsed && "hidden w-16",
+        )}
+      >
+        <Sidebar.Items>
+          <Sidebar.ItemGroup>
+            <div
+              className={twMerge(
+                "flex flex-col items-center space-y-2 p-4",
+                isCollapsed && "hidden w-16",
+              )}
+            >
+              <Avatar alt="avatar of Jese" rounded size="xl" />
+              <div className="font-medium dark:text-white">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  @username
+                </div>
+                <div>John Doe</div>
+              </div>
             </div>
-          </div>
-          <Sidebar.Collapse icon={BiSolidShoppingBag} label="Pesanan" open={currentPath.includes('/pesanan')}>
-            {
-              pesananUrls.map(item => (
+            <Sidebar.Collapse
+              icon={BiSolidShoppingBag}
+              label="Pesanan"
+              open={currentPath.includes("/pesanan")}
+            >
+              {pesananUrls.map((item, i) => (
                 <Sidebar.Item
+                  key={i}
                   as={Link}
                   href={item.url}
                   icon={item.icon}
-                  active={currentPath.includes(item.url)}>
+                  active={currentPath.includes(item.url)}
+                >
                   {item.text}
                 </Sidebar.Item>
-              ))
-            }
-          </Sidebar.Collapse>
-          <Sidebar.Collapse icon={HiFolder} label="Data" open={currentPath.includes('/data')}>
-            {
-              dataUrls.map(item => (
+              ))}
+            </Sidebar.Collapse>
+            <Sidebar.Collapse
+              icon={HiFolder}
+              label="Data"
+              open={currentPath.includes("/data")}
+            >
+              {dataUrls.map((item, i) => (
                 <Sidebar.Item
+                  key={i}
                   as={Link}
                   href={item.url}
                   icon={item.icon}
-                  active={currentPath.includes(item.url)}>
+                  active={currentPath.includes(item.url)}
+                >
                   {item.text}
                 </Sidebar.Item>
-              ))
-            }
-          </Sidebar.Collapse>
-        </Sidebar.ItemGroup>
-      </Sidebar.Items>
-    </Sidebar>
+              ))}
+            </Sidebar.Collapse>
+          </Sidebar.ItemGroup>
+        </Sidebar.Items>
+      </Sidebar>
+    )
   );
 };

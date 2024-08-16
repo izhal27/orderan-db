@@ -1,10 +1,10 @@
-import { useState, type FC } from "react";
-import Image from "next/image";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { isSmallScreen } from "@/helpers/is-small-screen";
 import { Avatar, DarkThemeToggle, Dropdown, Navbar } from "flowbite-react";
-import { HiMenuAlt1, HiX } from "react-icons/hi";
+import Image from "next/image";
 import Link from "next/link";
+import { type FC } from "react";
+import { HiMenuAlt1, HiX } from "react-icons/hi";
 
 export const DashboardNavbar: FC<Record<string, never>> = function () {
   const { isCollapsed: isSidebarCollapsed, setCollapsed: setSidebarCollapsed } =
@@ -26,9 +26,9 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
                 onClick={() => setSidebarCollapsed(!isSidebarCollapsed)}
               >
                 {isSidebarCollapsed || !isSmallScreen() ? (
-                  <HiMenuAlt1 className="h-6 w-6" />
+                  <HiMenuAlt1 className="size-6" />
                 ) : (
-                  <HiX className="h-6 w-6" />
+                  <HiX className="size-6" />
                 )}
               </button>
               <Navbar.Brand as={Link} href="/">
@@ -43,18 +43,18 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
                 </span>
               </Navbar.Brand>
             </div>
-            <div className="flex md:order-2 gap-x-5">
+            <div className="flex gap-x-5 md:order-2">
               <DarkThemeToggle />
               <Dropdown
                 arrowIcon={false}
                 inline
-                label={
-                  <Avatar alt="User settings" rounded />
-                }
+                label={<Avatar alt="User settings" rounded />}
               >
                 <Dropdown.Header>
                   <span className="block text-sm">@username</span>
-                  <span className="block truncate text-sm font-medium">John Doe</span>
+                  <span className="block truncate text-sm font-medium">
+                    John Doe
+                  </span>
                 </Dropdown.Header>
                 <Dropdown.Item>Settings</Dropdown.Item>
                 <Dropdown.Divider />
