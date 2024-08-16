@@ -18,8 +18,7 @@ export function JenisPesananTable() {
     <div>
       <ModalInput openModal={openModal} setOpenModal={setOpenModal} onSaveHandler={onSaveHandler} />
       <div className="flex flex-col gap-y-3">
-
-        <div className="mt-2">
+        <div>
           <Button size={'sm'} color={'blue'} onClick={() => setOpenModal(true)}>
             <HiDocumentAdd className="mr-2 h-5 w-5" />
             Tambah
