@@ -60,7 +60,6 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
                 <Dropdown.Divider />
                 <Dropdown.Item>Sign out</Dropdown.Item>
               </Dropdown>
-              <Navbar.Toggle />
             </div>
           </div>
         </div>
