@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import { NextPage } from "next";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { Avatar, Sidebar } from "flowbite-react";
-import { BiMaleFemale, BiSolidReport, BiSolidShoppingBag, BiSolidUserAccount } from "react-icons/bi";
+import {
+  BiMaleFemale,
+  BiSolidReport,
+  BiSolidShoppingBag,
+  BiSolidUserAccount
+} from "react-icons/bi";
 import {
   HiColorSwatch,
   HiDocumentText,
@@ -10,10 +15,43 @@ import {
 } from "react-icons/hi";
 import { twMerge } from "tailwind-merge";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const pesananUrls = [
+  {
+    url: '/pesanan/daftar',
+    icon: HiDocumentText,
+    text: 'Daftar',
+  },
+  {
+    url: '/pesanan/laporan',
+    icon: BiSolidReport,
+    text: 'Laporan',
+  },
+];
+
+const dataUrls = [
+  {
+    url: '/data/jenis-pesanan',
+    icon: HiColorSwatch,
+    text: 'Jenis Pesanan',
+  },
+  {
+    url: '/data/pelanggan',
+    icon: BiMaleFemale,
+    text: 'Pelanggan',
+  },
+  {
+    url: '/data/users',
+    icon: BiSolidUserAccount,
+    text: 'Users',
+  },
+];
 
 export const DashboardSidebar: NextPage = function () {
   const [isMounted, setIsMounted] = useState(false);
   const { isCollapsed } = useSidebarContext();
+  const currentPath = usePathname();
 
   useEffect(() => {
     setIsMounted(true);
@@ -38,14 +76,31 @@ export const DashboardSidebar: NextPage = function () {
               <div>John Doe</div>
             </div>
           </div>
-          <Sidebar.Collapse icon={BiSolidShoppingBag} label="Pesanan">
-            <Sidebar.Item as={Link} href="#" icon={HiDocumentText}>Daftar</Sidebar.Item>
-            <Sidebar.Item as={Link} href="#" icon={BiSolidReport}>Laporan</Sidebar.Item>
+          <Sidebar.Collapse icon={BiSolidShoppingBag} label="Pesanan" open={currentPath.includes('/pesanan')}>
+            {
+              pesananUrls.map(item => (
+                <Sidebar.Item
+                  as={Link}
+                  href={item.url}
+                  icon={item.icon}
+                  active={currentPath.includes(item.url)}>
+                  {item.text}
+                </Sidebar.Item>
+              ))
+            }
           </Sidebar.Collapse>
-          <Sidebar.Collapse icon={HiFolder} label="Data">
-            <Sidebar.Item as={Link} href="#" icon={HiColorSwatch}>Jenis Pesanan</Sidebar.Item>
-            <Sidebar.Item as={Link} href="#" icon={BiMaleFemale}>Pelanggan</Sidebar.Item>
-            <Sidebar.Item as={Link} href="#" icon={BiSolidUserAccount}>Users</Sidebar.Item>
+          <Sidebar.Collapse icon={HiFolder} label="Data" open={currentPath.includes('/data')}>
+            {
+              dataUrls.map(item => (
+                <Sidebar.Item
+                  as={Link}
+                  href={item.url}
+                  icon={item.icon}
+                  active={currentPath.includes(item.url)}>
+                  {item.text}
+                </Sidebar.Item>
+              ))
+            }
           </Sidebar.Collapse>
         </Sidebar.ItemGroup>
       </Sidebar.Items>
