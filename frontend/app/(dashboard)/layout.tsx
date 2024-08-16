@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useState, type FC, type PropsWithChildren } from "react";
 import { SidebarProvider, useSidebarContext } from "@/context/SidebarContext";
-import type { FC, PropsWithChildren } from "react";
 import { twMerge } from "tailwind-merge";
 import { DashboardNavbar } from "./navbar";
 import { DashboardSidebar } from "./sidebar";
@@ -16,9 +16,14 @@ const DashboardLayout: FC<PropsWithChildren> = function ({ children }) {
 
 const DashboardLayoutContent: FC<PropsWithChildren> = function ({ children }) {
   const { isCollapsed } = useSidebarContext();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
-    <>
+    isMounted && <>
       <DashboardNavbar />
       <div className="mt-16 flex items-start">
         <DashboardSidebar />
