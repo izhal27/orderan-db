@@ -1,4 +1,4 @@
-import { JenisPesananTable } from "@/app/component/JenisPesananTable";
+import { JenisPesananTable } from "@/app/component/jenis-pesanan/JenisPesananTable";
 import { Button } from "flowbite-react";
 import { HiDocumentAdd } from "react-icons/hi";
 
