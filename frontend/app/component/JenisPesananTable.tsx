@@ -1,8 +1,8 @@
 
 "use client";
 
-import { Button, Table } from "flowbite-react";
-import { HiDocumentAdd, HiPencil, HiTrash } from "react-icons/hi";
+import { Table } from "flowbite-react";
+import { HiPencil, HiTrash } from "react-icons/hi";
 
 export function JenisPesananTable() {
   return (
