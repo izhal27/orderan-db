@@ -16,6 +16,7 @@ interface props {
 
 export function JenisPesananTable({ data }: props) {
   const [openModal, setOpenModal] = useState(false);
+  console.dir(data);
 
   const onSaveHandler = ({
     name,
@@ -49,24 +50,6 @@ export function JenisPesananTable({ data }: props) {
             <Table.HeadCell>Aksi</Table.HeadCell>
           </Table.Head>
           <Table.Body className="divide-y">
-            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-              <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                {'Apple MacBook Pro 17"'}
-              </Table.Cell>
-              <Table.Cell>Sliver</Table.Cell>
-              <Table.Cell>
-                <div className="flex gap-x-1">
-                  <HiPencil
-                    className="cursor-pointer text-blue-500"
-                    onClick={() => console.log("Item 1")}
-                  />
-                  <HiTrash
-                    className="ml-2 cursor-pointer text-red-500"
-                    onClick={() => console.log("Item 1")}
-                  />
-                </div>
-              </Table.Cell>
-            </Table.Row>
             {
               data.map(item => {
                 return (
@@ -91,7 +74,6 @@ export function JenisPesananTable({ data }: props) {
                 )
               })
             }
-
           </Table.Body>
         </Table>
       </div>

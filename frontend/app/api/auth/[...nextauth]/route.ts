@@ -7,8 +7,6 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {},
       async authorize(credentials) {
-        console.log(credentials);
-
         const res = await fetch("http://localhost:3002/api/auth/local/signin", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -16,8 +14,6 @@ export const authOptions: NextAuthOptions = {
         });
 
         const user = await res.json();
-        console.log(user);
-
         if (res.ok && user) {
           return {
             ...user,

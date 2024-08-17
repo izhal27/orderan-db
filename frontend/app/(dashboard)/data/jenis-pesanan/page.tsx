@@ -8,9 +8,14 @@ export default async function JenisPesananPage() {
     headers: {
       Authorization: `Bearer ${session?.accessToken}`,
       'Content-Type': 'application/json',
-    }
-  })
-  const orderTypes = await res.json();
+    },
+    cache: 'no-store',
+  });
+
+  let orderTypes = [];
+  if (res.ok) {
+    orderTypes = await res.json();
+  }
 
   return (
     <main className="flex flex-col gap-y-7 p-4">
