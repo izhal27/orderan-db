@@ -1,3 +1,4 @@
+import axios from "axios";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -7,18 +8,19 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {},
       async authorize(credentials) {
-        const res = await fetch("http://localhost:3002/api/auth/local/signin", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(credentials),
-        });
+        const res = await axios.post("http://localhost:3002/api/auth/local/signin",
+          credentials,
+          {
+            headers: { "Content-Type": "application/json" },
+          });
 
-        const user = await res.json();
-        if (res.ok && user) {
+        console.log(await res);
+        if (res.data) {
+
           return {
-            ...user,
-            accessToken: user.access_token,
-            refreshToken: user.refresh_token,
+            accessToken: res.data.access_token,
+            refreshToken: res.data.refresh_token,
+            ...res.data,
           };
         } else {
           return null;
@@ -32,15 +34,21 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async session({ session, token }) {
-      session.accessToken = token.accessToken;
-      session.refreshToken = token.refreshToken;
+      if (token) {
+        session.accessToken = token.accessToken;
+        session.refreshToken = token.refreshToken;
+        session.user = token.user;
+      }
       return session;
     },
     async jwt({ session, token, user, account }) {
       if (user) {
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
+        token.user = user;
       }
+      console.log(JSON.stringify(token));
+
       return token;
     },
   },
