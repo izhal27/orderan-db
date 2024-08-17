@@ -55,18 +55,12 @@ export class AuthService {
   async logout(userId: number) {
     const user = await this.userService.findUnique({
       id: userId,
-      refreshToken: {
-        not: null,
-      },
+      refreshToken: { not: null },
     });
     if (user) {
       this.userService.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          refreshToken: null,
-        },
+        where: { id: userId },
+        data: { refreshToken: null },
       });
     }
   }
@@ -84,30 +78,25 @@ export class AuthService {
   }
 
   private async generateTokens(user: UserEntity): Promise<Tokens> {
-    const tokens = await this.getTokens(user.id, user.username, user.role?.name);
+    // get access_token and refresh_token
+    const tokens = await this.getTokens(user);
+    // generate new refresh token hash and save to database
     await this.updateRefreshTokenHash(user.username, tokens.refresh_token);
     return tokens;
   }
 
-  async getTokens(userId: number, username: string, role: string | undefined) {
+  async getTokens(user: UserEntity) {
+    // sign access_token and refresh_token
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(
-        {
-          sub: userId,
-          username,
-          role,
-        },
+        { sub: user.id, username: user.name, role: user.role?.name },
         {
           secret: this.configService.get(JWT_SECRET),
           expiresIn: this.configService.get(JWT_EXPIRES),
         },
       ),
       this.jwtService.signAsync(
-        {
-          sub: userId,
-          username,
-          role,
-        },
+        { sub: user.id, username: user.name, role: user.role?.name },
         {
           secret: this.configService.get(REFRESH_TOKEN_SECRET),
           expiresIn: this.configService.get(REFRESH_TOKEN_EXPIRES),
@@ -115,18 +104,24 @@ export class AuthService {
       ),
     ]);
 
-    return { access_token, refresh_token };
+    return {
+      access_token,
+      refresh_token,
+      user: {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        image: user.image,
+        role: user.role?.name
+      }
+    };
   }
 
   private async updateRefreshTokenHash(username: string, refreshToken: string) {
     const hash = await hashValue(refreshToken);
     this.userService.update({
-      where: {
-        username,
-      },
-      data: {
-        refreshToken: hash,
-      },
+      where: { username },
+      data: { refreshToken: hash },
     });
   }
 }
