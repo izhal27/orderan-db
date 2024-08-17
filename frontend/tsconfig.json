@@ -7,12 +7,18 @@
     "incremental": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     },
     "plugins": [
       {
@@ -24,13 +30,17 @@
     "strict": true,
     "target": "es5"
   },
-  "exclude": [".next", "node_modules"],
+  "exclude": [
+    ".next",
+    "node_modules"
+  ],
   "include": [
     ".next/types/**/*.ts",
     "next-env.d.ts",
     "**/*.cjs",
     "**/*.mjs",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "types/**/*.ts",
   ]
 }

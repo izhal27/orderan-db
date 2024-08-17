@@ -1,4 +1,4 @@
-import { JenisPesananTable } from "@/app/component/jenis-pesanan/JenisPesananTable";
+import { JenisPesananTable } from "@/component/jenis-pesanan/JenisPesananTable";
 
 export default function JenisPesananPage() {
   return (

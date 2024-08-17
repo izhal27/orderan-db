@@ -1,4 +1,4 @@
-import { PelangganTable } from "@/app/component/pelanggan/PelangganTable";
+import { PelangganTable } from "@/component/pelanggan/PelangganTable";
 import { Button } from "flowbite-react";
 import { HiDocumentAdd } from "react-icons/hi";
 

@@ -1,5 +1,5 @@
+import SigninForm from "@/component/SigninForm";
 import Image from "next/image";
-import LoginForm from "../component/LoginForm";
 
 export default function LoginPage() {
   return (
@@ -24,7 +24,7 @@ export default function LoginPage() {
                 Masukan username dan password anda untuk masuk ke aplikasi
               </p>
             </div>
-            <LoginForm />
+            <SigninForm />
           </div>
         </div>
         <p className="text-sm font-light text-gray-500 dark:text-gray-400">Created by &copy; Risal Walangadi</p>
@@ -34,8 +34,7 @@ export default function LoginPage() {
           src={'/login-page-image.png'}
           fill
           alt="Dunia Baliho logo"
-          style={{ width: '100%' }}
-          objectFit="cover"
+          style={{ width: '100%', objectFit: 'cover' }}
           className="object-bottom"
         />
       </div>

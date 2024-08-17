@@ -1,6 +1,7 @@
 import { useSidebarContext } from "@/context/SidebarContext";
 import { isSmallScreen } from "@/helpers/is-small-screen";
 import { Avatar, DarkThemeToggle, Dropdown, Navbar } from "flowbite-react";
+import { signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { type FC } from "react";
@@ -58,7 +59,7 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
                 </Dropdown.Header>
                 <Dropdown.Item>Settings</Dropdown.Item>
                 <Dropdown.Divider />
-                <Dropdown.Item>Sign out</Dropdown.Item>
+                <Dropdown.Item onClick={() => signOut()}>Sign out</Dropdown.Item>
               </Dropdown>
             </div>
           </div>
