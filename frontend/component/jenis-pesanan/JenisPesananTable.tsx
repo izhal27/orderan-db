@@ -5,7 +5,16 @@ import { useState } from "react";
 import { HiDocumentAdd, HiPencil, HiTrash } from "react-icons/hi";
 import ModalInput from "./ModalInput";
 
-export function JenisPesananTable() {
+type OrderType = {
+  id: string,
+  name: string;
+  description: string;
+}
+interface props {
+  data: OrderType[]
+}
+
+export function JenisPesananTable({ data }: props) {
   const [openModal, setOpenModal] = useState(false);
 
   const onSaveHandler = ({
@@ -58,24 +67,31 @@ export function JenisPesananTable() {
                 </div>
               </Table.Cell>
             </Table.Row>
-            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-              <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                {"ASUS TUF Gaming A14 (2024)"}
-              </Table.Cell>
-              <Table.Cell>Sliver</Table.Cell>
-              <Table.Cell>
-                <div className="flex gap-x-1">
-                  <HiPencil
-                    className="cursor-pointer text-blue-500"
-                    onClick={() => console.log("Item 1")}
-                  />
-                  <HiTrash
-                    className="ml-2 cursor-pointer text-red-500"
-                    onClick={() => console.log("Item 1")}
-                  />
-                </div>
-              </Table.Cell>
-            </Table.Row>
+            {
+              data.map(item => {
+                return (
+                  <Table.Row key={item.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                    <Table.Cell className="font-medium text-gray-900 dark:text-white">
+                      {item.name}
+                    </Table.Cell>
+                    <Table.Cell className="inline-block">{item.description}</Table.Cell>
+                    <Table.Cell>
+                      <div className="flex gap-x-1">
+                        <HiPencil
+                          className="cursor-pointer text-blue-500"
+                          onClick={() => console.log("Item 1")}
+                        />
+                        <HiTrash
+                          className="ml-2 cursor-pointer text-red-500"
+                          onClick={() => console.log("Item 1")}
+                        />
+                      </div>
+                    </Table.Cell>
+                  </Table.Row>
+                )
+              })
+            }
+
           </Table.Body>
         </Table>
       </div>

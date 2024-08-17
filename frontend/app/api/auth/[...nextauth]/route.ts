@@ -1,15 +1,14 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
-      credentials: {
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" }
-      },
+      credentials: {},
       async authorize(credentials) {
+        console.log(credentials);
+
         const res = await fetch("http://localhost:3002/api/auth/local/signin", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -20,8 +19,11 @@ const handler = NextAuth({
         console.log(user);
 
         if (res.ok && user) {
-          console.log(user);
-          return user;
+          return {
+            ...user,
+            accessToken: user.access_token,
+            refreshToken: user.refresh_token,
+          };
         } else {
           return null;
         }
@@ -33,22 +35,21 @@ const handler = NextAuth({
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async session({ session, token, user }) {
-      console.log(JSON.stringify(token, null, 4));
-
-      if (token) {
-        session.accessToken = token.accessToken;
-      }
+    async session({ session, token }) {
+      session.accessToken = token.accessToken;
+      session.refreshToken = token.refreshToken;
       return session;
     },
-    async jwt({ session, token, user }) {
-      console.log(JSON.stringify(user, null, 4));
+    async jwt({ session, token, user, account }) {
       if (user) {
         token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
       }
       return token;
     },
   },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

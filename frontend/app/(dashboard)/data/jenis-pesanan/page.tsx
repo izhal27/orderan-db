@@ -1,6 +1,17 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { JenisPesananTable } from "@/component/jenis-pesanan/JenisPesananTable";
+import { getServerSession } from "next-auth";
 
-export default function JenisPesananPage() {
+export default async function JenisPesananPage() {
+  const session = await getServerSession(authOptions);
+  const res = await fetch('http://localhost:3002/api/order-types', {
+    headers: {
+      Authorization: `Bearer ${session?.accessToken}`,
+      'Content-Type': 'application/json',
+    }
+  })
+  const orderTypes = await res.json();
+
   return (
     <main className="flex flex-col gap-y-7 p-4">
       <div>
@@ -11,7 +22,7 @@ export default function JenisPesananPage() {
           Menampilkan daftar jenis pesanan
         </p>
       </div>
-      <JenisPesananTable />
+      <JenisPesananTable data={orderTypes} />
     </main>
   );
 }
