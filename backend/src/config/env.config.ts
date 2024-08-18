@@ -29,14 +29,14 @@ class EnvironmentVariables {
   @IsString()
   JWT_SECRET: string;
 
-  @IsString()
-  JWT_EXPIRES: string;
+  @IsNumber()
+  JWT_EXPIRES: number;
 
   @IsString()
   REFRESH_TOKEN_SECRET: string;
 
-  @IsString()
-  REFRESH_TOKEN_EXPIRES: string;
+  @IsNumber()
+  REFRESH_TOKEN_EXPIRES: number;
 }
 
 export function validate(config: Record<string, unknown>) {
