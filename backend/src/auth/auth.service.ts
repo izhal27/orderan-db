@@ -113,7 +113,8 @@ export class AuthService {
         name: user.name,
         image: user.image,
         role: user.role?.name
-      }
+      },
+      expiresIn: this.configService.get(JWT_EXPIRES),
     };
   }
 
