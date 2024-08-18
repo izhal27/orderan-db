@@ -1,6 +1,7 @@
 import { useSidebarContext } from "@/context/SidebarContext";
 import { Avatar, Sidebar } from "flowbite-react";
 import type { NextPage } from "next";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -48,6 +49,7 @@ export const DashboardSidebar: NextPage = function () {
   const [isMounted, setIsMounted] = useState(false);
   const { isCollapsed } = useSidebarContext();
   const currentPath = usePathname();
+  const { data: session } = useSession();
 
   useEffect(() => {
     setIsMounted(true);
@@ -72,12 +74,12 @@ export const DashboardSidebar: NextPage = function () {
                 isCollapsed && "hidden w-16",
               )}
             >
-              <Avatar alt="avatar of Jese" rounded size="xl" />
+              <Avatar img={`http://localhost:3002/images/${session?.user.image}`} alt="avatar of Jese" rounded size="xl" />
               <div className="font-medium dark:text-white">
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                  @username
+                  @{session?.user.username}
                 </div>
-                <div>John Doe</div>
+                <div>{session?.user.name}</div>
               </div>
             </div>
             <Sidebar.Collapse

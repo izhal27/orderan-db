@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Table } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HiDocumentAdd, HiPencil, HiTrash } from "react-icons/hi";
 import ModalInput from "./ModalInput";
 
@@ -10,13 +10,13 @@ type OrderType = {
   name: string;
   description: string;
 }
+
 interface props {
   data: OrderType[]
 }
 
 export function JenisPesananTable({ data }: props) {
   const [openModal, setOpenModal] = useState(false);
-  console.dir(data);
 
   const onSaveHandler = ({
     name,
@@ -51,7 +51,7 @@ export function JenisPesananTable({ data }: props) {
           </Table.Head>
           <Table.Body className="divide-y">
             {
-              data.map(item => {
+              data?.map((item: any) => {
                 return (
                   <Table.Row key={item.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
                     <Table.Cell className="font-medium text-gray-900 dark:text-white">

@@ -1,10 +1,10 @@
 "use client"
 
-import { DashboardNavbar } from "@/app/(dashboard)/navbar";
-import { DashboardSidebar } from "@/app/(dashboard)/sidebar";
 import { SidebarProvider, useSidebarContext } from "@/context/SidebarContext";
 import { useEffect, useState, type FC, type PropsWithChildren } from "react";
 import { twMerge } from "tailwind-merge";
+import { DashboardNavbar } from "./navbar";
+import { DashboardSidebar } from "./sidebar";
 
 const DashboardLayout: FC<PropsWithChildren> = function ({ children }) {
   return (

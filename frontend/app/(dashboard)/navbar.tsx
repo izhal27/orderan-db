@@ -1,15 +1,16 @@
-import { useSidebarContext } from "@/context/SidebarContext";
-import { isSmallScreen } from "@/helpers/is-small-screen";
-import { Avatar, DarkThemeToggle, Dropdown, Navbar } from "flowbite-react";
-import { signOut } from "next-auth/react";
+import { type FC } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { type FC } from "react";
+import { Avatar, DarkThemeToggle, Dropdown, Navbar } from "flowbite-react";
+import { signOut, useSession } from "next-auth/react";
 import { HiMenuAlt1, HiX } from "react-icons/hi";
+import { useSidebarContext } from "@/context/SidebarContext";
+import { isSmallScreen } from "@/helpers/is-small-screen";
 
 export const DashboardNavbar: FC<Record<string, never>> = function () {
   const { isCollapsed: isSidebarCollapsed, setCollapsed: setSidebarCollapsed } =
     useSidebarContext();
+  const { data: session } = useSession();
 
   return (
     <header>
@@ -34,10 +35,10 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
               </button>
               <Navbar.Brand as={Link} href="/">
                 <Image
-                  alt="Flowbite logo"
+                  alt="Dunia Baliho logo"
+                  width="32"
                   height="32"
                   src="/favicon.png"
-                  width="32"
                 />
                 <span className="self-center whitespace-nowrap px-3 text-xl font-semibold dark:text-white">
                   Dunia Baliho
@@ -49,17 +50,23 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
               <Dropdown
                 arrowIcon={false}
                 inline
-                label={<Avatar alt="User settings" rounded />}
+                label={<Avatar img={`http://localhost:3002/images/${session?.user.image}`} alt="User settings" rounded />}
               >
                 <Dropdown.Header>
-                  <span className="block text-sm">@username</span>
+                  <span className="block text-sm">@{session?.user.username}</span>
                   <span className="block truncate text-sm font-medium">
-                    John Doe
+                    {session?.user.name}
                   </span>
                 </Dropdown.Header>
                 <Dropdown.Item>Settings</Dropdown.Item>
                 <Dropdown.Divider />
-                <Dropdown.Item onClick={() => signOut()}>Sign out</Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => signOut({
+                    callbackUrl: 'http://localhost:3000/auth/signin',
+                    redirect: true
+                  })}>
+                  Sign out
+                </Dropdown.Item>
               </Dropdown>
             </div>
           </div>

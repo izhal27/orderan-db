@@ -1,20 +1,20 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/auth";
 import { JenisPesananTable } from "@/component/jenis-pesanan/JenisPesananTable";
-import { getServerSession } from "next-auth";
 
 export default async function JenisPesananPage() {
-  const session = await getServerSession(authOptions);
-  const res = await fetch('http://localhost:3002/api/order-types', {
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    cache: 'no-store',
-  });
+  const session = await auth();
+  let data = [];
 
-  let orderTypes = [];
-  if (res.ok) {
-    orderTypes = await res.json();
+  try {
+    const res = await fetch('http://localhost:3002/api/order-types', {
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`
+      },
+      cache: 'no-store'
+    });
+    data = await res.json();
+  } catch (error) {
+    console.log(error);
   }
 
   return (
@@ -27,7 +27,7 @@ export default async function JenisPesananPage() {
           Menampilkan daftar jenis pesanan
         </p>
       </div>
-      <JenisPesananTable data={orderTypes} />
+      <JenisPesananTable data={data} />
     </main>
   );
 }

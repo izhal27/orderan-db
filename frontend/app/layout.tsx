@@ -4,6 +4,7 @@ import { type FC, type PropsWithChildren } from "react";
 import { twMerge } from "tailwind-merge";
 import "./globals.css";
 import { flowbiteTheme } from "./theme";
+import { SessionProvider } from "next-auth/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,9 @@ const RootLayout: FC<PropsWithChildren> = function ({ children }) {
         <ThemeModeScript />
       </head>
       <body className={twMerge("bg-gray-50 dark:bg-gray-900", inter.className)}>
-        <Flowbite theme={{ theme: flowbiteTheme }}>{children}</Flowbite>
+        <SessionProvider>
+          <Flowbite theme={{ theme: flowbiteTheme }}>{children}</Flowbite>
+        </SessionProvider>
       </body>
     </html>
   );

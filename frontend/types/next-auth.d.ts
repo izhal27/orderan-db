@@ -11,12 +11,7 @@ declare module "next-auth" {
       name: string;
       email: string;
       image: string;
-    } & DefaultSession["user"];
-  }
-
-  interface JWT {
-    id: string;
-    accessToken: string;
-    refreshToken: string;
+    }
+    & DefaultSession["user"];
   }
 }
