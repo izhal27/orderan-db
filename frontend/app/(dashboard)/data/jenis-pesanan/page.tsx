@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import AddButton from "@/component/buttons/AddButton";
 import { JenisPesananTable } from "@/component/jenis-pesanan/JenisPesananTable";
 
 export default async function JenisPesananPage() {
@@ -18,7 +19,7 @@ export default async function JenisPesananPage() {
   }
 
   return (
-    <main className="flex flex-col gap-y-7 p-4">
+    <main className="flex flex-col gap-y-5 p-4">
       <div>
         <h1 className="text-2xl font-bold text-gray-500 dark:text-gray-400">
           Jenis Pesanan
@@ -26,6 +27,9 @@ export default async function JenisPesananPage() {
         <p className="text-sm font-light text-gray-500 dark:text-gray-400">
           Menampilkan daftar jenis pesanan
         </p>
+      </div>
+      <div className="max-w-32">
+        <AddButton />
       </div>
       <JenisPesananTable data={data} />
     </main>

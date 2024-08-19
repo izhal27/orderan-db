@@ -6,6 +6,7 @@ import { HiDocumentAdd, HiPencil, HiTrash } from "react-icons/hi";
 import ModalInput from "./ModalInput";
 import { useSession } from "next-auth/react";
 import { useFetch } from "@/lib/useFetch";
+import { usePathname, useRouter } from "next/navigation";
 
 type OrderType = {
   id: string,
@@ -18,6 +19,8 @@ interface props {
 }
 
 export function JenisPesananTable({ data }: props) {
+  const router = useRouter();
+  const pathName = usePathname();
   const [openModal, setOpenModal] = useState(false);
 
   const onSaveHandler = async (result: any) => {
@@ -33,12 +36,6 @@ export function JenisPesananTable({ data }: props) {
         onSaveHandler={onSaveHandler}
       />
       <div className="flex flex-col gap-y-3">
-        <div>
-          <Button size={"sm"} color={"blue"} onClick={() => setOpenModal(prevState => !prevState)}>
-            <HiDocumentAdd className="mr-2 size-5" />
-            Tambah
-          </Button>
-        </div>
         <Table hoverable>
           <Table.Head>
             <Table.HeadCell>Nama</Table.HeadCell>
@@ -58,11 +55,11 @@ export function JenisPesananTable({ data }: props) {
                       <div className="flex gap-x-1">
                         <HiPencil
                           className="cursor-pointer text-blue-500"
-                          onClick={() => console.log("Item 1")}
+                          onClick={() => router.push(`${pathName}/${item.id}`)}
                         />
                         <HiTrash
                           className="ml-2 cursor-pointer text-red-500"
-                          onClick={() => console.log("Item 1")}
+                          onClick={() => router.push(`${pathName}/${item.id}`)}
                         />
                       </div>
                     </Table.Cell>
