@@ -1,9 +1,11 @@
 "use client";
 
 import { Button, Table } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { HiDocumentAdd, HiPencil, HiTrash } from "react-icons/hi";
 import ModalInput from "./ModalInput";
+import { useSession } from "next-auth/react";
+import { useFetch } from "@/lib/useFetch";
 
 type OrderType = {
   id: string,
@@ -17,17 +19,18 @@ interface props {
 
 export function JenisPesananTable({ data }: props) {
   const [openModal, setOpenModal] = useState(false);
+  const [error, setError] = useState<unknown | null>(null);
+  const { data: session } = useSession();
 
-  const onSaveHandler = ({
-    name,
-    description,
-  }: {
-    name: string;
-    description: string;
-  }) => {
-    console.log(`${name} : ${description}`);
-    setOpenModal((prevState) => !prevState);
+  const onSaveHandler = async (result: any) => {
+    data.push(result);
+    setOpenModal(false);
   };
+
+  function openModalHandler() {
+    setError(null);
+    setOpenModal(prevState => !prevState);
+  }
 
   return (
     <div>
@@ -35,10 +38,11 @@ export function JenisPesananTable({ data }: props) {
         openModal={openModal}
         setOpenModal={setOpenModal}
         onSaveHandler={onSaveHandler}
+        error={error}
       />
       <div className="flex flex-col gap-y-3">
         <div>
-          <Button size={"sm"} color={"blue"} onClick={() => setOpenModal(true)}>
+          <Button size={"sm"} color={"blue"} onClick={() => openModalHandler()}>
             <HiDocumentAdd className="mr-2 size-5" />
             Tambah
           </Button>
