@@ -74,7 +74,7 @@ export const DashboardSidebar: NextPage = function () {
                 isCollapsed && "hidden w-16",
               )}
             >
-              <Avatar img={`http://localhost:3002/images/${session?.user.image}`} alt="avatar of Jese" rounded size="xl" />
+              <Avatar img={`http://localhost:3002/images/${session?.user.image}`} alt="User image" rounded size="xl" />
               <div className="font-medium dark:text-white">
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   @{session?.user.username}

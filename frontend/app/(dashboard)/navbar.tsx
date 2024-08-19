@@ -50,7 +50,7 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
               <Dropdown
                 arrowIcon={false}
                 inline
-                label={<Avatar img={`http://localhost:3002/images/${session?.user.image}`} alt="User settings" rounded />}
+                label={<Avatar img={`http://localhost:3002/images/${session?.user.image}`} alt="User image" rounded />}
               >
                 <Dropdown.Header>
                   <span className="block text-sm">@{session?.user.username}</span>
