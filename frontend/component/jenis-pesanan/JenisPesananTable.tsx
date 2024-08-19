@@ -19,18 +19,11 @@ interface props {
 
 export function JenisPesananTable({ data }: props) {
   const [openModal, setOpenModal] = useState(false);
-  const [error, setError] = useState<unknown | null>(null);
-  const { data: session } = useSession();
 
   const onSaveHandler = async (result: any) => {
     data.push(result);
     setOpenModal(false);
   };
-
-  function openModalHandler() {
-    setError(null);
-    setOpenModal(prevState => !prevState);
-  }
 
   return (
     <div>
@@ -38,11 +31,10 @@ export function JenisPesananTable({ data }: props) {
         openModal={openModal}
         setOpenModal={setOpenModal}
         onSaveHandler={onSaveHandler}
-        error={error}
       />
       <div className="flex flex-col gap-y-3">
         <div>
-          <Button size={"sm"} color={"blue"} onClick={() => openModalHandler()}>
+          <Button size={"sm"} color={"blue"} onClick={() => setOpenModal(prevState => !prevState)}>
             <HiDocumentAdd className="mr-2 size-5" />
             Tambah
           </Button>

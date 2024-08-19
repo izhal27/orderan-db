@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { Button, Label, Modal, Spinner, Textarea, TextInput } from "flowbite-react";
 import { useForm } from "react-hook-form";
 import { OrderTypeFormData } from '../../types/formTypes';
 import { orderTypeSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
+import { showToast } from "@/helpers/toast";
 
 interface props {
   openModal: boolean;
@@ -18,14 +18,12 @@ interface props {
     name: string | undefined;
     description: string | undefined;
   }): void;
-  error?: any;
 }
 
 export default function ModalInput({
   openModal,
   setOpenModal,
   onSaveHandler,
-  error,
 }: props) {
   const {
     register,
@@ -36,7 +34,6 @@ export default function ModalInput({
     resolver: zodResolver(orderTypeSchema),
   });
   const { data: session } = useSession();
-  const [errorRes, setErrorRes] = useState<null | string>(null);
 
   const onSubmit = async (data: OrderTypeFormData) => {
     const { name, description } = data;
@@ -52,14 +49,15 @@ export default function ModalInput({
     )
     const result = await res.json();
     if (res.ok) {
+      showToast('success', "Jenis Pesanan berhasil disimpan.");
       reset();
       onSaveHandler(result);
     }
     else if (res.status == 409) {
-      setErrorRes('Nama sudah digunakan, coba dengan nama yang lain');
+      showToast('error', "Nama sudah digunakan, coba dengan nama yang lain.");
     }
     else {
-      setErrorRes('Terjadi kesalahan, coba lagi nanti.');
+      showToast('error', "Terjadi kesalahan, coba lagi nanti.");
     }
   }
 
@@ -88,7 +86,6 @@ export default function ModalInput({
               </div>
               <TextInput {...register('name')} id="name" type="text" />
               {errors.name && <p className="mt-2 text-sm font-light text-red-500">{errors.name.message}</p>}
-              {errorRes && <p className="text-sm font-light text-red-500">{errorRes}</p>}
             </div>
             <div>
               <div className="mb-2 block">
@@ -97,7 +94,6 @@ export default function ModalInput({
               <Textarea {...register('description')} id="description" rows={4} />
               {errors.description && <p className="text-sm font-light text-red-500">{errors.description.message}</p>}
             </div>
-            {error && <p className="mt-2 text-sm font-light text-red-500">{error}</p>}
           </div>
         </Modal.Body>
         <Modal.Footer>
