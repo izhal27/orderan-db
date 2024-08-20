@@ -3,7 +3,7 @@ import { JenisPesananTable } from "@/component/jenis-pesanan/JenisPesananTable";
 
 export default async function JenisPesananPage() {
   return (
-    <main className="flex flex-col gap-y-5 p-4">
+    <main className="flex flex-col gap-4 p-4">
       <div>
         <h1 className="text-2xl font-bold text-gray-500 dark:text-gray-400">
           Jenis Pesanan

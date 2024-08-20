@@ -52,7 +52,7 @@ export default function AddEdit({ orderType }: props) {
         body: JSON.stringify({ name, description })
       }
     )
-    showInfo(res);
+    showInfo(res, await res.json());
   }
 
   const editHandler = async (id: string, data: OrderTypeFormData) => {
@@ -67,12 +67,12 @@ export default function AddEdit({ orderType }: props) {
         body: JSON.stringify({ name, description })
       }
     )
-    showInfo(res);
+    showInfo(res, await res.json());
   }
 
-  function showInfo(res: Response) {
+  function showInfo(res: Response, orderType: any) {
     if (res.ok) {
-      showToast('success', "Jenis Pesanan berhasil disimpan.");
+      showToast('success', `Jenis Pesanan "${orderType.name}" berhasil ${isEditMode ? 'disimpan' : 'ditambahkan'}.`);
       router.back();
     }
     else if (res.status == 409) {
