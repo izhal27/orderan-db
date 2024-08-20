@@ -6,8 +6,8 @@ import { useSession } from "next-auth/react";
 import { Table } from "flowbite-react";
 import { HiPencil, HiTrash } from "react-icons/hi";
 
-type OrderType = {
-  id: string,
+interface OrderType {
+  id: string;
   name: string;
   description: string;
 }

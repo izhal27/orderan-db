@@ -1,34 +1,47 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { Button, Label, Spinner, Textarea, TextInput } from "flowbite-react";
-import { OrderTypeFormData } from '../../types/formTypes';
+import { OrderTypeFormData } from '@/types/formTypes';
 import { orderTypeSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { showToast } from "@/helpers/toast";
 import BackButton from '@/component/buttons/BackButton';
+import { OrderType } from "@/types/constant";
 
 interface props {
-  orderType?: any
+  orderType?: OrderType
 }
 
 export default function AddEdit({ orderType }: props) {
   const isEditMode = !!orderType;
-
   const router = useRouter();
   const { data: session } = useSession();
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<OrderTypeFormData>({
     resolver: zodResolver(orderTypeSchema),
   });
 
+  useEffect(() => {
+    if (isEditMode) {
+      setValue('name', orderType.name);
+      setValue('description', orderType.description);
+    }
+  }, [orderType]);
+
   const onSubmit = async (data: OrderTypeFormData) => {
+    return !isEditMode ? addHandler(data) : editHandler(data);
+  }
+
+  const addHandler = async (data: OrderTypeFormData) => {
     const { name, description } = data;
     const res = await fetch('http://localhost:3002/api/order-types',
       {
@@ -40,6 +53,25 @@ export default function AddEdit({ orderType }: props) {
         body: JSON.stringify({ name, description })
       }
     )
+    showInfo(res);
+  }
+
+  const editHandler = async (data: OrderTypeFormData) => {
+    const { name, description } = data;
+    const res = await fetch(`http://localhost:3002/api/order-types/${orderType?.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, description })
+      }
+    )
+    showInfo(res);
+  }
+
+  function showInfo(res: Response) {
     if (res.ok) {
       showToast('success', "Jenis Pesanan berhasil disimpan.");
       reset();

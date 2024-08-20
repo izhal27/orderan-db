@@ -2,7 +2,6 @@ import AddButton from "@/component/buttons/AddButton";
 import { JenisPesananTable } from "@/component/jenis-pesanan/JenisPesananTable";
 
 export default async function JenisPesananPage() {
-
   return (
     <main className="flex flex-col gap-y-5 p-4">
       <div>
