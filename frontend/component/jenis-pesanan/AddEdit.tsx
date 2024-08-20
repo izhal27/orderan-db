@@ -84,7 +84,7 @@ export default function AddEdit({ orderType }: props) {
             <span className={isSubmitting ? "pl-3" : ''}>Simpan</span>
           </Button>
           <Button color="red" onClick={() => router.back()}>
-            Cancel
+            Batal
           </Button>
         </div>
       </form>
