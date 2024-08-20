@@ -17,13 +17,12 @@ interface props {
 }
 
 export default function AddEdit({ orderType }: props) {
-  const isEditMode = !!orderType;
+  let isEditMode = !!orderType;
   const router = useRouter();
   const { data: session } = useSession();
   const {
     register,
     handleSubmit,
-    reset,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<OrderTypeFormData>({
@@ -31,14 +30,14 @@ export default function AddEdit({ orderType }: props) {
   });
 
   useEffect(() => {
-    if (isEditMode) {
+    if (isEditMode && orderType) {
       setValue('name', orderType.name);
       setValue('description', orderType.description);
     }
   }, [orderType]);
 
   const onSubmit = async (data: OrderTypeFormData) => {
-    return !isEditMode ? addHandler(data) : editHandler(data);
+    return !isEditMode ? addHandler(data) : editHandler(orderType!.id, data);
   }
 
   const addHandler = async (data: OrderTypeFormData) => {
@@ -56,9 +55,9 @@ export default function AddEdit({ orderType }: props) {
     showInfo(res);
   }
 
-  const editHandler = async (data: OrderTypeFormData) => {
+  const editHandler = async (id: string, data: OrderTypeFormData) => {
     const { name, description } = data;
-    const res = await fetch(`http://localhost:3002/api/order-types/${orderType?.id}`,
+    const res = await fetch(`http://localhost:3002/api/order-types/${id}`,
       {
         method: 'PATCH',
         headers: {
@@ -74,7 +73,6 @@ export default function AddEdit({ orderType }: props) {
   function showInfo(res: Response) {
     if (res.ok) {
       showToast('success', "Jenis Pesanan berhasil disimpan.");
-      reset();
       router.back();
     }
     else if (res.status == 409) {
@@ -91,7 +89,7 @@ export default function AddEdit({ orderType }: props) {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
           <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-            Jenis Pesanan
+            {`${isEditMode ? 'Ubah' : 'Tambah'} Jenis Pesanan`}
           </h3>
           <div className="flex flex-col gap-4 max-w-md">
             <div>
@@ -113,7 +111,9 @@ export default function AddEdit({ orderType }: props) {
         <div className="flex gap-2">
           <Button color={'blue'} type="submit" disabled={isSubmitting}>
             {isSubmitting && <Spinner size={'sm'} />}
-            <span className={isSubmitting ? "pl-3" : ''}>Simpan</span>
+            <span className={isSubmitting ? "pl-3" : ''}>
+              {isEditMode ? 'Simpan' : 'Tambah'}
+            </span>
           </Button>
           <Button color="red" onClick={() => router.back()}>
             Batal
