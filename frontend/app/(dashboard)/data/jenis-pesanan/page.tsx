@@ -12,8 +12,10 @@ export default async function JenisPesananPage() {
           Menampilkan daftar jenis pesanan
         </p>
       </div>
-      <div className="max-w-32">
-        <AddButton />
+      <div className="flex justify-end">
+        <div className="max-w-32">
+          <AddButton />
+        </div>
       </div>
       <JenisPesananTable />
     </main>
