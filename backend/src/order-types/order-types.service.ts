@@ -11,7 +11,7 @@ import { PrismaService } from 'nestjs-prisma';
 export class OrderTypesService {
   private readonly logger = new Logger();
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   create(data: Prisma.OrderTypeCreateInput): Promise<OrderType> {
     try {
@@ -24,7 +24,11 @@ export class OrderTypesService {
 
   findMany(): Promise<OrderType[]> {
     try {
-      return this.prismaService.orderType.findMany();
+      return this.prismaService.orderType.findMany({
+        orderBy: {
+          name: 'asc'
+        }
+      });
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(error);
