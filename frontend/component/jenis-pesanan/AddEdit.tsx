@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
-import { Button, Label, Modal, Spinner, Textarea, TextInput } from "flowbite-react";
+import { Button, Label, Spinner, Textarea, TextInput } from "flowbite-react";
 import { OrderTypeFormData } from '../../types/formTypes';
 import { orderTypeSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +16,6 @@ interface props {
 
 export default function AddEdit({ orderType }: props) {
   const isEditMode = !!orderType;
-  console.log(isEditMode);
 
   const router = useRouter();
   const { data: session } = useSession();
@@ -41,10 +40,10 @@ export default function AddEdit({ orderType }: props) {
         body: JSON.stringify({ name, description })
       }
     )
-    const result = await res.json();
     if (res.ok) {
       showToast('success', "Jenis Pesanan berhasil disimpan.");
       reset();
+      router.back();
     }
     else if (res.status == 409) {
       showToast('error', "Nama sudah digunakan, coba dengan nama yang lain.");

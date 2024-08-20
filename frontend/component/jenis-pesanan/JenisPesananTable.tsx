@@ -1,12 +1,10 @@
 "use client";
 
-import { Button, Table } from "flowbite-react";
-import { useState } from "react";
-import { HiDocumentAdd, HiPencil, HiTrash } from "react-icons/hi";
-import ModalInput from "./ModalInput";
-import { useSession } from "next-auth/react";
-import { useFetch } from "@/lib/useFetch";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Table } from "flowbite-react";
+import { HiPencil, HiTrash } from "react-icons/hi";
 
 type OrderType = {
   id: string,
@@ -14,27 +12,37 @@ type OrderType = {
   description: string;
 }
 
-interface props {
-  data: OrderType[]
-}
-
-export function JenisPesananTable({ data }: props) {
+export function JenisPesananTable() {
+  const { data: session } = useSession();
   const router = useRouter();
   const pathName = usePathname();
-  const [openModal, setOpenModal] = useState(false);
+  const [orderTypes, setOrderTypes] = useState<OrderType[]>([]);
 
-  const onSaveHandler = async (result: any) => {
-    data.push(result);
-    setOpenModal(false);
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch('http://localhost:3002/api/order-types', {
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+          },
+          cache: 'no-store'
+        });
+
+        if (res.ok) {
+          setOrderTypes(await res.json());
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    if (session) {
+      fetchData();
+    }
+  }, [session])
 
   return (
     <div>
-      <ModalInput
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        onSaveHandler={onSaveHandler}
-      />
       <div className="flex flex-col gap-y-3">
         <Table hoverable>
           <Table.Head>
@@ -44,7 +52,7 @@ export function JenisPesananTable({ data }: props) {
           </Table.Head>
           <Table.Body className="divide-y">
             {
-              data?.map((item: any) => {
+              orderTypes?.map((item: any) => {
                 return (
                   <Table.Row key={item.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
                     <Table.Cell className="font-medium text-gray-900 dark:text-white">
