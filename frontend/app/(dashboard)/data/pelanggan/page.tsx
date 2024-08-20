@@ -1,20 +1,22 @@
-import { PelangganTable } from "@/component/pelanggan/PelangganTable";
-import { Button } from "flowbite-react";
-import { HiDocumentAdd } from "react-icons/hi";
+import { CustomerTable } from "@/component/customer/Table";
+import AddButton from "@/component/buttons/AddButton";
 
 export default function PelangganPage() {
   return (
-    <main className="flex flex-col gap-y-3 p-4">
+    <main className="flex flex-col gap-4 p-4"><div>
       <h1 className="text-2xl font-bold text-gray-500 dark:text-gray-400">
         Pelanggan
       </h1>
-      <div className="mt-2">
-        <Button size={"sm"} color={"blue"}>
-          <HiDocumentAdd className="mr-2 size-5" />
-          Tambah
-        </Button>
+      <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+        Menampilkan daftar pelanggan
+      </p>
+    </div>
+      <div className="flex justify-end">
+        <div className="max-w-32">
+          <AddButton />
+        </div>
       </div>
-      <PelangganTable />
+      <CustomerTable />
     </main>
   );
 }
