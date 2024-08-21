@@ -4,13 +4,13 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
-import { Button, Label, Spinner, Textarea, TextInput } from "flowbite-react";
-import { CustomerFormData } from '@/types/formTypes';
+import { Button, Label, Spinner, TextInput } from "flowbite-react";
+import { CustomerFormData } from '@/constants/formTypes';
 import { customerSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { showToast } from "@/helpers/toast";
-import BackButton from '@/component/buttons/BackButton';
-import { Customer } from "@/types/constant";
+import BackButton from '@/components/buttons/BackButton';
+import { Customer } from "@/constants/interfaces";
 
 interface props {
   customer?: Customer
@@ -24,12 +24,14 @@ export default function CustomerAddEdit({ customer }: props) {
     register,
     handleSubmit,
     setValue,
+    setFocus,
     formState: { errors, isSubmitting },
   } = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
   });
 
   useEffect(() => {
+    setFocus('name');
     if (isEditMode && customer) {
       setValue('name', customer.name);
       setValue('address', customer.address);
@@ -44,7 +46,6 @@ export default function CustomerAddEdit({ customer }: props) {
   }
 
   const addHandler = async (data: CustomerFormData) => {
-    const { name, description } = data;
     const res = await fetch('http://localhost:3002/api/customers',
       {
         method: 'POST',
@@ -52,14 +53,13 @@ export default function CustomerAddEdit({ customer }: props) {
           Authorization: `Bearer ${session?.accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, description })
+        body: JSON.stringify(data)
       }
     )
     showInfo(res, await res.json());
   }
 
   const editHandler = async (id: string, data: CustomerFormData) => {
-    const { name, description } = data;
     const res = await fetch(`http://localhost:3002/api/customers/${id}`,
       {
         method: 'PATCH',
@@ -67,7 +67,7 @@ export default function CustomerAddEdit({ customer }: props) {
           Authorization: `Bearer ${session?.accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, description })
+        body: JSON.stringify(data)
       }
     )
     showInfo(res, await res.json());
@@ -105,14 +105,28 @@ export default function CustomerAddEdit({ customer }: props) {
             <div className="mb-2 block">
               <Label htmlFor="address" value="Alamat" />
             </div>
-            <TextInput {...register('address')} id="name" type="text" />
+            <TextInput {...register('address')} id="address" type="text" />
             {errors.address && <p className="mt-2 text-sm font-light text-red-500">{errors.address.message}</p>}
+          </div>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="contact" value="Kontak" />
+            </div>
+            <TextInput {...register('contact')} id="contact" type="text" />
+            {errors.contact && <p className="mt-2 text-sm font-light text-red-500">{errors.contact.message}</p>}
+          </div>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="email" value="Email" />
+            </div>
+            <TextInput {...register('email')} id="email" type="text" />
+            {errors.email && <p className="mt-2 text-sm font-light text-red-500">{errors.email.message}</p>}
           </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="description" value="Keterangan" />
             </div>
-            <Textarea {...register('description')} id="description" rows={4} />
+            <TextInput {...register('description')} id="description" type="text" />
             {errors.description && <p className="text-sm font-light text-red-500">{errors.description.message}</p>}
           </div>
         </div>

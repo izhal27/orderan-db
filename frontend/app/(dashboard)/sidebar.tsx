@@ -16,12 +16,12 @@ import { twMerge } from "tailwind-merge";
 
 const pesananUrls = [
   {
-    url: "/pesanan/daftar",
+    url: "/orders/daftar",
     icon: HiDocumentText,
     text: "Daftar",
   },
   {
-    url: "/pesanan/laporan",
+    url: "/orders/laporan",
     icon: BiSolidReport,
     text: "Laporan",
   },
@@ -29,12 +29,12 @@ const pesananUrls = [
 
 const dataUrls = [
   {
-    url: "/data/jenis-pesanan",
+    url: "/data/order-type",
     icon: HiColorSwatch,
     text: "Jenis Pesanan",
   },
   {
-    url: "/data/pelanggan",
+    url: "/data/customer",
     icon: BiMaleFemale,
     text: "Pelanggan",
   },
@@ -85,7 +85,7 @@ export const DashboardSidebar: NextPage = function () {
             <Sidebar.Collapse
               icon={BiSolidShoppingBag}
               label="Pesanan"
-              open={currentPath.includes("/pesanan")}
+              open={currentPath.includes("/orders")}
             >
               {pesananUrls.map((item, i) => (
                 <Sidebar.Item

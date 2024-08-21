@@ -1,5 +1,5 @@
-import SigninForm from "@/component/SigninForm";
 import Image from "next/image";
+import SigninForm from "./_components/SigninForm";
 
 export default function LoginPage() {
   return (

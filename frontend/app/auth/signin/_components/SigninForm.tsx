@@ -3,8 +3,8 @@
 import { Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "../schemas/schemas";
-import { LoginFormData } from '../types/formTypes';
+import { loginSchema } from "../../../../schemas/schemas";
+import { LoginFormData } from '../../../../constants/formTypes';
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 

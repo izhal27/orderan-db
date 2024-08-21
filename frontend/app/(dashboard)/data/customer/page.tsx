@@ -1,5 +1,5 @@
-import { CustomerTable } from "@/component/customer/Table";
-import AddButton from "@/component/buttons/AddButton";
+import { CustomerTable } from "./_components/Table";
+import AddButton from "@/components/buttons/AddButton";
 
 export default function PelangganPage() {
   return (

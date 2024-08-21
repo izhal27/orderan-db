@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import AddEdit from "@/component/jenis-pesanan/AddEdit";
-import { OrderType } from "@/types/constant";
+import OrderTypeAddEdit from "../_components/AddEdit";
+import { OrderType } from "@/constant/interfaces";
 
 export default function EditPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
@@ -28,5 +28,5 @@ export default function EditPage({ params }: { params: { id: string } }) {
     }
   }, [session])
 
-  return <AddEdit orderType={orderType} />
+  return <OrderTypeAddEdit orderType={orderType} />
 }

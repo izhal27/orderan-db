@@ -4,19 +4,19 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
-import { Button, Label, Spinner, Textarea, TextInput } from "flowbite-react";
-import { OrderTypeFormData } from '@/types/formTypes';
+import { Button, Label, Spinner, TextInput } from "flowbite-react";
+import { OrderTypeFormData } from '@/constants/formTypes';
 import { orderTypeSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { showToast } from "@/helpers/toast";
-import BackButton from '@/component/buttons/BackButton';
-import { OrderType } from "@/types/constant";
+import BackButton from '@/components/buttons/BackButton';
+import { OrderType } from "@/constants/interfaces";
 
 interface props {
   orderType?: OrderType
 }
 
-export default function AddEdit({ orderType }: props) {
+export default function OrderTypeAddEdit({ orderType }: props) {
   let isEditMode = !!orderType;
   const router = useRouter();
   const { data: session } = useSession();
@@ -24,12 +24,14 @@ export default function AddEdit({ orderType }: props) {
     register,
     handleSubmit,
     setValue,
+    setFocus,
     formState: { errors, isSubmitting },
   } = useForm<OrderTypeFormData>({
     resolver: zodResolver(orderTypeSchema),
   });
 
   useEffect(() => {
+    setFocus('name');
     if (isEditMode && orderType) {
       setValue('name', orderType.name);
       setValue('description', orderType.description);
@@ -41,7 +43,6 @@ export default function AddEdit({ orderType }: props) {
   }
 
   const addHandler = async (data: OrderTypeFormData) => {
-    const { name, description } = data;
     const res = await fetch('http://localhost:3002/api/order-types',
       {
         method: 'POST',
@@ -49,14 +50,13 @@ export default function AddEdit({ orderType }: props) {
           Authorization: `Bearer ${session?.accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, description })
+        body: JSON.stringify(data)
       }
     )
     showInfo(res, await res.json());
   }
 
-  const editHandler = async (id: string, data: OrderTypeFormData) => {
-    const { name, description } = data;
+  const editHandler = async (id: number, data: OrderTypeFormData) => {
     const res = await fetch(`http://localhost:3002/api/order-types/${id}`,
       {
         method: 'PATCH',
@@ -64,7 +64,7 @@ export default function AddEdit({ orderType }: props) {
           Authorization: `Bearer ${session?.accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, description })
+        body: JSON.stringify(data)
       }
     )
     showInfo(res, await res.json());
@@ -86,26 +86,24 @@ export default function AddEdit({ orderType }: props) {
   return (
     <div className="flex flex-col gap-4 p-4">
       <BackButton />
+      <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+        {`${isEditMode ? 'Ubah' : 'Tambah'} Jenis Pesanan`}
+      </h3>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-4">
-          <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-            {`${isEditMode ? 'Ubah' : 'Tambah'} Jenis Pesanan`}
-          </h3>
-          <div className="flex flex-col gap-4 max-w-md">
-            <div>
-              <div className="mb-2 block">
-                <Label htmlFor="name" value="Nama" />
-              </div>
-              <TextInput {...register('name')} id="name" type="text" />
-              {errors.name && <p className="mt-2 text-sm font-light text-red-500">{errors.name.message}</p>}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="name" value="Nama" />
             </div>
-            <div>
-              <div className="mb-2 block">
-                <Label htmlFor="description" value="Keterangan" />
-              </div>
-              <Textarea {...register('description')} id="description" rows={4} />
-              {errors.description && <p className="text-sm font-light text-red-500">{errors.description.message}</p>}
+            <TextInput {...register('name')} id="name" type="text" />
+            {errors.name && <p className="mt-2 text-sm font-light text-red-500">{errors.name.message}</p>}
+          </div>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="description" value="Keterangan" />
             </div>
+            <TextInput {...register('description')} id="name" type="text" />
+            {errors.description && <p className="text-sm font-light text-red-500">{errors.description.message}</p>}
           </div>
         </div>
         <div className="flex gap-2">

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import AddEdit from "@/component/customer/AddEdit";
-import { Customer } from "@/types/constant";
+import CustomerAddEdit from "../_components/AddEdit";
+import { Customer } from "@/constant/interfaces";
 
 export default function EditPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
@@ -27,5 +27,5 @@ export default function EditPage({ params }: { params: { id: string } }) {
     }
   }, [session])
 
-  return <AddEdit customer={customer} />
+  return <CustomerAddEdit customer={customer} />
 }

@@ -1,5 +1,5 @@
-import AddButton from "@/component/buttons/AddButton";
-import { JenisPesananTable } from "@/component/jenis-pesanan/JenisPesananTable";
+import AddButton from "@/components/buttons/AddButton";
+import { OrderTypeTable } from "./_components/Table";
 
 export default async function JenisPesananPage() {
   return (
@@ -17,7 +17,7 @@ export default async function JenisPesananPage() {
           <AddButton />
         </div>
       </div>
-      <JenisPesananTable />
+      <OrderTypeTable />
     </main>
   );
 }

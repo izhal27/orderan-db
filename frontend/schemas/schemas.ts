@@ -1,4 +1,3 @@
-import email from 'next-auth/providers/email';
 import { z } from 'zod';
 
 export const loginSchema = z.object({
@@ -17,16 +16,16 @@ export const orderTypeSchema = z.object({
 export const customerSchema = z.object({
   name: z.string().min(3, 'Nama minimal 3 karakter'),
   address: z.string()
-    .max(100, 'Keterangan maksimal 100 karakter')
+    .max(100, 'Alamat maksimal 100 karakter')
     .optional()
     .or(z.literal('')),
   contact: z.string()
-    .max(50, 'Keterangan maksimal 50 karakter')
+    .max(50, 'Kontak maksimal 50 karakter')
     .optional()
     .or(z.literal('')),
   email: z.string()
     .email()
-    .max(50, 'Keterangan maksimal 50 karakter')
+    .max(50, 'Email maksimal 50 karakter')
     .optional()
     .or(z.literal('')),
   description: z.string()
