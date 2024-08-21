@@ -78,7 +78,7 @@ export const DashboardSidebar: NextPage = function () {
               <UserAvatar
                 width={144}
                 height={144}
-                imageUrl={`http://localhost:3002/images/${session?.user.image}`}
+                userImage={session?.user.image}
                 size='xl' bordered
               />
               <div className="font-medium dark:text-white">

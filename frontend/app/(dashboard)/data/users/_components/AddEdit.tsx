@@ -105,7 +105,7 @@ export default function UsersAddEdit({ user }: props) {
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
             <div className="flex justify-center items-center">
-              <AvatarWithEditButton imageUrl={user?.image} />
+              <AvatarWithEditButton userImage={user?.image} />
             </div>
           </div>
           <div>

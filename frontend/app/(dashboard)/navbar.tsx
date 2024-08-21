@@ -7,6 +7,7 @@ import { HiMenuAlt1, HiX } from "react-icons/hi";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { isSmallScreen } from "@/helpers/is-small-screen";
 import UserAvatar from "@/components/UserAvatar";
+import favIcon from '@/public/favicon.png';
 
 export const DashboardNavbar: FC<Record<string, never>> = function () {
   const { isCollapsed: isSidebarCollapsed, setCollapsed: setSidebarCollapsed } =
@@ -37,9 +38,10 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
               <Navbar.Brand as={Link} href="/">
                 <Image
                   alt="Dunia Baliho logo"
-                  width="32"
-                  height="32"
-                  src="/favicon.png"
+                  width="40"
+                  height="40"
+                  src={favIcon.src}
+                  style={{ width: 'auto', height: 'auto' }}
                 />
                 <span className="self-center whitespace-nowrap px-3 text-xl font-semibold dark:text-white">
                   Dunia Baliho
@@ -53,7 +55,7 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
                 inline
                 label={
                   <UserAvatar
-                    imageUrl={`http://localhost:3002/images/${session?.user.image}`}
+                    userImage={session?.user.image}
                   />
                 }
               >

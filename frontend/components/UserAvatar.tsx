@@ -5,39 +5,44 @@ import Image from 'next/image';
 import { Avatar } from "flowbite-react";
 
 interface props {
-  imageUrl: string;
+  userImage: string | undefined;
   width?: number;
   height?: number;
   size?: string;
   bordered?: boolean
 }
 
-export default function UserAvatar({ imageUrl, width = 40, height = 40, size, bordered }: props) {
-  const [srcImage, setSrcImage] = useState('');
+export default function UserAvatar({ userImage, width = 40, height = 40, size, bordered }: props) {
+  const [srcImage, setSrcImage] = useState<undefined | string>(undefined);
 
   useEffect(() => {
-    if (imageUrl !== 'undefined') {
-      setSrcImage(imageUrl);
-    }
-  }, [imageUrl]);
+    setSrcImage(userImage);
+  }, [userImage]);
 
-  if (!srcImage) {
-    return <Avatar alt='User Avatar' />
-  }
-
-  return <Avatar
+  let image = <Avatar
     bordered={bordered}
     rounded
     size={size}
-    img={(props) => {
-      props.className = props.className + ' object-cover';
-      return (<Image
-        alt="User Avatar"
-        width={width}
-        height={height}
-        src={imageUrl}
-        {...props}
-      />);
-    }}
-  />
+    alt='User Avatar'
+  />;
+
+  if (srcImage) {
+    image = <Avatar
+      bordered={bordered}
+      rounded
+      size={size}
+      img={(props) => {
+        props.className = props.className + ' object-cover';
+        return (<Image
+          alt="User Avatar"
+          width={width}
+          height={height}
+          src={`http://localhost:3002/images/${userImage}`}
+          {...props}
+        />);
+      }}
+    />
+  }
+
+  return image;
 }
