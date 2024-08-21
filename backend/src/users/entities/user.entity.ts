@@ -49,7 +49,6 @@ export class UserEntity implements User {
   })
   image: string | null;
 
-  @Exclude()
   @ApiProperty({
     required: false,
     default: false,
