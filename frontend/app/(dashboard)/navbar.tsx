@@ -1,11 +1,12 @@
 import { type FC } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Avatar, DarkThemeToggle, Dropdown, Navbar } from "flowbite-react";
+import { DarkThemeToggle, Dropdown, Navbar } from "flowbite-react";
 import { signOut, useSession } from "next-auth/react";
 import { HiMenuAlt1, HiX } from "react-icons/hi";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { isSmallScreen } from "@/helpers/is-small-screen";
+import UserAvatar from "@/components/UserAvatar";
 
 export const DashboardNavbar: FC<Record<string, never>> = function () {
   const { isCollapsed: isSidebarCollapsed, setCollapsed: setSidebarCollapsed } =
@@ -50,7 +51,11 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
               <Dropdown
                 arrowIcon={false}
                 inline
-                label={<Avatar img={`http://localhost:3002/images/${session?.user.image}`} alt="User image" rounded />}
+                label={
+                  <UserAvatar
+                    imageUrl={`http://localhost:3002/images/${session?.user.image}`}
+                  />
+                }
               >
                 <Dropdown.Header>
                   <span className="block text-sm">@{session?.user.username}</span>

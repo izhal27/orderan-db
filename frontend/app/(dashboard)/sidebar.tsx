@@ -1,5 +1,5 @@
 import { useSidebarContext } from "@/context/SidebarContext";
-import { Avatar, Sidebar } from "flowbite-react";
+import { Sidebar } from "flowbite-react";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -13,8 +13,9 @@ import {
 } from "react-icons/bi";
 import { HiColorSwatch, HiDocumentText, HiFolder } from "react-icons/hi";
 import { twMerge } from "tailwind-merge";
+import UserAvatar from '@/components/UserAvatar';
 
-const pesananUrls = [
+const orderUrls = [
   {
     url: "/orders/daftar",
     icon: HiDocumentText,
@@ -74,7 +75,12 @@ export const DashboardSidebar: NextPage = function () {
                 isCollapsed && "hidden w-16",
               )}
             >
-              <Avatar img={`http://localhost:3002/images/${session?.user.image}`} alt="User image" rounded size="xl" />
+              <UserAvatar
+                width={144}
+                height={144}
+                imageUrl={`http://localhost:3002/images/${session?.user.image}`}
+                size='xl' bordered
+              />
               <div className="font-medium dark:text-white">
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   @{session?.user.username}
@@ -87,7 +93,7 @@ export const DashboardSidebar: NextPage = function () {
               label="Pesanan"
               open={currentPath.includes("/orders")}
             >
-              {pesananUrls.map((item, i) => (
+              {orderUrls.map((item, i) => (
                 <Sidebar.Item
                   key={i}
                   as={Link}
