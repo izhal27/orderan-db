@@ -8,6 +8,7 @@ import { Button, Label, Spinner, TextInput } from "flowbite-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/schemas/schemas";
 import { LoginFormData } from "@/constants/formTypes";
+import { HiKey, HiUser } from "react-icons/hi";
 
 export default function SigninForm() {
   const router = useRouter();
@@ -42,14 +43,14 @@ export default function SigninForm() {
         <div className="mb-2 block">
           <Label htmlFor="username" value="Username anda" className="text-gray-500 dark:text-gray-400" />
         </div>
-        <TextInput {...register('username')} id="username" type="text" placeholder="username" />
+        <TextInput {...register('username')} id="username" type="text" placeholder="username" icon={HiUser} />
         {errors.username && <p className="mt-2 text-sm font-light text-red-500">{errors.username.message}</p>}
       </div>
       <div className="flex flex-col gap-y-1">
         <div className="mb-2 block">
           <Label htmlFor="password" value="Password anda" className="text-gray-500 dark:text-gray-400" />
         </div>
-        <TextInput {...register('password')} id="password" type="password" placeholder="password" />
+        <TextInput {...register('password')} id="password" type="password" placeholder="password" icon={HiKey} />
         {errors.password && <p className="mt-2 text-sm font-light text-red-500">{errors.password.message}</p>}
         {error && <p className="mt-2 text-sm font-light text-red-500">{error}</p>}
       </div>
