@@ -35,7 +35,7 @@ export function UsersTable() {
   }, [session]);
 
   const onRemoveHandler = async () => {
-    // periksa jika user yang mempunyai role admin masih ada
+    // periksa jika user yang mempunyai role admin masih ada setelah user dihapus
     // jika tidak, tampilkan error
     const filteredUsers = users.filter(user => user.id !== deleteId);
     const isAdminUserExists = filteredUsers.some(user => user.role.name === 'admin');
@@ -81,7 +81,7 @@ export function UsersTable() {
                   <Table.Cell>{item.email}</Table.Cell>
                   <Table.Cell>{item.name}</Table.Cell>
                   <Table.Cell>{item.blocked ? 'Ya' : 'Tidak'}</Table.Cell>
-                  <Table.Cell>{item.role.name}</Table.Cell>
+                  <Table.Cell>{item.role && item.role.name}</Table.Cell>
                   <Table.Cell>
                     <div className="flex gap-1">
                       <HiPencil

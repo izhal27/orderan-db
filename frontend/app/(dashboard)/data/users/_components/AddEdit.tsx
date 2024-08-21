@@ -1,25 +1,28 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
-import { Button, Label, Spinner, TextInput } from "flowbite-react";
-import { OrderTypeFormData, UserFormData } from '@/constants/formTypes';
+import { Button, Label, Spinner, TextInput, ToggleSwitch } from "flowbite-react";
+import { UserFormData } from '@/constants/formTypes';
 import { userSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { showToast } from "@/helpers/toast";
 import BackButton from '@/components/buttons/BackButton';
 import { User } from "@/constants/interfaces";
+import { RoleSelectInput } from "./RoleSelectInput";
 
 interface props {
-  orderType?: User
+  user?: User
 }
 
-export default function UsersAddEdit({ orderType }: props) {
-  let isEditMode = !!orderType;
+export default function UsersAddEdit({ user }: props) {
+  let isEditMode = !!user;
   const router = useRouter();
   const { data: session } = useSession();
+  const [roleId, setRoleId] = useState<number | null>(null);
+  const [blocked, setBlocked] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
@@ -31,15 +34,18 @@ export default function UsersAddEdit({ orderType }: props) {
   });
 
   useEffect(() => {
-    setFocus('name');
-    if (isEditMode && orderType) {
-      setValue('username', orderType.username);
-      setValue('name', orderType.name);
+    setFocus('username');
+    if (isEditMode && user) {
+      setValue('username', user.username);
+      setValue('email', user.email);
+      setValue('name', user.name);
+      setRoleId(user.roleId);
+      setBlocked(user.blocked);
     }
-  }, [orderType]);
+  }, [user]);
 
   const onSubmit = async (data: UserFormData) => {
-    return !isEditMode ? addHandler(data) : editHandler(orderType!.id, data);
+    return !isEditMode ? addHandler(data) : editHandler(user!.id, data);
   }
 
   const addHandler = async (data: UserFormData) => {
@@ -50,24 +56,29 @@ export default function UsersAddEdit({ orderType }: props) {
           Authorization: `Bearer ${session?.accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify({ ...data, roleId, blocked })
       }
     )
     showInfo(res, await res.json());
   }
 
   const editHandler = async (id: number, data: UserFormData) => {
-    const res = await fetch(`http://localhost:3002/api/users/${id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      }
-    )
-    showInfo(res, await res.json());
+    // jika user admin diganti role selain admin, tampilkan error
+    if ((user?.id === 1 || user?.username === 'admin') && user?.role.name === 'admin' && roleId !== 1) {
+      showToast('error', 'Admin user harus memiliki role admin.');
+    } else {
+      const res = await fetch(`http://localhost:3002/api/users/${id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ...data, roleId, blocked })
+        }
+      )
+      showInfo(res, await res.json());
+    }
   }
 
   function showInfo(res: Response, orderType: any) {
@@ -118,6 +129,15 @@ export default function UsersAddEdit({ orderType }: props) {
             </div>
             <TextInput {...register('name')} id="name" type="text" />
             {errors.name && <p className="mt-2 text-sm font-light text-red-500">{errors.name.message}</p>}
+          </div>
+          <div className="max-w-fit">
+            <RoleSelectInput onSelectHandler={(id) => setRoleId(id === 0 ? null : id)} selectedUserRoleId={roleId} />
+          </div>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="blocked" value="Blocked" />
+            </div>
+            <ToggleSwitch id="blocked" checked={blocked} label={blocked ? 'Ya' : 'Tidak'} onChange={() => setBlocked(prevState => !prevState)} />
           </div>
         </div>
         <div className="flex gap-2">

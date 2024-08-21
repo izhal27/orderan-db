@@ -38,7 +38,9 @@ export const userSchema = z.object({
   username: z.string()
     .min(5, 'Username minimal 3 karakter, hanya mengandung karakter huruf & angka'),
   password: z.string()
-    .min(3, 'Password minimal 3 karakter'),
+    .min(3, 'Password minimal 3 karakter')
+    .optional()
+    .or(z.literal('')),
   email: z.string()
     .email()
     .optional()
@@ -50,5 +52,7 @@ export const userSchema = z.object({
   blocked: z.boolean()
     .optional()
     .or(z.literal('')),
-  roleId: z.number().min(1, 'User harus punya Role'),
+  roleId: z.number().min(1, 'User harus punya Role')
+    .optional()
+    .or(z.literal('')),
 });
