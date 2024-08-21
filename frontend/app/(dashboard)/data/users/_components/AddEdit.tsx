@@ -104,7 +104,7 @@ export default function UsersAddEdit({ user }: props) {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
-            <div className="flex justify-center items-center p-4">
+            <div className="flex justify-center items-center">
               <AvatarWithEditButton imageUrl={user?.image} />
             </div>
           </div>
