@@ -1,3 +1,4 @@
+import { UsersTable } from "./_components/Table";
 import AddButton from "@/components/buttons/AddButton";
 
 export default function UsersPage() {
@@ -16,7 +17,7 @@ export default function UsersPage() {
           <AddButton />
         </div>
       </div>
-      <h1>Table</h1>
+      <UsersTable />
     </main>
   );
 }
