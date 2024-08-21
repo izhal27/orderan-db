@@ -18,11 +18,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           },
           body: JSON.stringify(credentials)
         });
-        const result = await res.json();
-        return {
-          accessToken: result.access_token,
-          user: result.user,
-        } as User;
+        if (res.ok) {
+          const result = await res.json();
+          return {
+            accessToken: result.access_token,
+            user: result.user,
+          } as User;
+        }
+        throw new Error('User not found.');
       },
     }),
   ],

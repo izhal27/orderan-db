@@ -1,14 +1,17 @@
 'use client'
 
-import { Button, Label, Spinner, TextInput } from "flowbite-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "../../../../schemas/schemas";
-import { LoginFormData } from '../../../../constants/formTypes';
-import { signIn } from "next-auth/react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { useForm } from "react-hook-form";
+import { Button, Label, Spinner, TextInput } from "flowbite-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "@/schemas/schemas";
+import { LoginFormData } from "@/constants/formTypes";
 
 export default function SigninForm() {
+  const router = useRouter();
+  const [error, setError] = useState('')
   const {
     register,
     handleSubmit,
@@ -16,7 +19,6 @@ export default function SigninForm() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
-  const router = useRouter();
 
   const onSubmit = async (data: LoginFormData) => {
     const { username, password } = data;
@@ -27,8 +29,9 @@ export default function SigninForm() {
     });
 
     if (res?.error) {
-      console.log(res?.error);
+      setError('Gagal Log In, periksa username dan password anda.')
     } else {
+      setError('');
       router.push("/");
     }
   };
@@ -48,6 +51,7 @@ export default function SigninForm() {
         </div>
         <TextInput {...register('password')} id="password" type="password" placeholder="password" />
         {errors.password && <p className="mt-2 text-sm font-light text-red-500">{errors.password.message}</p>}
+        {error && <p className="mt-2 text-sm font-light text-red-500">{error}</p>}
       </div>
       <Button color={'blue'} type="submit" disabled={isSubmitting}>
         {isSubmitting && <Spinner size={'sm'} />}
