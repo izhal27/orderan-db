@@ -35,7 +35,6 @@ export class OrderTypesController {
   }
 
   @Get()
-  @Roles(Role.Admin, Role.Administrasi, Role.Designer)
   @ApiOkResponse({ type: OrderTypeEntity, isArray: true })
   findAll() {
     return this.orderTypeService.findMany();
