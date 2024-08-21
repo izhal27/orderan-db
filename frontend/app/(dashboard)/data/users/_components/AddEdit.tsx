@@ -12,6 +12,7 @@ import { showToast } from "@/helpers/toast";
 import BackButton from '@/components/buttons/BackButton';
 import { User } from "@/constants/interfaces";
 import { RoleSelectInput } from "./RoleSelectInput";
+import AvatarWithEditButton from "@/components/AvatarWithEditButton";
 
 interface props {
   user?: User
@@ -102,6 +103,11 @@ export default function UsersAddEdit({ user }: props) {
       </h3>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
+          <div className="col-span-2">
+            <div className="flex justify-center items-center p-4">
+              <AvatarWithEditButton imageUrl={user?.image} />
+            </div>
+          </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="username" value="Username" />
