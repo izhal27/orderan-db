@@ -14,7 +14,7 @@ import { hashValue } from '../helpers/hash';
 export class UsersService {
   private readonly logger = new Logger();
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
     data.password = await hashValue(data.password);
@@ -33,6 +33,9 @@ export class UsersService {
         include: {
           role: true,
         },
+        orderBy: {
+          name: 'asc',
+        }
       });
       return users.map((user) => this.sanitizeUser(user));
     } catch (error) {
@@ -64,6 +67,9 @@ export class UsersService {
     const { where, data } = params;
     if (data.password) {
       data.password = await hashValue(data.password.toString());
+    } else {
+      // hapus value undefined, string empty atau null dari client
+      delete data.password;
     }
     const user = await this.prismaService.user.update({
       where,

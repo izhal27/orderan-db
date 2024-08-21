@@ -23,8 +23,7 @@ export class CreateUserDto {
   username: string;
 
   @IsString()
-  @IsNotEmpty()
-  @MinLength(3)
+  @IsOptional()
   @ApiProperty({
     example: '12345',
     description: 'Minimal length 3',
