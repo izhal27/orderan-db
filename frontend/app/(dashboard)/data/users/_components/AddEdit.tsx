@@ -48,19 +48,21 @@ export default function UsersAddEdit({ user }: props) {
   }, [user]);
 
   const onSubmit = async (data: UserFormData) => {
-    // set undefined jika user tidak memasukkan email
-    data.email = data.email === '' ? undefined : data.email;
+    if (!roleId || roleId === 0) {
+      setError('roleId', { type: 'required', message: 'User harus memiliki role' });
+      return;
+    }
     return !isEditMode ? addHandler(data) : editHandler(user!.id, data);
   }
 
   const appendData = (data: UserFormData) => {
     const formData = new FormData();
     formData.append('username', data.username);
-    data.password && formData.append('password', data.password);
-    data.email && formData.append('email', data.email);
-    data.name && formData.append('name', data.name);
-    roleId && formData.append('roleId', roleId.toString());
+    formData.append('password', data.password ? data.password : '');
+    formData.append('email', data.email ? data.email : '');
+    formData.append('name', data.name ? data.name : '');
     formData.append('blocked', JSON.stringify(blocked));
+    roleId && formData.append('roleId', roleId.toString());
     selectedImage && formData.append('image', selectedImage);
     return formData;
   }
@@ -184,6 +186,7 @@ export default function UsersAddEdit({ user }: props) {
               onSelectHandler={(id) => setRoleId(id === 0 ? null : id)}
               selectedUserRoleId={roleId}
             />
+            {errors.roleId && <p className="mt-2 text-sm font-light text-red-500">{errors.roleId.message}</p>}
           </div>
           <div>
             <div className="mb-2 block">

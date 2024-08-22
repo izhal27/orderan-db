@@ -42,17 +42,14 @@ export const userSchema = z.object({
     .optional()
     .or(z.literal('')),
   email: z.string()
-    .email()
-    .optional()
-    .or(z.literal('')),
+    .email('Email yang anda masukkan salah'),
   name: z.string()
-    .max(50, 'Nama maksimal 50 karakter')
+    .min(3, 'Nama minimal 3 karakter')
+    .max(50, 'Nama maksimal 50 karakter'),
+  roleId: z.number()
     .optional()
     .or(z.literal('')),
-  blocked: z.boolean()
-    .optional()
-    .or(z.literal('')),
-  roleId: z.number().min(1, 'User harus punya Role')
-    .optional()
-    .or(z.literal('')),
+  // blocked: z.boolean()
+  //   .optional()
+  //   .or(z.literal('')),
 });
