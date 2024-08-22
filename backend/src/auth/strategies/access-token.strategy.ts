@@ -27,6 +27,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, JWT) {
       refreshToken: {
         not: null,
       },
+      blocked: false
     });
     if (!user) {
       throw new UnauthorizedException('Access denied');
