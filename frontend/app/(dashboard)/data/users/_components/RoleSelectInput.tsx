@@ -31,6 +31,7 @@ export function RoleSelectInput({ onSelectHandler, selectedUserRoleId }: props) 
             Authorization: `Bearer ${session?.accessToken}`,
             'Content-Type': 'application/json'
           },
+          cache: 'force-cache'
         }
       );
       if (res.ok) {

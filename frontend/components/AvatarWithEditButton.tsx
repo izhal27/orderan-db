@@ -11,6 +11,7 @@ interface props {
 }
 
 const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
+  const isEditMode = !!userImage;
   const [img, setImg] = useState<string | undefined>();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -30,6 +31,7 @@ const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      console.log('GANTTTTTTTTTTTTTIIIIIIIIII');
       onSelectedImageHandler(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -57,7 +59,7 @@ const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
           alt="User Avatar"
           width={40}
           height={40}
-          src={`http://localhost:3002/public/images/${img}`}
+          src={isEditMode ? `http://localhost:3002/images/${img}` : img}
           {...props}
         />);
       }}

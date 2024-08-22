@@ -50,23 +50,31 @@ export default function UsersAddEdit({ user }: props) {
   const onSubmit = async (data: UserFormData) => {
     // set undefined jika user tidak memasukkan email
     data.email = data.email === '' ? undefined : data.email;
-    // jika bukan dalam edit mode password harus ada
-    if (!isEditMode && !data.password) {
+    return !isEditMode ? addHandler(data) : editHandler(user!.id, data);
+  }
+
+  const appendData = (data: UserFormData) => {
+    const formData = new FormData();
+    formData.append('username', data.username);
+    data.password && formData.append('password', data.password);
+    data.email && formData.append('email', data.email);
+    data.name && formData.append('name', data.name);
+    roleId && formData.append('roleId', roleId.toString());
+    formData.append('blocked', JSON.stringify(blocked));
+    selectedImage && formData.append('image', selectedImage);
+    return formData;
+  }
+
+  const addHandler = async (data: UserFormData) => {
+    // password harus ada, jika tidak ada tampilkan error
+    if (!data.password) {
       setError('password', {
         type: 'required',
         message: 'Anda belum memasukkan password'
       });
       return;
     }
-    return !isEditMode ? addHandler(data) : editHandler(user!.id, data);
-  }
-
-  const addHandler = async (data: UserFormData) => {
-    const formData = new FormData();
-    formData.append('username', data.username);
-    formData.append('password', data.password!);
-    // formData.append('body', JSON.stringify({ ...data, roleId, blocked, image: selectedImage }));
-    selectedImage && formData.append('image', selectedImage);
+    const formData = appendData(data);
     const res = await fetch('http://localhost:3002/api/users',
       {
         method: 'POST',
@@ -81,17 +89,17 @@ export default function UsersAddEdit({ user }: props) {
 
   const editHandler = async (id: number, data: UserFormData) => {
     // jika user admin diganti role selain admin, tampilkan error
-    if ((user?.id === 1 || user?.username === 'admin') && user?.role.name === 'admin' && roleId !== 1) {
+    if ((user?.id === 1 || user?.username === 'admin' && user?.role.name === 'admin') && roleId !== 1) {
       showToast('error', 'Admin user harus memiliki role admin.');
     } else {
+      const formData = appendData(data);
       const res = await fetch(`http://localhost:3002/api/users/${id}`,
         {
           method: 'PATCH',
           headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${session?.accessToken}`
           },
-          body: JSON.stringify({ ...data, roleId, blocked, })
+          body: formData,
         }
       )
       showInfo(res, await res.json());
@@ -130,29 +138,46 @@ export default function UsersAddEdit({ user }: props) {
             <div className="mb-2 block">
               <Label htmlFor="username" value="Username" />
             </div>
-            <TextInput {...register('username')} id="username" type="text" color={errors.username && 'failure'} />
-            {errors.username && <p className="mt-2 text-sm font-light text-red-500">{errors.username.message}</p>}
+            <TextInput
+              {...register('username')}
+              id="username"
+              type="text" color={errors.username && 'failure'}
+              helperText={errors?.username?.message}
+            />
           </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="password" value="Password" />
             </div>
-            <TextInput {...register('password')} id="password" type="password" color={errors.password && 'failure'} />
-            {errors.password && <p className="text-sm font-light text-red-500">{errors.password.message}</p>}
+            <TextInput
+              {...register('password')}
+              id="password" type="password"
+              color={errors.password && 'failure'}
+              helperText={errors?.password?.message}
+            />
           </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="email" value="Email" />
             </div>
-            <TextInput {...register('email')} id="email" type="email" color={errors.email && 'failure'} />
-            {errors.email && <p className="mt-2 text-sm font-light text-red-500">{errors.email.message}</p>}
+            <TextInput
+              {...register('email')}
+              id="email"
+              type="email"
+              color={errors.email && 'failure'}
+              helperText={errors?.email?.message}
+            />
           </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="name" value="Name" />
             </div>
-            <TextInput {...register('name')} id="name" type="text" color={errors.name && 'failure'} />
-            {errors.name && <p className="mt-2 text-sm font-light text-red-500">{errors.name.message}</p>}
+            <TextInput
+              {...register('name')}
+              id="name" type="text"
+              color={errors.name && 'failure'}
+              helperText={errors?.name?.message}
+            />
           </div>
           <div className="max-w-fit">
             <RoleSelectInput

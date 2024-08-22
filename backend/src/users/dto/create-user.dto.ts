@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 import {
   IsAlphanumeric,
   IsBoolean,
+  IsBooleanString,
   IsEmail,
   IsNotEmpty,
   IsNumber,
@@ -63,7 +65,13 @@ export class CreateUserDto {
   })
   image?: string | null;
 
-  @IsBoolean()
+  @Type(() => String)
+  @Transform(({ value }) => {
+    if (value === 'true') {
+      return true;
+    }
+    return false;
+  })
   @IsOptional()
   @ApiProperty({
     required: false,

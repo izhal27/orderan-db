@@ -1,22 +1,16 @@
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
-import { extname } from 'path';
+import { extname, join } from 'path';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export const multerOptions: MulterOptions = {
   storage: diskStorage({
-    destination: '../../public/images',
+    destination: join(__dirname, '../../public/images'),
     filename: (req, file, cb) => {
       const fileExtName = extname(file.originalname);
       const mimetype = file.mimetype
       const randomName = uuidv4();
-      console.log(fileExtName);
-      console.log(mimetype);
-
-      console.log(!fileExtName.includes('.png'));
-      console.log(!mimetype.includes('image/png'));
-
       if ((
         !fileExtName.includes('.jpg') ||
         !mimetype.includes('image/jpg')) &&
