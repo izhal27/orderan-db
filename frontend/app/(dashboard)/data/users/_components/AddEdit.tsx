@@ -24,11 +24,13 @@ export default function UsersAddEdit({ user }: props) {
   const { data: session } = useSession();
   const [roleId, setRoleId] = useState<number | null>(null);
   const [blocked, setBlocked] = useState<boolean>(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>();
   const {
     register,
     handleSubmit,
     setValue,
     setFocus,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
@@ -46,6 +48,16 @@ export default function UsersAddEdit({ user }: props) {
   }, [user]);
 
   const onSubmit = async (data: UserFormData) => {
+    // set undefined jika user tidak memasukkan email
+    data.email = data.email === '' ? undefined : data.email;
+    // jika bukan dalam edit mode password harus ada
+    if (!isEditMode && !data.password) {
+      setError('password', {
+        type: 'required',
+        message: 'Anda belum memasukkan password'
+      });
+      return;
+    }
     return !isEditMode ? addHandler(data) : editHandler(user!.id, data);
   }
 
@@ -75,16 +87,16 @@ export default function UsersAddEdit({ user }: props) {
             Authorization: `Bearer ${session?.accessToken}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ ...data, roleId, blocked })
+          body: JSON.stringify({ ...data, roleId, blocked, })
         }
       )
       showInfo(res, await res.json());
     }
   }
 
-  function showInfo(res: Response, orderType: any) {
+  function showInfo(res: Response, user: User) {
     if (res.ok) {
-      showToast('success', `User "${orderType.name}" berhasil ${isEditMode ? 'disimpan' : 'ditambahkan'}.`);
+      showToast('success', `User "${user.username}" berhasil ${isEditMode ? 'disimpan' : 'ditambahkan'}.`);
       router.back();
     }
     else if (res.status == 409) {
@@ -105,45 +117,55 @@ export default function UsersAddEdit({ user }: props) {
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
             <div className="flex justify-center items-center">
-              <AvatarWithEditButton userImage={user?.image} />
+              <AvatarWithEditButton
+                userImage={user?.image}
+                onSelectedImageHandler={(img) => setSelectedImage(img)} />
             </div>
           </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="username" value="Username" />
             </div>
-            <TextInput {...register('username')} id="username" type="text" />
+            <TextInput {...register('username')} id="username" type="text" color={errors.username && 'failure'} />
             {errors.username && <p className="mt-2 text-sm font-light text-red-500">{errors.username.message}</p>}
           </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="password" value="Password" />
             </div>
-            <TextInput {...register('password')} id="password" type="password" />
+            <TextInput {...register('password')} id="password" type="password" color={errors.password && 'failure'} />
             {errors.password && <p className="text-sm font-light text-red-500">{errors.password.message}</p>}
           </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="email" value="Email" />
             </div>
-            <TextInput {...register('email')} id="email" type="email" />
+            <TextInput {...register('email')} id="email" type="email" color={errors.email && 'failure'} />
             {errors.email && <p className="mt-2 text-sm font-light text-red-500">{errors.email.message}</p>}
           </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="name" value="Name" />
             </div>
-            <TextInput {...register('name')} id="name" type="text" />
+            <TextInput {...register('name')} id="name" type="text" color={errors.name && 'failure'} />
             {errors.name && <p className="mt-2 text-sm font-light text-red-500">{errors.name.message}</p>}
           </div>
           <div className="max-w-fit">
-            <RoleSelectInput onSelectHandler={(id) => setRoleId(id === 0 ? null : id)} selectedUserRoleId={roleId} />
+            <RoleSelectInput
+              onSelectHandler={(id) => setRoleId(id === 0 ? null : id)}
+              selectedUserRoleId={roleId}
+            />
           </div>
           <div>
             <div className="mb-2 block">
               <Label htmlFor="blocked" value="Blocked" />
             </div>
-            <ToggleSwitch id="blocked" checked={blocked} label={blocked ? 'Ya' : 'Tidak'} onChange={() => setBlocked(prevState => !prevState)} />
+            <ToggleSwitch
+              id="blocked"
+              checked={blocked}
+              label={blocked ? 'Ya' : 'Tidak'}
+              onChange={() => setBlocked(prevState => !prevState)}
+            />
           </div>
         </div>
         <div className="flex gap-2">

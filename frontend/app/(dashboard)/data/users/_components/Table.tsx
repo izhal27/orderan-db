@@ -54,7 +54,7 @@ export function UsersTable() {
         const updatedOrderTypes = users.filter(item => item.id !== deletedObject.id);
         setUsers(updatedOrderTypes);
         setOpenModal(false);
-        showToast('success', `User "${deletedObject.name}" berhasil dihapus.`);
+        showToast('success', `User "${deletedObject.username}" berhasil dihapus.`);
       }
     }
   }

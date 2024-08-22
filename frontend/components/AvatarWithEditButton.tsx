@@ -7,9 +7,10 @@ import { HiPencil, HiX } from 'react-icons/hi';
 
 interface props {
   userImage: string | undefined;
+  onSelectedImageHandler(imgFile: File): void;
 }
 
-const AvatarWithEditButton = ({ userImage }: props) => {
+const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
   const [img, setImg] = useState<string | undefined>();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -29,6 +30,7 @@ const AvatarWithEditButton = ({ userImage }: props) => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      onSelectedImageHandler(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImg(reader.result as string);
