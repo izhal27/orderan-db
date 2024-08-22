@@ -21,7 +21,7 @@ interface props {
 export default function UsersAddEdit({ user }: props) {
   let isEditMode = !!user;
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const [roleId, setRoleId] = useState<number | null>(null);
   const [blocked, setBlocked] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<File | null>();
@@ -104,7 +104,10 @@ export default function UsersAddEdit({ user }: props) {
           body: formData,
         }
       )
-      showInfo(res, await res.json());
+      const user = await res.json();
+      // update data session current user
+      session?.user.id === user.id && update({ user });
+      showInfo(res, user);
     }
   }
 
