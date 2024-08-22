@@ -19,7 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { join } from 'path';
-import fs from 'fs';
+import * as fs from 'fs';
 
 import { UserEntity } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -89,11 +89,13 @@ export class UsersController {
     if (file) {
       if (currentUser?.image) {
         const oldImagePath = join(__dirname, '../../public/images', currentUser.image);
-        fs.unlink(oldImagePath, (err) => {
-          if (err) {
-            console.error('Error deleting old image:', err);
-          }
-        });
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlink(oldImagePath, (err) => {
+            if (err) {
+              console.error('Error deleting old image:', err);
+            }
+          });
+        }
       }
       updateUserDto.image = file.filename;
     }

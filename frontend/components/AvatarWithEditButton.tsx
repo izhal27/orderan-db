@@ -31,7 +31,6 @@ const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      console.log('GANTTTTTTTTTTTTTIIIIIIIIII');
       onSelectedImageHandler(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -59,7 +58,7 @@ const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
           alt="User Avatar"
           width={40}
           height={40}
-          src={isEditMode ? `http://localhost:3002/images/${img}` : img}
+          src={isEditMode && (userImage === img) ? `http://localhost:3002/images/${img}` : img}
           {...props}
         />);
       }}
