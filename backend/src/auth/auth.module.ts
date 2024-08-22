@@ -6,7 +6,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AccessTokenStrategy, RefreshTokenStrategy } from './strategies';
 import { UsersModule } from '../users/users.module';
-import { JWT_EXPIRES, JWT_SECRET } from '../types/constants';
+import { JWT_EXPIRES, JWT_SECRET } from '../constants/constants';
 
 @Module({
   imports: [
@@ -26,4 +26,4 @@ import { JWT_EXPIRES, JWT_SECRET } from '../types/constants';
   controllers: [AuthController],
   providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy],
 })
-export class AuthModule {}
+export class AuthModule { }

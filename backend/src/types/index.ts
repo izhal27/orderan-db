@@ -1,2 +1,2 @@
 export * from './tokens.type';
-export * from './constants';
+export * from '../constants/constants';

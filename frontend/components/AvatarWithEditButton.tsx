@@ -57,7 +57,7 @@ const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
           alt="User Avatar"
           width={40}
           height={40}
-          src={img}
+          src={`http://localhost:3002/public/images/${img}`}
           {...props}
         />);
       }}

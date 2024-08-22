@@ -62,14 +62,18 @@ export default function UsersAddEdit({ user }: props) {
   }
 
   const addHandler = async (data: UserFormData) => {
+    const formData = new FormData();
+    formData.append('username', data.username);
+    formData.append('password', data.password!);
+    // formData.append('body', JSON.stringify({ ...data, roleId, blocked, image: selectedImage }));
+    selectedImage && formData.append('image', selectedImage);
     const res = await fetch('http://localhost:3002/api/users',
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${session?.accessToken}`
         },
-        body: JSON.stringify({ ...data, roleId, blocked })
+        body: formData,
       }
     )
     showInfo(res, await res.json());

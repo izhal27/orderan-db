@@ -36,7 +36,7 @@ export const customerSchema = z.object({
 
 export const userSchema = z.object({
   username: z.string()
-    .min(5, 'Username minimal 3 karakter, hanya mengandung karakter huruf & angka'),
+    .min(5, 'Username minimal 5 karakter, hanya mengandung karakter huruf & angka'),
   password: z.string()
     .min(3, 'Password minimal 3 karakter')
     .optional()

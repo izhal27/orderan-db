@@ -5,6 +5,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   MaxLength,
@@ -52,7 +53,7 @@ export class CreateUserDto {
   })
   name?: string | null;
 
-  @IsString()
+  @IsObject()
   @IsOptional()
   @ApiProperty({
     required: false,

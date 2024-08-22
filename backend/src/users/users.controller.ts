@@ -8,6 +8,8 @@ import {
   Delete,
   ParseIntPipe,
   ForbiddenException,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -15,12 +17,14 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { UserEntity } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { GetCurrentUserId, Roles } from '../common/decorators';
 import { Role } from '../common';
+import { multerOptions } from 'src/lib';
 
 @Controller('users')
 @ApiTags('users')
@@ -30,8 +34,15 @@ export class UsersController {
 
   @Post()
   @Roles(Role.Admin, Role.Administrasi)
+
+  @UseInterceptors(FileInterceptor('image', multerOptions))
   @ApiCreatedResponse({ type: UserEntity })
-  create(@Body() createUserDto: CreateUserDto) {
+  create(
+    @Body() createUserDto: CreateUserDto,
+    @UploadedFile() file: Express.Multer.File) {
+    console.log(JSON.stringify(file, null, 4));
+    createUserDto.image = file.filename;
+
     return this.usersService.create(createUserDto);
   }
 

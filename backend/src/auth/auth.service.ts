@@ -1,4 +1,4 @@
-import { REFRESH_TOKEN_SECRET } from '../types/constants';
+import { REFRESH_TOKEN_SECRET } from '../constants/constants';
 import {
   ForbiddenException,
   Injectable,
@@ -14,7 +14,7 @@ import {
   JWT_EXPIRES,
   JWT_SECRET,
   REFRESH_TOKEN_EXPIRES,
-} from '../types/constants';
+} from '../constants/constants';
 import { compareValue, hashValue } from '../helpers/hash';
 import { Tokens } from '../types';
 import { UserEntity } from '../users/entities/user.entity';

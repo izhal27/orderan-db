@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { JWT_REFRESH, REFRESH_TOKEN_SECRET } from '../../types/constants';
+import { JWT_REFRESH, REFRESH_TOKEN_SECRET } from '../../constants/constants';
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
