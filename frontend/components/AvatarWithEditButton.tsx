@@ -2,8 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Avatar } from 'flowbite-react';
-import { twMerge } from "tailwind-merge";
-import { HiPencil, HiX } from 'react-icons/hi';
+import { HiPencil } from 'react-icons/hi';
 
 interface props {
   userImage: string | undefined;
@@ -20,12 +19,7 @@ const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
   }, [userImage]);
 
   const onClickHandler = () => {
-    if (!img) {
-      inputRef?.current?.click();
-    } else {
-      inputRef!.current!.value = '';
-      setImg(undefined);
-    }
+    inputRef?.current?.click();
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,12 +65,9 @@ const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
       <button
         type="button"
         onClick={onClickHandler}
-        className={
-          twMerge("absolute top-0 right-2 p-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none",
-            img && 'bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500'
-          )}
+        className="absolute top-0 right-2 p-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
       >
-        {img ? <HiX size={16} /> : <HiPencil size={16} />}
+        <HiPencil size={16} />
       </button>
       <input
         ref={inputRef}
