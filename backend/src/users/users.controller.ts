@@ -88,14 +88,7 @@ export class UsersController {
     const currentUser = await this.usersService.findUnique({ id });
     if (file) {
       if (currentUser?.image) {
-        const oldImagePath = join(__dirname, '../../public/images', currentUser.image);
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlink(oldImagePath, (err) => {
-            if (err) {
-              console.error('Error deleting old image:', err);
-            }
-          });
-        }
+        this.removeImage(currentUser.image);
       }
       updateUserDto.image = file.filename;
     }
@@ -119,7 +112,23 @@ export class UsersController {
   @Delete(':id')
   @Roles(Role.Admin)
   @ApiOkResponse({ type: UserEntity })
-  delete(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.delete({ id });
+  async delete(@Param('id', ParseIntPipe) id: number) {
+    const deletedUser = await this.usersService.delete({ id });
+    console.log(deletedUser.image);
+    if (deletedUser?.image?.trim() !== '') {
+      this.removeImage(deletedUser!.image!);
+    }
+    return deletedUser;
+  }
+
+  removeImage(imagePath: string) {
+    const oldImagePath = join(__dirname, '../../public/images', imagePath);
+    if (fs.existsSync(oldImagePath)) {
+      fs.unlink(oldImagePath, (err) => {
+        if (err) {
+          console.error('Error deleting old image:', err);
+        }
+      });
+    }
   }
 }
