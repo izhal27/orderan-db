@@ -6,8 +6,9 @@ import { useSession } from "next-auth/react";
 import { Table } from "flowbite-react";
 import { HiPencil, HiTrash } from "react-icons/hi";
 import { showToast } from "@/helpers/toast";
-import { ConfirmModal } from "../../../../../components/ConfirmModal";
-import { Customer } from "@/constant/interfaces";
+import { Customer } from "@/constants/interfaces";
+import SkeletonTable from "@/components/SkeletonTable";
+import { ConfirmModal } from "@/components/ConfirmModal";
 
 export function CustomerTable() {
   const { data: session } = useSession();
@@ -16,9 +17,11 @@ export function CustomerTable() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | undefined>()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const res = await fetch('http://localhost:3002/api/customers', {
         headers: {
           Authorization: `Bearer ${session?.accessToken}`
@@ -28,6 +31,7 @@ export function CustomerTable() {
       if (res.ok) {
         setCustomers(await res.json());
       }
+      setLoading(false);
     }
     if (session) {
       fetchData();
@@ -50,6 +54,9 @@ export function CustomerTable() {
     }
   }
 
+  if (loading) {
+    return <SkeletonTable columnsName={['Nama', 'ALamat', 'Kontak', 'Email', 'Keterangan', '']} />
+  }
 
   return (
     <div>
