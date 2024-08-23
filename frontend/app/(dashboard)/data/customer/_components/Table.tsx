@@ -5,12 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Table } from "flowbite-react";
 import { HiPencil, HiTrash } from "react-icons/hi";
-import { showToast } from "@/helpers/toast";
-import { Customer } from "@/constants/interfaces";
-import SkeletonTable from "@/components/SkeletonTable";
-import { ConfirmModal } from "@/components/ConfirmModal";
-import { PaginationTable } from "@/components/Pagination";
-import { SelectInput } from "@/components/SelectInput";
+import { showToast } from "@/helpers";
+import { Customer } from "@/constants";
+import { ConfirmModal, PaginationTable, SelectInput, SkeletonTable } from "@/components";
 
 export function CustomerTable() {
   const { data: session } = useSession();

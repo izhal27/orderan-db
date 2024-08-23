@@ -4,7 +4,7 @@ interface props {
   columnsName: string[];
 }
 
-export default function SkeletonTable({ columnsName }: props) {
+export function SkeletonTable({ columnsName }: props) {
   const rows = 5;
   return (
     <Table>
