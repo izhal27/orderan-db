@@ -34,7 +34,7 @@ export class UsersService {
           role: true,
         },
         orderBy: {
-          name: 'asc',
+          username: 'asc',
         }
       });
       return users.map((user) => this.sanitizeUser(user));
@@ -86,6 +86,7 @@ export class UsersService {
   }
 
   sanitizeUser(user: User) {
+    // remove passsword field from user
     return new UserEntity(user);
   }
 }
