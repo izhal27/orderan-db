@@ -8,11 +8,14 @@ import { useSidebarContext } from "@/context/SidebarContext";
 import { isSmallScreen } from "@/helpers/is-small-screen";
 import UserAvatar from "@/components/UserAvatar";
 import favIcon from '@/public/favicon.png';
+import { usePathname, useRouter } from "next/navigation";
 
 export const DashboardNavbar: FC<Record<string, never>> = function () {
   const { isCollapsed: isSidebarCollapsed, setCollapsed: setSidebarCollapsed } =
     useSidebarContext();
   const { data: session } = useSession();
+  const currentPath = usePathname();
+  const router = useRouter();
 
   return (
     <header>
@@ -65,7 +68,9 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
                     {session?.user.name}
                   </span>
                 </Dropdown.Header>
-                <Dropdown.Item>Settings</Dropdown.Item>
+                <Dropdown.Item onClick={() => {
+                  !currentPath.includes('/current-user/settings') && router.push(`/current-user/settings`)
+                }}>Settings</Dropdown.Item>
                 <Dropdown.Divider />
                 <Dropdown.Item
                   onClick={() => signOut({

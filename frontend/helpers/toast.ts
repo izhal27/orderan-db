@@ -1,14 +1,13 @@
-import { toast, ToastContent, ToastOptions, Slide, Id, Bounce } from "react-toastify";
-
+import { toast, ToastContent, ToastOptions, Slide, Id } from "react-toastify";
 
 export const defaultToastOptions: ToastOptions = {
-  position: "bottom-right",
-  autoClose: 4000,
-  hideProgressBar: false,
+  position: "top-center",
+  autoClose: 2000,
+  hideProgressBar: true,
   closeOnClick: true,
   progress: undefined,
   theme: "light",
-  transition: Bounce,
+  transition: Slide,
 };
 
 type ToastType = "success" | "error" | "info" | "warning" | "default";

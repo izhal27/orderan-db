@@ -9,7 +9,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: {},
       },
       authorize: async (credentials) => {
-
         // logic to verify if the user exists
         const res = await fetch('http://localhost:3002/api/auth/local/signin', {
           method: 'POST',
@@ -20,6 +19,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
         if (res.ok) {
           const result = await res.json();
+          console.log(result.user);
+
           return {
             accessToken: result.access_token,
             user: result.user,
@@ -46,7 +47,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return token
     },
-    session({ session, token, trigger, newSession, user }) {
+    session({ session, token }) {
       session.user = token.user;
       session.accessToken = token.accessToken;
       return session;
