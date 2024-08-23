@@ -87,9 +87,7 @@ export class UsersController {
   ) {
     const currentUser = await this.usersService.findUnique({ id });
     if (file) {
-      if (currentUser?.image) {
-        this.removeImage(currentUser.image);
-      }
+      this.removeImage(currentUser?.image!);
       updateUserDto.image = file.filename;
     }
     return this.usersService.update({ where: { id }, data: updateUserDto });
@@ -114,14 +112,14 @@ export class UsersController {
   @ApiOkResponse({ type: UserEntity })
   async delete(@Param('id', ParseIntPipe) id: number) {
     const deletedUser = await this.usersService.delete({ id });
-    console.log(deletedUser.image);
-    if (deletedUser?.image?.trim() !== '') {
-      this.removeImage(deletedUser!.image!);
-    }
+    this.removeImage(deletedUser?.image!);
     return deletedUser;
   }
 
   removeImage(imagePath: string) {
+    if (!imagePath) {
+      return;
+    }
     const oldImagePath = join(__dirname, '../../public/images', imagePath);
     if (fs.existsSync(oldImagePath)) {
       fs.unlink(oldImagePath, (err) => {
