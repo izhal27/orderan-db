@@ -12,7 +12,7 @@ import { showToast } from "@/helpers/toast";
 import { User } from "@/constants/interfaces";
 import AvatarWithEditButton from "@/components/AvatarWithEditButton";
 
-export default function EditPage() {
+export default function SettingsPage() {
   const router = useRouter();
   const { data: session, update } = useSession();
   const [currentUser, setCurrentUser] = useState<User | undefined>()
