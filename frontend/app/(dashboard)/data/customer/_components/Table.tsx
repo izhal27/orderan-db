@@ -9,6 +9,8 @@ import { showToast } from "@/helpers/toast";
 import { Customer } from "@/constants/interfaces";
 import SkeletonTable from "@/components/SkeletonTable";
 import { ConfirmModal } from "@/components/ConfirmModal";
+import { PaginationTable } from "@/components/Pagination";
+import { SelectInput } from "@/components/SelectInput";
 
 export function CustomerTable() {
   const { data: session } = useSession();
@@ -17,26 +19,37 @@ export function CustomerTable() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | undefined>()
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
+  const [limit, setLimit] = useState<number>(25);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalData, setTotalData] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const res = await fetch('http://localhost:3002/api/customers', {
+      const res = await fetch(`http://localhost:3002/api/customers?page=${currentPage}&limit=${limit}`, {
         headers: {
           Authorization: `Bearer ${session?.accessToken}`
         },
         cache: 'no-store'
       });
       if (res.ok) {
-        setCustomers(await res.json());
+        const { data, total, totalPages } = await res.json();
+        setCustomers(data);
+        setTotalData(total);
+        setTotalPages(totalPages);
       }
       setLoading(false);
     }
     if (session) {
       fetchData();
     }
-  }, [session]);
+  }, [session, currentPage, limit]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [limit]);
 
   const onRemoveHandler = async () => {
     const res = await fetch(`http://localhost:3002/api/customers/${deleteId}`, {
@@ -54,12 +67,27 @@ export function CustomerTable() {
     }
   }
 
+  const onPageChange = (page: number) => setCurrentPage(page);
+
   if (loading) {
     return <SkeletonTable columnsName={['Nama', 'ALamat', 'Kontak', 'Email', 'Keterangan', '']} />
   }
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
+      <div className="flex gap-4 items-center">
+        <span className="text-gray-900 dark:text-white">Items per page</span>
+        <SelectInput<number>
+          value={limit}
+          options={[
+            { label: '25', value: 25 },
+            { label: '50', value: 50 },
+            { label: '100', value: 100 },
+          ]}
+          onChange={(val) => setLimit(val)}
+          className="max-w-fit" />
+        <span className="text-gray-900 dark:text-white">{`${currentPage * limit - limit + 1} - ${currentPage * limit}  of ${totalData} items`}</span>
+      </div>
       <Table hoverable>
         <Table.Head>
           <Table.HeadCell>Nama</Table.HeadCell>
@@ -100,6 +128,7 @@ export function CustomerTable() {
           }
         </Table.Body>
       </Table>
+      <PaginationTable currentPage={currentPage} totalPages={totalPages} onPageChangeHandler={onPageChange} />
       <ConfirmModal
         text="Anda yakin ingin menghapus data ini?" openModal={openModal}
         onCloseHandler={() => setOpenModal(false)}

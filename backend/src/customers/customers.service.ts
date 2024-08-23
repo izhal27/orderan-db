@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Customer, Prisma } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
+import { PaginationDto } from 'src/common';
 
 @Injectable()
 export class CustomersService {
@@ -131,5 +132,28 @@ export class CustomersService {
       this.logger.error(error);
       throw new BadRequestException(error);
     }
+  }
+
+  async paginate(paginationDto: PaginationDto) {
+    const { page = 1, limit = 50 } = paginationDto;
+    const skip = (page - 1) * limit;
+    const take = limit;
+
+    const [customers, total] = await Promise.all([
+      this.prismaService.customer.findMany({
+        skip,
+        take,
+        orderBy: { name: 'asc' },
+      }),
+      this.prismaService.customer.count(),
+    ]);
+
+    return {
+      data: customers,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }
