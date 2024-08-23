@@ -11,6 +11,12 @@ declare module "next-auth" {
       name: string;
       email: string;
       image: string;
+      blocked: boolean;
+      roleId: number;
+      role: {
+        id: number,
+        name: string,
+      }
     }
     & DefaultSession["user"];
   }

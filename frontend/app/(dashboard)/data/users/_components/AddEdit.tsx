@@ -89,9 +89,9 @@ export default function UsersAddEdit({ user }: props) {
     showInfo(res, await res.json());
   }
 
-  const editHandler = async (id: number, data: UserFormData) => {
+  const editHandler = async (id: string, data: UserFormData) => {
     // jika user admin diganti role selain admin, tampilkan error
-    if ((user?.id === 1 || user?.username === 'admin' && user?.role.name === 'admin') && roleId !== 1) {
+    if ((user?.id === '1' || user?.username === 'admin' && user?.role.name === 'admin') && roleId !== 1) {
       showToast('error', 'Admin user harus memiliki role admin.');
     } else {
       const formData = appendData(data);

@@ -22,7 +22,7 @@ export interface Customer {
 }
 
 export interface User {
-  id: number;
+  id: string;
   username: string;
   email: string;
   name: string;
