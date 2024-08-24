@@ -135,12 +135,26 @@ export class CustomersService {
   }
 
   async paginate(paginationDto: PaginationDto) {
-    const { page = 1, limit = 50 } = paginationDto;
+    let { page = 1, limit = 25, search } = paginationDto;
     const skip = (page - 1) * limit;
     const take = limit;
 
-    const [customers, total] = await Promise.all([
+    const where = search
+      ? {
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: 'insensitive' as const
+            }
+          },
+        ],
+      }
+      : {};
+
+    let [data, total] = await Promise.all([
       this.prismaService.customer.findMany({
+        where,
         skip,
         take,
         orderBy: { name: 'asc' },
@@ -148,8 +162,15 @@ export class CustomersService {
       this.prismaService.customer.count(),
     ]);
 
+    // jika data pencarian kurang dari limit,
+    // set total menjadi total data dan page 1
+    if (search && data.length <= limit) {
+      total = data.length;
+      page = 1;
+    }
+
     return {
-      data: customers,
+      data,
       total,
       page,
       limit,

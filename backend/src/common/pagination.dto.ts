@@ -1,4 +1,4 @@
-import { IsOptional, IsPositive } from 'class-validator';
+import { IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class PaginationDto {
   @IsOptional()
@@ -8,4 +8,8 @@ export class PaginationDto {
   @IsOptional()
   @IsPositive()
   limit?: number;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
 }

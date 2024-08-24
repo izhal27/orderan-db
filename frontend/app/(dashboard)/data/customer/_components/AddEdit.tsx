@@ -9,8 +9,8 @@ import { CustomerFormData } from '@/constants/formTypes';
 import { customerSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { showToast } from "@/helpers/toast";
-import BackButton from '@/components/buttons/BackButton';
 import { Customer } from "@/constants/interfaces";
+import { BackButton } from "@/components/buttons";
 
 interface props {
   customer?: Customer
