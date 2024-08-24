@@ -15,7 +15,7 @@ export function SearchInput({ onSeachHandler, onClearHandler }: props) {
   };
 
   const handleSearch = () => {
-    if (value?.length < 3) {
+    if (!value) {
       return;
     }
     onSeachHandler(value);
