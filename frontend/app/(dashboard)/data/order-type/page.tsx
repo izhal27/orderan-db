@@ -1,7 +1,9 @@
-import AddButton from "@/components/buttons/AddButton";
+'use client'
+
+import { AddButton } from "@/components/buttons";
 import { OrderTypeTable } from "./_components/Table";
 
-export default async function JenisPesananPage() {
+export default function JenisPesananPage() {
   return (
     <main className="flex flex-col gap-4 p-4">
       <div>

@@ -9,7 +9,7 @@ import { UserFormData } from '@/constants/formTypes';
 import { userSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { showToast } from "@/helpers/toast";
-import BackButton from '@/components/buttons/BackButton';
+import { BackButton } from '@/components/buttons';
 import { User } from "@/constants/interfaces";
 import { RoleSelectInput } from "./RoleSelectInput";
 import AvatarWithEditButton from "@/components/AvatarWithEditButton";

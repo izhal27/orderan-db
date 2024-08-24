@@ -15,7 +15,7 @@ export function UsersTable() {
   const pathName = usePathname();
   const [users, setUsers] = useState<User[]>([]);
   const [openModal, setOpenModal] = useState(false);
-  const [deleteId, setDeleteId] = useState<number | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {

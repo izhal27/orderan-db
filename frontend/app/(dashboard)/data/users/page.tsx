@@ -1,5 +1,7 @@
+'use client'
+
+import { AddButton } from "@/components/buttons";
 import { UsersTable } from "./_components/Table";
-import AddButton from "@/components/buttons/AddButton";
 
 export default function UsersPage() {
   return (
