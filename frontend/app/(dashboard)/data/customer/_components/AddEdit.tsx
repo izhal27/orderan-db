@@ -10,7 +10,7 @@ import { customerSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { showToast } from "@/helpers/toast";
 import { Customer } from "@/constants/interfaces";
-import { BackButton } from "@/components/buttons";
+import BackButton from "@/components/buttons/BackButton";
 
 interface props {
   customer?: Customer

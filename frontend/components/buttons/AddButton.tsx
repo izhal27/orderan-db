@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Button } from "flowbite-react";
 import { IoIosAdd } from "react-icons/io";
 
-export function AddButton() {
+export default function AddButton() {
   const currentPath = usePathname();
 
   return (

@@ -1,7 +1,7 @@
 import { useRouter } from "next/navigation";
 import { HiArrowLeft } from "react-icons/hi";
 
-export function BackButton() {
+export default function BackButton() {
   const router = useRouter();
 
   return (

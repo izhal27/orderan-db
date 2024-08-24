@@ -12,7 +12,7 @@ import {
   SkeletonTable,
   SearchInput
 } from "@/components";
-import { AddButton } from "@/components/buttons";
+import AddButton from "@/components/buttons/AddButton";
 import CustomerTable from "./_components/Table";
 
 export default function PelangganPage() {

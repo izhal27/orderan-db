@@ -9,7 +9,7 @@ import { OrderTypeFormData } from '@/constants/formTypes';
 import { orderTypeSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { showToast } from "@/helpers/toast";
-import { BackButton } from '@/components/buttons';
+import BackButton from '@/components/buttons/BackButton';
 import { OrderType } from "@/constants/interfaces";
 
 interface props {
