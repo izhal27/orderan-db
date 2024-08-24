@@ -51,6 +51,8 @@ export default function PelangganPage() {
       setCustomers(data);
       setTotalData(total);
       setTotalPages(totalPages);
+    } else {
+      showToast('error', 'Terjadi kesalahan saat memuat data, coba lagi nanti');
     }
     setLoading(false);
   }
@@ -77,8 +79,7 @@ export default function PelangganPage() {
     });
     if (res.ok) {
       const deletedObject = await res.json();
-      const updatedCustomers = customers.filter(item => item.id !== deletedObject.id);
-      setCustomers(updatedCustomers);
+      await fetchCustomers();
       setOpenModal(false);
       showToast('success', `Pelanggan "${deletedObject.name}" berhasil dihapus.`);
     }
@@ -125,7 +126,9 @@ export default function PelangganPage() {
             ]}
             onChange={(val) => setLimit(val)}
             className="max-w-fit" />
-          <span className="text-gray-900 dark:text-white">{`${currentPage * limit - limit + 1} - ${currentPage * limit}  of ${totalData} items`}</span>
+          <span className="text-gray-900 dark:text-white">
+            {`${currentPage * limit - limit + 1} - ${currentPage * limit > totalData ? totalData : currentPage * limit}  of ${totalData} items`}
+          </span>
         </div>
         <SearchInput
           onSeachHandler={(value) => setSearch(value)}
