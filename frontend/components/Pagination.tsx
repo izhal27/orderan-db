@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Pagination } from "flowbite-react";
@@ -9,10 +8,19 @@ interface props {
   onPageChangeHandler(page: number): void;
 }
 
-export function PaginationTable({ currentPage, totalPages, onPageChangeHandler }: props) {
+export default function PaginationTable({
+  currentPage,
+  totalPages,
+  onPageChangeHandler,
+}: props) {
   return (
     <div className="flex overflow-x-auto sm:justify-center">
-      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChangeHandler} showIcons />
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChangeHandler}
+        showIcons
+      />
     </div>
   );
 }

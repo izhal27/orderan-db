@@ -1,3 +1,4 @@
+import UserAvatar from "@/components/UserAvatar";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { Sidebar } from "flowbite-react";
 import type { NextPage } from "next";
@@ -13,7 +14,6 @@ import {
 } from "react-icons/bi";
 import { HiColorSwatch, HiDocumentText, HiFolder } from "react-icons/hi";
 import { twMerge } from "tailwind-merge";
-import UserAvatar from '@/components/UserAvatar';
 
 const orderUrls = [
   {
@@ -79,7 +79,8 @@ export const DashboardSidebar: NextPage = function () {
                 width={144}
                 height={144}
                 userImage={session?.user.image}
-                size='xl' bordered
+                size="xl"
+                bordered
               />
               <div className="font-medium dark:text-white">
                 <div className="text-sm text-gray-500 dark:text-gray-400">

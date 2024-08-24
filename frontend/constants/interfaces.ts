@@ -18,7 +18,7 @@ export interface Customer {
     email: string;
     name: string;
     image: string;
-  }
+  };
 }
 
 export interface User {
@@ -30,7 +30,7 @@ export interface User {
   blocked: boolean;
   roleId: number;
   role: {
-    id: number,
-    name: string,
-  }
+    id: number;
+    name: string;
+  };
 }

@@ -1,4 +1,4 @@
-import NextAuth, { DefaultSession } from "next-auth";
+import { DefaultSession } from "next-auth";
 import "next-auth/jwt";
 
 declare module "next-auth" {
@@ -14,7 +14,6 @@ declare module "next-auth" {
       blocked: boolean;
       roleId: number;
       role: string;
-    }
-    & DefaultSession["user"];
+    } & DefaultSession["user"];
   }
 }

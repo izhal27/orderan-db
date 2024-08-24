@@ -1,11 +1,17 @@
-'use client'
+"use client";
 
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
-const baseUrl = 'http://localhost:3002/api';
+import { useEffect, useState } from "react";
+const baseUrl = "http://localhost:3002/api";
 
-export const useFetch = ({ url, method = 'GET', body = undefined }: {
-  url: string, method?: string | undefined, body?: string | undefined
+export const useFetch = ({
+  url,
+  method = "GET",
+  body = undefined,
+}: {
+  url: string;
+  method?: string | undefined;
+  body?: string | undefined;
 }) => {
   const [data, setData] = useState<null | any[]>(null);
   const [isPending, setIsPending] = useState(false);
@@ -20,8 +26,8 @@ export const useFetch = ({ url, method = 'GET', body = undefined }: {
           method,
           body,
           headers: {
-            'Content-type': 'application/json',
-            'Authorization': `Bearer ${session?.accessToken}`
+            "Content-type": "application/json",
+            Authorization: `Bearer ${session?.accessToken}`,
           },
         });
         if (!response.ok) throw new Error(response.statusText);

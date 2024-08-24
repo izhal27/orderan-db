@@ -1,14 +1,14 @@
-import { type FC } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { DarkThemeToggle, Dropdown, Navbar } from "flowbite-react";
-import { signOut, useSession } from "next-auth/react";
-import { HiMenuAlt1, HiX } from "react-icons/hi";
+import UserAvatar from "@/components/UserAvatar";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { isSmallScreen } from "@/helpers/is-small-screen";
-import UserAvatar from "@/components/UserAvatar";
-import favIcon from '@/public/favicon.png';
+import favIcon from "@/public/favicon.png";
+import { DarkThemeToggle, Dropdown, Navbar } from "flowbite-react";
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { type FC } from "react";
+import { HiMenuAlt1, HiX } from "react-icons/hi";
 
 export const DashboardNavbar: FC<Record<string, never>> = function () {
   const { isCollapsed: isSidebarCollapsed, setCollapsed: setSidebarCollapsed } =
@@ -44,7 +44,7 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
                   width="40"
                   height="40"
                   src={favIcon.src}
-                  style={{ width: 'auto', height: 'auto' }}
+                  style={{ width: "auto", height: "auto" }}
                 />
                 <span className="self-center whitespace-nowrap px-3 text-xl font-semibold dark:text-white">
                   Dunia Baliho
@@ -56,27 +56,33 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
               <Dropdown
                 arrowIcon={false}
                 inline
-                label={
-                  <UserAvatar
-                    userImage={session?.user.image}
-                  />
-                }
+                label={<UserAvatar userImage={session?.user.image} />}
               >
                 <Dropdown.Header>
-                  <span className="block text-sm">@{session?.user.username}</span>
+                  <span className="block text-sm">
+                    @{session?.user.username}
+                  </span>
                   <span className="block truncate text-sm font-medium">
                     {session?.user.name}
                   </span>
                 </Dropdown.Header>
-                <Dropdown.Item onClick={() => {
-                  !currentPath.includes('/current-user/settings') && router.push(`/current-user/settings`)
-                }}>Settings</Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => {
+                    !currentPath.includes("/current-user/settings") &&
+                      router.push(`/current-user/settings`);
+                  }}
+                >
+                  Settings
+                </Dropdown.Item>
                 <Dropdown.Divider />
                 <Dropdown.Item
-                  onClick={() => signOut({
-                    callbackUrl: 'http://localhost:3000/auth/signin',
-                    redirect: true
-                  })}>
+                  onClick={() =>
+                    signOut({
+                      callbackUrl: "http://localhost:3000/auth/signin",
+                      redirect: true,
+                    })
+                  }
+                >
                   Sign out
                 </Dropdown.Item>
               </Dropdown>

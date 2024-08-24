@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { SidebarProvider, useSidebarContext } from "@/context/SidebarContext";
 import { useEffect, useState, type FC, type PropsWithChildren } from "react";
@@ -23,8 +23,8 @@ const DashboardLayoutContent: FC<PropsWithChildren> = function ({ children }) {
   }, []);
 
   return (
-    (
-      isMounted && <>
+    isMounted && (
+      <>
         <DashboardNavbar />
         <div className="mt-16 flex items-start">
           <DashboardSidebar />

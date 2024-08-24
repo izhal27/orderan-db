@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Avatar } from 'flowbite-react';
-import { HiPencil } from 'react-icons/hi';
+import { Avatar } from "flowbite-react";
+import React, { useEffect, useRef, useState } from "react";
+import { HiPencil } from "react-icons/hi";
 
 interface props {
   userImage: string | undefined;
@@ -20,7 +20,7 @@ const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
 
   const onClickHandler = () => {
     inputRef?.current?.click();
-  }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -34,38 +34,41 @@ const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
     }
   };
 
-  let avatarImg = <Avatar
-    bordered
-    rounded
-    size={'xl'}
-    alt='User Avatar'
-  />;
+  let avatarImg = <Avatar bordered rounded size={"xl"} alt="User Avatar" />;
 
   if (img) {
-    avatarImg = <Avatar
-      bordered
-      rounded
-      size={'xl'}
-      img={(props) => {
-        props.className = props.className + ' object-cover';
-        return (<img
-          alt="User Avatar"
-          width={40}
-          height={40}
-          src={isEditMode && (userImage === img) ? `http://localhost:3002/images/${img}` : img}
-          {...props}
-        />);
-      }}
-    />
+    avatarImg = (
+      <Avatar
+        bordered
+        rounded
+        size={"xl"}
+        img={(props) => {
+          props.className = props.className + " object-cover";
+          return (
+            <img
+              alt="User Avatar"
+              width={40}
+              height={40}
+              src={
+                isEditMode && userImage === img
+                  ? `http://localhost:3002/images/${img}`
+                  : img
+              }
+              {...props}
+            />
+          );
+        }}
+      />
+    );
   }
 
   return (
-    <div className="relative w-36 h-36">
+    <div className="relative size-36">
       {avatarImg}
       <button
         type="button"
         onClick={onClickHandler}
-        className="absolute top-0 right-2 p-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        className="absolute right-2 top-0 rounded-full bg-blue-600 p-2 text-white shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <HiPencil size={16} />
       </button>

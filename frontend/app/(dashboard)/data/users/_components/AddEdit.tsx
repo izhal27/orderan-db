@@ -1,25 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { useForm } from "react-hook-form";
-import { Button, Label, Spinner, TextInput, ToggleSwitch } from "flowbite-react";
-import { UserFormData } from '@/constants/formTypes';
+import AvatarWithEditButton from "@/components/AvatarWithEditButton";
+import BackButton from "@/components/buttons/BackButton";
+import type { UserFormData } from "@/constants/formTypes";
+import type { User } from "@/constants/interfaces";
+import { showToast } from "@/helpers/toast";
 import { userSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { showToast } from "@/helpers/toast";
-import BackButton from '@/components/buttons/BackButton';
-import { User } from "@/constants/interfaces";
+import {
+  Button,
+  Label,
+  Spinner,
+  TextInput,
+  ToggleSwitch,
+} from "flowbite-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { RoleSelectInput } from "./RoleSelectInput";
-import AvatarWithEditButton from "@/components/AvatarWithEditButton";
 
 interface props {
-  user?: User
+  user?: User;
 }
 
 export default function UsersAddEdit({ user }: props) {
-  let isEditMode = !!user;
+  const isEditMode = !!user;
   const router = useRouter();
   const { data: session, update } = useSession();
   const [roleId, setRoleId] = useState<number | null>(null);
@@ -37,11 +43,11 @@ export default function UsersAddEdit({ user }: props) {
   });
 
   useEffect(() => {
-    setFocus('username');
+    setFocus("username");
     if (isEditMode && user) {
-      setValue('username', user.username);
-      setValue('email', user.email);
-      setValue('name', user.name);
+      setValue("username", user.username);
+      setValue("email", user.email);
+      setValue("name", user.name);
       setRoleId(user.roleId);
       setBlocked(user.blocked);
     }
@@ -49,78 +55,85 @@ export default function UsersAddEdit({ user }: props) {
 
   const onSubmit = async (data: UserFormData) => {
     if (!roleId || roleId === 0) {
-      setError('roleId', { type: 'required', message: 'User harus memiliki role' });
+      setError("roleId", {
+        type: "required",
+        message: "User harus memiliki role",
+      });
       return;
     }
     return !isEditMode ? addHandler(data) : editHandler(user!.id, data);
-  }
+  };
 
   const appendData = (data: UserFormData) => {
     const formData = new FormData();
-    formData.append('username', data.username);
-    formData.append('password', data.password ? data.password : '');
-    formData.append('email', data.email ? data.email : '');
-    formData.append('name', data.name ? data.name : '');
-    formData.append('blocked', JSON.stringify(blocked));
-    roleId && formData.append('roleId', roleId.toString());
-    selectedImage && formData.append('image', selectedImage);
+    formData.append("username", data.username);
+    formData.append("password", data.password ? data.password : "");
+    formData.append("email", data.email ? data.email : "");
+    formData.append("name", data.name ? data.name : "");
+    formData.append("blocked", JSON.stringify(blocked));
+    roleId && formData.append("roleId", roleId.toString());
+    selectedImage && formData.append("image", selectedImage);
     return formData;
-  }
+  };
 
   const addHandler = async (data: UserFormData) => {
     // password harus ada, jika tidak ada tampilkan error
     if (!data.password) {
-      setError('password', {
-        type: 'required',
-        message: 'Anda belum memasukkan password'
+      setError("password", {
+        type: "required",
+        message: "Anda belum memasukkan password",
       });
       return;
     }
     const formData = appendData(data);
-    const res = await fetch('http://localhost:3002/api/users',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`
-        },
-        body: formData,
-      }
-    )
+    const res = await fetch("http://localhost:3002/api/users", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+      body: formData,
+    });
     showInfo(res, await res.json());
-  }
+  };
 
   const editHandler = async (id: string, data: UserFormData) => {
     // jika user admin diganti role selain admin, tampilkan error
-    if ((user?.id === '1' || user?.username === 'admin' && user?.role.name === 'admin') && roleId !== 1) {
-      showToast('error', 'Admin user harus memiliki role admin.');
+    if (
+      (user?.id === "1" ||
+        (user?.username === "admin" && user?.role.name === "admin")) &&
+      roleId !== 1
+    ) {
+      showToast("error", "Admin user harus memiliki role admin.");
     } else {
       const formData = appendData(data);
-      const res = await fetch(`http://localhost:3002/api/users/${id}`,
-        {
-          method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-          },
-          body: formData,
-        }
-      )
+      const res = await fetch(`http://localhost:3002/api/users/${id}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+        body: formData,
+      });
       const user = await res.json();
       // update data session current user
       session?.user.id === user.id && update({ user });
       showInfo(res, user);
     }
-  }
+  };
 
   function showInfo(res: Response, user: User) {
     if (res.ok) {
-      showToast('success', `User "${user.username}" berhasil ${isEditMode ? 'disimpan' : 'ditambahkan'}.`);
+      showToast(
+        "success",
+        `User "${user.username}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
+      );
       router.back();
-    }
-    else if (res.status == 409) {
-      showToast('error', "Username sudah digunakan, coba dengan nama yang lain.");
-    }
-    else {
-      showToast('error', "Terjadi kesalahan, coba lagi nanti.");
+    } else if (res.status == 409) {
+      showToast(
+        "error",
+        "Username sudah digunakan, coba dengan nama yang lain.",
+      );
+    } else {
+      showToast("error", "Terjadi kesalahan, coba lagi nanti.");
     }
   }
 
@@ -128,15 +141,16 @@ export default function UsersAddEdit({ user }: props) {
     <div className="flex flex-col gap-4 p-4">
       <BackButton />
       <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-        {`${isEditMode ? 'Ubah' : 'Tambah'} User`}
+        {`${isEditMode ? "Ubah" : "Tambah"} User`}
       </h3>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
-            <div className="flex justify-center items-center">
+            <div className="flex items-center justify-center">
               <AvatarWithEditButton
                 userImage={user?.image}
-                onSelectedImageHandler={(img) => setSelectedImage(img)} />
+                onSelectedImageHandler={(img) => setSelectedImage(img)}
+              />
             </div>
           </div>
           <div>
@@ -144,9 +158,10 @@ export default function UsersAddEdit({ user }: props) {
               <Label htmlFor="username" value="Username" />
             </div>
             <TextInput
-              {...register('username')}
+              {...register("username")}
               id="username"
-              type="text" color={errors.username && 'failure'}
+              type="text"
+              color={errors.username && "failure"}
               helperText={errors?.username?.message}
             />
           </div>
@@ -155,9 +170,10 @@ export default function UsersAddEdit({ user }: props) {
               <Label htmlFor="password" value="Password" />
             </div>
             <TextInput
-              {...register('password')}
-              id="password" type="password"
-              color={errors.password && 'failure'}
+              {...register("password")}
+              id="password"
+              type="password"
+              color={errors.password && "failure"}
               helperText={errors?.password?.message}
             />
           </div>
@@ -166,10 +182,10 @@ export default function UsersAddEdit({ user }: props) {
               <Label htmlFor="email" value="Email" />
             </div>
             <TextInput
-              {...register('email')}
+              {...register("email")}
               id="email"
               type="email"
-              color={errors.email && 'failure'}
+              color={errors.email && "failure"}
               helperText={errors?.email?.message}
             />
           </div>
@@ -178,9 +194,10 @@ export default function UsersAddEdit({ user }: props) {
               <Label htmlFor="name" value="Name" />
             </div>
             <TextInput
-              {...register('name')}
-              id="name" type="text"
-              color={errors.name && 'failure'}
+              {...register("name")}
+              id="name"
+              type="text"
+              color={errors.name && "failure"}
               helperText={errors?.name?.message}
             />
           </div>
@@ -189,7 +206,11 @@ export default function UsersAddEdit({ user }: props) {
               onSelectHandler={(id) => setRoleId(id === 0 ? null : id)}
               selectedUserRoleId={roleId}
             />
-            {errors.roleId && <p className="mt-2 text-sm font-light text-red-500">{errors.roleId.message}</p>}
+            {errors.roleId && (
+              <p className="mt-2 text-sm font-light text-red-500">
+                {errors.roleId.message}
+              </p>
+            )}
           </div>
           <div>
             <div className="mb-2 block">
@@ -198,16 +219,16 @@ export default function UsersAddEdit({ user }: props) {
             <ToggleSwitch
               id="blocked"
               checked={blocked}
-              label={blocked ? 'Ya' : 'Tidak'}
-              onChange={() => setBlocked(prevState => !prevState)}
+              label={blocked ? "Ya" : "Tidak"}
+              onChange={() => setBlocked((prevState) => !prevState)}
             />
           </div>
         </div>
         <div className="flex gap-2">
-          <Button color={'blue'} type="submit" disabled={isSubmitting}>
-            {isSubmitting && <Spinner size={'sm'} />}
-            <span className={isSubmitting ? "pl-3" : ''}>
-              {isEditMode ? 'Simpan' : 'Tambah'}
+          <Button color={"blue"} type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Spinner size={"sm"} />}
+            <span className={isSubmitting ? "pl-3" : ""}>
+              {isEditMode ? "Simpan" : "Tambah"}
             </span>
           </Button>
           <Button color="red" onClick={() => router.back()}>

@@ -1,19 +1,17 @@
-'use client'
+"use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { showToast } from "@/helpers";
-import { Customer } from "@/constants";
-import {
-  ConfirmModal,
-  PaginationTable,
-  SelectInput,
-  SkeletonTable,
-  SearchInput
-} from "@/components";
 import AddButton from "@/components/buttons/AddButton";
+import type { Customer } from "@/constants";
+import { showToast } from "@/helpers";
+import { useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
 import CustomerTable from "./_components/Table";
+import ConfirmModal from "@/components/ConfirmModal";
+import SkeletonTable from "@/components/SkeletonTable";
+import SelectInput from "@/components/SelectInput";
+import SearchInput from "@/components/SearchInput";
+import PaginationTable from "@/components/Pagination";
 
 export default function PelangganPage() {
   const { data: session } = useSession();
@@ -21,13 +19,13 @@ export default function PelangganPage() {
   const pathName = usePathname();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [openModal, setOpenModal] = useState(false);
-  const [deleteId, setDeleteId] = useState<string | undefined>()
+  const [deleteId, setDeleteId] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
   const [limit, setLimit] = useState<number>(25);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalData, setTotalData] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [search, setSearch] = useState<string>('');
+  const [search, setSearch] = useState<string>("");
 
   const fetchCustomers = async () => {
     setLoading(true);
@@ -36,15 +34,15 @@ export default function PelangganPage() {
     }
     const url = new URL(`http://localhost:3002/api/customers`);
     const searchParams = new URLSearchParams();
-    let page = search ? '1' : currentPage.toString();
-    searchParams.append('page', page);
-    searchParams.append('limit', limit.toString());
-    search && searchParams.append('search', search);
+    const page = search ? "1" : currentPage.toString();
+    searchParams.append("page", page);
+    searchParams.append("limit", limit.toString());
+    search && searchParams.append("search", search);
     const res = await fetch(`${url}?${searchParams}`, {
       headers: {
-        Authorization: `Bearer ${session?.accessToken}`
+        Authorization: `Bearer ${session?.accessToken}`,
       },
-      cache: 'no-store'
+      cache: "no-store",
     });
     if (res?.ok) {
       const { data, total, totalPages } = await res.json();
@@ -52,15 +50,15 @@ export default function PelangganPage() {
       setTotalData(total);
       setTotalPages(totalPages);
     } else {
-      showToast('error', 'Terjadi kesalahan saat memuat data, coba lagi nanti');
+      showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
-  }
+  };
 
   useEffect(() => {
     const fetcCostumers = async () => {
       await fetchCustomers();
-    }
+    };
     if (session) {
       fetcCostumers();
     }
@@ -72,31 +70,40 @@ export default function PelangganPage() {
 
   const onRemoveHandler = async () => {
     const res = await fetch(`http://localhost:3002/api/customers/${deleteId}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        Authorization: `Bearer ${session?.accessToken}`
-      }
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
     });
     if (res.ok) {
       const deletedObject = await res.json();
       await fetchCustomers();
       setOpenModal(false);
-      showToast('success', `Pelanggan "${deletedObject.name}" berhasil dihapus.`);
+      showToast(
+        "success",
+        `Pelanggan "${deletedObject.name}" berhasil dihapus.`,
+      );
     }
-  }
+  };
 
   let table = null;
   if (loading) {
-    table = <SkeletonTable columnsName={['Nama', 'ALamat', 'Kontak', 'Email', 'Keterangan', '']} />
+    table = (
+      <SkeletonTable
+        columnsName={["Nama", "ALamat", "Kontak", "Email", "Keterangan", ""]}
+      />
+    );
   } else {
-    table = <CustomerTable
-      data={customers}
-      onEditHandler={(id) => router.push(`${pathName}/${id}`)}
-      onRemoveHandler={(id) => {
-        setDeleteId(id);
-        setOpenModal(true);
-      }}
-    />
+    table = (
+      <CustomerTable
+        data={customers}
+        onEditHandler={(id) => router.push(`${pathName}/${id}`)}
+        onRemoveHandler={(id) => {
+          setDeleteId(id);
+          setOpenModal(true);
+        }}
+      />
+    );
   }
 
   return (
@@ -115,17 +122,18 @@ export default function PelangganPage() {
         </div>
       </div>
       <div className="flex justify-between">
-        <div className="flex gap-4 items-center">
+        <div className="flex items-center gap-4">
           <span className="text-gray-900 dark:text-white">Items per page</span>
           <SelectInput<number>
             value={limit}
             options={[
-              { label: '25', value: 25 },
-              { label: '50', value: 50 },
-              { label: '100', value: 100 },
+              { label: "25", value: 25 },
+              { label: "50", value: 50 },
+              { label: "100", value: 100 },
             ]}
             onChange={(val) => setLimit(val)}
-            className="max-w-fit" />
+            className="max-w-fit"
+          />
           <span className="text-gray-900 dark:text-white">
             {`${currentPage * limit - limit + 1} - ${currentPage * limit > totalData ? totalData : currentPage * limit}  of ${totalData} items`}
           </span>
@@ -133,7 +141,7 @@ export default function PelangganPage() {
         <SearchInput
           onSeachHandler={(value) => setSearch(value)}
           onClearHandler={() => {
-            setSearch('');
+            setSearch("");
           }}
         />
       </div>
@@ -144,9 +152,11 @@ export default function PelangganPage() {
         onPageChangeHandler={(page: number) => setCurrentPage(page)}
       />
       <ConfirmModal
-        text="Anda yakin ingin menghapus data ini?" openModal={openModal}
+        text="Anda yakin ingin menghapus data ini?"
+        openModal={openModal}
         onCloseHandler={() => setOpenModal(false)}
-        onYesHandler={() => onRemoveHandler()} />
+        onYesHandler={() => onRemoveHandler()}
+      />
     </main>
   );
 }

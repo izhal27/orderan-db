@@ -1,21 +1,17 @@
-import { Table } from 'flowbite-react';
+import { Table } from "flowbite-react";
 
 interface props {
   columnsName: string[];
 }
 
-export function SkeletonTable({ columnsName }: props) {
+export default function SkeletonTable({ columnsName }: props) {
   const rows = 5;
   return (
     <Table>
       <Table.Head>
-        <Table.HeadCell>
-          {columnsName[0]}
-        </Table.HeadCell>
+        <Table.HeadCell>{columnsName[0]}</Table.HeadCell>
         {Array.from({ length: columnsName.length - 1 }).map((_, index) => (
-          <Table.HeadCell key={index}>
-            {columnsName[index + 1]}
-          </Table.HeadCell>
+          <Table.HeadCell key={index}>{columnsName[index + 1]}</Table.HeadCell>
         ))}
       </Table.Head>
       <Table.Body>
@@ -23,7 +19,7 @@ export function SkeletonTable({ columnsName }: props) {
           <Table.Row key={rowIndex}>
             {Array.from({ length: columnsName.length }).map((_, colIndex) => (
               <Table.Cell key={colIndex}>
-                <div className="h-2 bg-gray-200 rounded w-full animate-pulse"></div>
+                <div className="h-2 w-full animate-pulse rounded bg-gray-200"></div>
               </Table.Cell>
             ))}
           </Table.Row>
@@ -31,4 +27,4 @@ export function SkeletonTable({ columnsName }: props) {
       </Table.Body>
     </Table>
   );
-};
+}

@@ -1,11 +1,11 @@
-import { Flowbite, ThemeModeScript } from "flowbite-react";
-import { Inter } from "next/font/google";
 import { type FC, type PropsWithChildren } from "react";
-import { twMerge } from "tailwind-merge";
-import "./globals.css";
-import { flowbiteTheme } from "./theme";
+import { Flowbite, ThemeModeScript } from "flowbite-react";
 import { SessionProvider } from "next-auth/react";
+import { Inter } from "next/font/google";
+import { flowbiteTheme } from "./theme";
+import { twMerge } from "tailwind-merge";
 import ToastProvider from "@/context/ToastProvider";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,9 +28,7 @@ const RootLayout: FC<PropsWithChildren> = function ({ children }) {
       <body className={twMerge("bg-gray-50 dark:bg-gray-900", inter.className)}>
         <SessionProvider>
           <Flowbite theme={{ theme: flowbiteTheme }}>
-            <ToastProvider>
-              {children}
-            </ToastProvider>
+            <ToastProvider>{children}</ToastProvider>
           </Flowbite>
         </SessionProvider>
       </body>

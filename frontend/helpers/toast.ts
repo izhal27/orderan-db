@@ -1,4 +1,4 @@
-import { toast, ToastContent, ToastOptions, Slide, Id } from "react-toastify";
+import { Id, Slide, toast, ToastContent, ToastOptions } from "react-toastify";
 
 export const defaultToastOptions: ToastOptions = {
   position: "top-center",
