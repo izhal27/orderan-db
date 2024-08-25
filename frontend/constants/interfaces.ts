@@ -34,3 +34,25 @@ export interface User {
     name: string;
   };
 }
+
+export interface OrderDetail {
+  id: string;
+  name: string;
+  price: number;
+  width: number;
+  height: number;
+  qty: number;
+  design: number;
+  description: number;
+}
+
+export interface Order {
+  id: string;
+  number: string;
+  date: string;
+  customer: string;
+  description: string;
+  userId: number;
+  OrderDetails: OrderDetail[];
+  user: User;
+}
