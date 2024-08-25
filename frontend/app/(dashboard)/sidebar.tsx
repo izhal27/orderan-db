@@ -17,12 +17,12 @@ import { twMerge } from "tailwind-merge";
 
 const orderUrls = [
   {
-    url: "/orders/daftar",
+    url: "/orders/list",
     icon: HiDocumentText,
     text: "Daftar",
   },
   {
-    url: "/orders/laporan",
+    url: "/orders/report",
     icon: BiSolidReport,
     text: "Laporan",
   },
