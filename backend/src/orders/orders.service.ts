@@ -162,7 +162,9 @@ export class OrdersService {
     userId: number,
   ): Promise<OrderEntity | any> {
     const { date, customer, description, orderDetails } = updateOrderDto;
-    const updatedOd = orderDetails?.map((od) => ({
+    const newOd = orderDetails!.filter(od => od.id === null); // order detail yang ditambahkan
+    const existOd = orderDetails?.filter(od => od.id !== null);
+    const updatedOd = existOd?.map((od) => ({
       where: { id: od.id },
       data: { ...od },
     }));
@@ -176,6 +178,9 @@ export class OrdersService {
           userId,
           OrderDetails: {
             updateMany: updatedOd,
+            createMany: {
+              data: newOd
+            }
           },
         },
         include: {
