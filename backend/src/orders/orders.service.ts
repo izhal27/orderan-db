@@ -299,4 +299,23 @@ export class OrdersService {
       throw new BadRequestException(error);
     }
   }
+
+  cancelStatus({ type, orderId, orderDetailId }: { type: CancelType, orderId?: string, orderDetailId?: string }) {
+    switch (type) {
+      case CancelType.PRINT:
+        return this.prismaService.printedStatus.delete({ where: { orderDetailId } });
+
+      case CancelType.PAY:
+        return this.prismaService.payStatus.delete({ where: { orderId } });
+
+      case CancelType.TAKEN:
+        return this.prismaService.takenStatus.delete({ where: { orderId } });
+    }
+  }
+}
+
+export const enum CancelType {
+  PRINT,
+  PAY,
+  TAKEN
 }

@@ -19,10 +19,10 @@ import {
 
 import { OrderEntity } from './entities/order.entity';
 import { CreateOrderDto, MarkPayDto, MarkPrintedDto, UpdateOrderDto } from './dto';
-import { OrdersService } from './orders.service';
-import { GetCurrentUser } from '../common/decorators';
-import { ADMIN } from '../types';
+import { CancelType, OrdersService } from './orders.service';
+import { GetCurrentUser, Roles } from '../common/decorators';
 import { MarkTakenDto } from './dto/mark-taken.dto';
+import { Role } from '../common';
 
 @Controller('orders')
 @ApiTags('orders')
@@ -69,11 +69,19 @@ export class OrdersController {
   }
 
   @Post('/detail/:orderDetailId/print')
+  @Roles(Role.Admin, Role.Administrasi, Role.Operator)
   @HttpCode(200)
   markPrinted(@Param('orderDetailId') id: string,
     @Body() markPrintedDto: MarkPrintedDto,
     @GetCurrentUserId() userId: number) {
     return this.ordersService.markPrint(id, markPrintedDto, userId);
+  }
+
+  @Post('/detail/:orderDetailId/cancel-print')
+  @Roles(Role.Admin, Role.Administrasi)
+  @HttpCode(200)
+  cancelMarkPrinted(@Param('orderDetailId') id: string,) {
+    return this.ordersService.cancelStatus({ type: CancelType.PRINT, orderDetailId: id });
   }
 
   @Post('/:id/pay')
@@ -84,11 +92,25 @@ export class OrdersController {
     return this.ordersService.markPay(id, markPayDto, userId);
   }
 
+  @Post('/:id/cancel-pay')
+  @Roles(Role.Admin, Role.Administrasi)
+  @HttpCode(200)
+  cancelMarkPay(@Param('id') id: string) {
+    return this.ordersService.cancelStatus({ type: CancelType.PAY, orderId: id });
+  }
+
   @Post('/:id/taken')
   @HttpCode(200)
   markTaken(@Param('id') id: string,
     @Body() markTakenDto: MarkTakenDto,
     @GetCurrentUserId() userId: number) {
     return this.ordersService.markTaken(id, markTakenDto, userId);
+  }
+
+  @Post('/:id/cancel-taken')
+  @Roles(Role.Admin, Role.Administrasi)
+  @HttpCode(200)
+  cancelMarkTaken(@Param('id') id: string) {
+    return this.ordersService.cancelStatus({ type: CancelType.TAKEN, orderId: id });
   }
 }
