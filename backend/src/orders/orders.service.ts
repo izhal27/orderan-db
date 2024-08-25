@@ -63,7 +63,7 @@ export class OrdersService {
                     eyelets: true,
                     shiming: true,
                     description: true,
-                    MarkedPrintered: true,
+                    MarkedPrinted: true,
                   },
                 },
                 user: {
@@ -105,7 +105,7 @@ export class OrdersService {
               eyelets: true,
               shiming: true,
               description: true,
-              MarkedPrintered: true,
+              MarkedPrinted: true,
               orderId: true,
               createdAt: true,
               updatedAt: true,

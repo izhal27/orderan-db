@@ -52,21 +52,21 @@ model OrderType {
 }
 
 model OrderDetail {
-  id              String         @id @default(uuid())
-  name            String
-  price           Int            @default(0)
-  width           Int            @default(0)
-  height          Int            @default(0)
-  qty             Int            @default(0)
-  design          Int            @default(0)
-  eyelets         Boolean        @default(false)
-  shiming         Boolean        @default(false)
-  description     String?
-  Order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId         String
-  MarkedPrintered PrintedStatus?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  id            String         @id @default(uuid())
+  name          String
+  price         Int            @default(0)
+  width         Int            @default(0)
+  height        Int            @default(0)
+  qty           Int            @default(0)
+  design        Int            @default(0)
+  eyelets       Boolean        @default(false)
+  shiming       Boolean        @default(false)
+  description   String?
+  Order         Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId       String
+  MarkedPrinted PrintedStatus?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Order {
