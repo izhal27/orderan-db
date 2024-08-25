@@ -70,12 +70,12 @@ export function UsersTable() {
     <div>
       <Table hoverable>
         <Table.Head>
-          <Table.HeadCell>Username</Table.HeadCell>
-          <Table.HeadCell>Email</Table.HeadCell>
-          <Table.HeadCell>Nama</Table.HeadCell>
-          <Table.HeadCell>Blocked</Table.HeadCell>
-          <Table.HeadCell>Role</Table.HeadCell>
-          <Table.HeadCell>Aksi</Table.HeadCell>
+          <Table.HeadCell className="text-center">Username</Table.HeadCell>
+          <Table.HeadCell className="text-center">Email</Table.HeadCell>
+          <Table.HeadCell className="text-center">Nama</Table.HeadCell>
+          <Table.HeadCell className="text-center">Blocked</Table.HeadCell>
+          <Table.HeadCell className="text-center">Role</Table.HeadCell>
+          <Table.HeadCell className="text-center">Aksi</Table.HeadCell>
         </Table.Head>
         <Table.Body className="divide-y">
           {users?.map((item: User) => {
@@ -89,10 +89,10 @@ export function UsersTable() {
                 </Table.Cell>
                 <Table.Cell>{item.email}</Table.Cell>
                 <Table.Cell>{item.name}</Table.Cell>
-                <Table.Cell>{item.blocked ? "Ya" : "Tidak"}</Table.Cell>
+                <Table.Cell className="text-center">{item.blocked ? "Ya" : "Tidak"}</Table.Cell>
                 <Table.Cell>{item.role && item.role.name}</Table.Cell>
                 <Table.Cell>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 justify-center">
                     <HiPencil
                       className="cursor-pointer text-blue-500"
                       onClick={() => router.push(`${pathName}/${item.id}`)}

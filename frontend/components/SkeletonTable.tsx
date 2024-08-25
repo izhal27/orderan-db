@@ -9,9 +9,9 @@ export default function SkeletonTable({ columnsName }: props) {
   return (
     <Table>
       <Table.Head>
-        <Table.HeadCell>{columnsName[0]}</Table.HeadCell>
+        <Table.HeadCell className="text-center">{columnsName[0]}</Table.HeadCell>
         {Array.from({ length: columnsName.length - 1 }).map((_, index) => (
-          <Table.HeadCell key={index}>{columnsName[index + 1]}</Table.HeadCell>
+          <Table.HeadCell className="text-center" key={index}>{columnsName[index + 1]}</Table.HeadCell>
         ))}
       </Table.Head>
       <Table.Body>

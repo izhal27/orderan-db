@@ -67,9 +67,9 @@ export function OrderTypeTable() {
     <div>
       <Table hoverable>
         <Table.Head>
-          <Table.HeadCell>Nama</Table.HeadCell>
-          <Table.HeadCell>Keterangan</Table.HeadCell>
-          <Table.HeadCell>Aksi</Table.HeadCell>
+          <Table.HeadCell className="text-center">Nama</Table.HeadCell>
+          <Table.HeadCell className="text-center">Keterangan</Table.HeadCell>
+          <Table.HeadCell className="text-center">Aksi</Table.HeadCell>
         </Table.Head>
         <Table.Body className="divide-y">
           {orderTypes?.map((item: any) => {
@@ -85,7 +85,7 @@ export function OrderTypeTable() {
                   {item.description}
                 </Table.Cell>
                 <Table.Cell>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 justify-center">
                     <HiPencil
                       className="cursor-pointer text-blue-500"
                       onClick={() => router.push(`${pathName}/${item.id}`)}

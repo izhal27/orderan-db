@@ -19,12 +19,12 @@ export default function CustomerTable({
     <div className="flex flex-col gap-4">
       <Table hoverable>
         <Table.Head>
-          <Table.HeadCell>Nama</Table.HeadCell>
-          <Table.HeadCell>Alamat</Table.HeadCell>
-          <Table.HeadCell>Kontak</Table.HeadCell>
-          <Table.HeadCell>Email</Table.HeadCell>
-          <Table.HeadCell>Keterangan</Table.HeadCell>
-          <Table.HeadCell>Aksi</Table.HeadCell>
+          <Table.HeadCell className="text-center">Nama</Table.HeadCell>
+          <Table.HeadCell className="text-center">Alamat</Table.HeadCell>
+          <Table.HeadCell className="text-center">Kontak</Table.HeadCell>
+          <Table.HeadCell className="text-center">Email</Table.HeadCell>
+          <Table.HeadCell className="text-center">Keterangan</Table.HeadCell>
+          <Table.HeadCell className="text-center">Aksi</Table.HeadCell>
         </Table.Head>
         <Table.Body className="divide-y">
           {data?.map((item: Customer) => {
@@ -39,7 +39,7 @@ export default function CustomerTable({
                 <Table.Cell>{item.email}</Table.Cell>
                 <Table.Cell>{item.description}</Table.Cell>
                 <Table.Cell>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 justify-center">
                     <HiPencil
                       className="cursor-pointer text-blue-500"
                       onClick={() => onEditHandler(item.id)}
