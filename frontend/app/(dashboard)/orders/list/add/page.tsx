@@ -1,4 +1,4 @@
-import OrderAddEdit from "../list/_components/AddEdit";
+import OrderAddEdit from "../_components/AddEdit";
 
 export default function AddPage() {
   return <OrderAddEdit />;
