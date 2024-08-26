@@ -59,11 +59,11 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
                 label={<UserAvatar userImage={session?.user.image} rounded />}
               >
                 <Dropdown.Header>
-                  <span className="block text-sm">
-                    @{session?.user.username}
-                  </span>
-                  <span className="block truncate text-sm font-medium">
+                  <span className="block truncate text-sm font-semibold">
                     {session?.user.name}
+                  </span>
+                  <span className="block text-sm font-light">
+                    @{session?.user.username}
                   </span>
                 </Dropdown.Header>
                 <Dropdown.Item

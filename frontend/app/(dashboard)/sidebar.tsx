@@ -83,11 +83,11 @@ export const DashboardSidebar: NextPage = function () {
                 bordered
                 rounded
               />
-              <div className="font-medium dark:text-white">
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="font-semibold text-center truncate w-full dark:text-white">
+                <div>{session?.user.name}</div>
+                <div className="text-sm font-light text-gray-500 dark:text-gray-400">
                   @{session?.user.username}
                 </div>
-                <div>{session?.user.name}</div>
               </div>
             </div>
             <Sidebar.Collapse
