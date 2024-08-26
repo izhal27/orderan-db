@@ -81,6 +81,7 @@ export const DashboardSidebar: NextPage = function () {
                 userImage={session?.user.image}
                 size="xl"
                 bordered
+                rounded
               />
               <div className="font-medium dark:text-white">
                 <div className="text-sm text-gray-500 dark:text-gray-400">

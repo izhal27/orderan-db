@@ -2,23 +2,28 @@
 
 import { Avatar } from "flowbite-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 
 interface props {
   userImage: string | undefined;
   width?: number;
   height?: number;
   size?: string;
+  rounded?: boolean;
   bordered?: boolean;
 }
+
+type MyComponentPropsWithChildren = PropsWithChildren<props>;
 
 export default function UserAvatar({
   userImage,
   width = 40,
   height = 40,
-  size,
-  bordered,
-}: props) {
+  size = 'md',
+  rounded = false,
+  bordered = false,
+  children,
+}: MyComponentPropsWithChildren) {
   const [srcImage, setSrcImage] = useState<undefined | string>(undefined);
 
   useEffect(() => {
@@ -33,7 +38,7 @@ export default function UserAvatar({
     image = (
       <Avatar
         bordered={bordered}
-        rounded
+        rounded={rounded}
         size={size}
         img={(props) => {
           props.className = props.className + " object-cover";
@@ -47,7 +52,7 @@ export default function UserAvatar({
             />
           );
         }}
-      />
+      >{children}</Avatar>
     );
   }
 

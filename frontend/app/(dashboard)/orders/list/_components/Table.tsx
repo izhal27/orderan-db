@@ -2,13 +2,24 @@
 
 import { Table } from "flowbite-react";
 import { HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
-import { Order } from "@/constants";
+import { Order, User } from "@/constants";
 import localDate from "@/lib/getLocalDate";
+import UserAvatar from "@/components/UserAvatar";
 
 interface props {
   data: Order[];
   onEditHandler(id: string): void;
   onRemoveHandler(id: string): void;
+}
+
+function userImage(user: User) {
+  return (
+    <UserAvatar rounded userImage={user.image}>
+      <div className="space-y-1 font-medium dark:text-white">
+        <div className="text-sm text-gray-500 dark:text-gray-400">{user.name}</div>
+      </div>
+    </UserAvatar>
+  );
 }
 
 export default function OrderTable({
@@ -35,14 +46,14 @@ export default function OrderTable({
                 key={item.id}
                 className="bg-white dark:border-gray-700 dark:bg-gray-800 text-center"
               >
-                <Table.Cell>{item.user?.name}</Table.Cell>
+                <Table.Cell>{userImage(item.user)}</Table.Cell>
                 <Table.Cell>{item.number}</Table.Cell>
                 <Table.Cell>{localDate(item.date, 'long', false, true).substring(0, 5)}</Table.Cell>
                 <Table.Cell>{item.customer}</Table.Cell>
                 <Table.Cell>{item.description}</Table.Cell>
-                <Table.Cell>STATUS</Table.Cell>
+                <Table.Cell><span className="p-2 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold" >ON PROSES</span></Table.Cell>
                 <Table.Cell>
-                  <div className="flex gap-1 justify-center">
+                  <div className="flex gap-2 justify-center">
                     <HiDocumentSearch
                       className="cursor-pointer text-blue-500"
                       onClick={() => onEditHandler(item.id)}
@@ -52,7 +63,7 @@ export default function OrderTable({
                       onClick={() => onEditHandler(item.id)}
                     />
                     <HiTrash
-                      className="ml-2 cursor-pointer text-red-500"
+                      className="cursor-pointer text-red-500"
                       onClick={() => onRemoveHandler(item.id)}
                     />
                   </div>
