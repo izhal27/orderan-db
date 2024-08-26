@@ -34,8 +34,7 @@ export default function ListOrderPage() {
       cache: "no-store",
     });
     if (res?.ok) {
-      const { data, total, totalPages } = await res.json();
-      setOrders(data);
+      setOrders(await res.json());
     } else {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
@@ -52,7 +51,7 @@ export default function ListOrderPage() {
   }, [session]);
 
   const onRemoveHandler = async () => {
-    const res = await fetch(`http://localhost:3002/api/customers/${deleteId}`, {
+    const res = await fetch(`http://localhost:3002/api/orders/${deleteId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
@@ -96,7 +95,7 @@ export default function ListOrderPage() {
           Daftar Pesanan
         </h1>
         <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-          Menampilkan daftar pesanan hari ini <span className="font-semibold">{getLocalDate()}</span>
+          Menampilkan daftar pesanan, <span className="font-semibold">{getLocalDate(Date.now(), 'full')}</span>
         </p>
       </div>
       <div className="flex justify-end">

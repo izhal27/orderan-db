@@ -3,6 +3,7 @@
 import { Table } from "flowbite-react";
 import { HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
 import { Order } from "@/constants";
+import localDate from "@/lib/getLocalDate";
 
 interface props {
   data: Order[];
@@ -21,7 +22,7 @@ export default function OrderTable({
         <Table.Head>
           <Table.HeadCell className="text-center">User</Table.HeadCell>
           <Table.HeadCell className="text-center">Nomor</Table.HeadCell>
-          <Table.HeadCell className="text-center">Tanggal</Table.HeadCell>
+          <Table.HeadCell className="text-center">Waktu</Table.HeadCell>
           <Table.HeadCell className="text-center">Pelanggan</Table.HeadCell>
           <Table.HeadCell className="text-center">Keterangan</Table.HeadCell>
           <Table.HeadCell className="text-center">Status</Table.HeadCell>
@@ -32,15 +33,16 @@ export default function OrderTable({
             return (
               <Table.Row
                 key={item.id}
-                className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                className="bg-white dark:border-gray-700 dark:bg-gray-800 text-center"
               >
                 <Table.Cell>{item.user?.name}</Table.Cell>
                 <Table.Cell>{item.number}</Table.Cell>
-                <Table.Cell>{item.date}</Table.Cell>
+                <Table.Cell>{localDate(item.date, 'long', false, true).substring(0, 5)}</Table.Cell>
                 <Table.Cell>{item.customer}</Table.Cell>
                 <Table.Cell>{item.description}</Table.Cell>
+                <Table.Cell>STATUS</Table.Cell>
                 <Table.Cell>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 justify-center">
                     <HiDocumentSearch
                       className="cursor-pointer text-blue-500"
                       onClick={() => onEditHandler(item.id)}
@@ -60,6 +62,6 @@ export default function OrderTable({
           })}
         </Table.Body>
       </Table>
-    </div>
+    </div >
   );
 }
