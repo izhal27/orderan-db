@@ -99,8 +99,8 @@ export default function ListOrderPage() {
         </p>
       </div>
       <div className="flex justify-end">
-        <div className="max-w-32">
-          <AddButton />
+        <div className="max-w-40">
+          <AddButton text="Buat Pesanan" />
         </div>
       </div>
       {table}
