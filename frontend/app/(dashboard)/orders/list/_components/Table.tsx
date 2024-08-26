@@ -14,7 +14,7 @@ interface props {
 
 function userImage(user: User) {
   return (
-    <UserAvatar rounded userImage={user.image}>
+    <UserAvatar rounded userImage={user.image} size="xs">
       <div className="space-y-1 font-medium dark:text-white">
         <div className="text-sm text-gray-500 dark:text-gray-400">{user.name}</div>
       </div>
@@ -51,7 +51,7 @@ export default function OrderTable({
                 <Table.Cell>{localDate(item.date, 'long', false, true).substring(0, 5)}</Table.Cell>
                 <Table.Cell>{item.customer}</Table.Cell>
                 <Table.Cell>{item.description}</Table.Cell>
-                <Table.Cell><span className="p-2 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold" >ON PROSES</span></Table.Cell>
+                <Table.Cell><span className="px-2 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold" >ON PROSES</span></Table.Cell>
                 <Table.Cell>
                   <div className="flex gap-2 justify-center">
                     <HiDocumentSearch
