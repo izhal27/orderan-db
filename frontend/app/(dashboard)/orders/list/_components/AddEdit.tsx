@@ -7,13 +7,14 @@ import { showToast } from "@/helpers/toast";
 import localDate from "@/lib/getLocalDate";
 import { customerSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, TextInput } from "flowbite-react";
+import { Button, Label, TextInput } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { HiDocumentAdd, HiSave, HiXCircle } from "react-icons/hi";
 import TableOrderDetail from "./TableOrderDetail";
+import { ModalInput } from "./ModalInput";
 
 interface props {
   order?: Order;
@@ -43,7 +44,8 @@ export default function OrderAddEdit({ order }: props) {
     shiming: false,
     description: '',
   }));
-  const [data, setData] = useState<OrderDetail[]>(dummy);
+  const [data, setData] = useState<OrderDetail[]>([]);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     // setFocus("name");
@@ -102,18 +104,17 @@ export default function OrderAddEdit({ order }: props) {
     <div className="flex flex-col gap-4 p-4">
       <BackButton />
       <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-        {`${isEditMode ? "Ubah" : "Tambah"} Order`}
+        {`${isEditMode ? "Ubah" : "Tambah"} Pesanan`}
       </h3>
       <div className="max-w-lg">
         <div className="flex flex-col gap-4">
           <div className="flex items-center">
             <div className="w-1/4">
-              <label
-                htmlFor='tanggal'
-                className="font-medium text-gray-500 dark:text-gray-400"
-              >
-                Tanggal
-              </label>
+              <Label
+                htmlFor="tanggal"
+                value="Tanggal"
+                className="text-gray-500 dark:text-gray-400"
+              />
             </div>
             <div>
               <p className="font-medium text-gray-500 dark:text-gray-400">{localDate(Date.now(), 'long')}</p>
@@ -121,12 +122,11 @@ export default function OrderAddEdit({ order }: props) {
           </div>
           <div className="flex items-center">
             <div className="w-1/4">
-              <label
-                htmlFor='pelanggan'
-                className="inline-block font-medium text-gray-500 dark:text-gray-400"
-              >
-                Pelanggan
-              </label>
+              <Label
+                htmlFor="pelanggan"
+                value="Pelanggan"
+                className="text-gray-500 dark:text-gray-400"
+              />
             </div>
             <div className="grow">
               <TextInput
@@ -137,12 +137,11 @@ export default function OrderAddEdit({ order }: props) {
           </div>
           <div className="flex items-center">
             <div className="w-1/4">
-              <label
-                htmlFor='keterangan'
-                className="inline-block font-medium text-gray-500 dark:text-gray-400"
-              >
-                Keterangan
-              </label>
+              <Label
+                htmlFor="keterangan"
+                value="Keterangan"
+                className="text-gray-500 dark:text-gray-400"
+              />
             </div>
             <div className="grow">
               <TextInput
@@ -157,7 +156,7 @@ export default function OrderAddEdit({ order }: props) {
         <div className="flex justify-between">
           <div className="flex gap-4 items-center text-gray-500 dark:text-gray-400">
             <div>
-              <Button size={"sm"} color={"blue"}>
+              <Button size={"sm"} color={"blue"} onClick={() => setShowModal(true)}>
                 <HiDocumentAdd className="mr-2 size-5" />
                 Tambah item
               </Button>
@@ -180,6 +179,14 @@ export default function OrderAddEdit({ order }: props) {
           </div>
         </div>
         <TableOrderDetail data={data} />
+        <ModalInput
+          show={showModal}
+          onAddHandler={(item) => {
+            setData(prevState => [item, ...prevState]);
+            setShowModal(false);
+          }}
+          onCloseHandler={() => setShowModal(false)}
+        />
       </div>
     </div>
   );

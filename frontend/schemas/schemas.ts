@@ -61,3 +61,35 @@ export const userSchema = z.object({
   //   .optional()
   //   .or(z.literal('')),
 });
+
+export const orderDetailSchema = z.object({
+  name: z
+    .string()
+    .min(5, "Nama Jenis pesanan minimal 3 karakter"),
+  width: z
+    .number()
+    .min(1, "Width minimal 1")
+    .max(100000, "Width maksimal 100000"),
+  height: z
+    .number()
+    .min(1, "Heigth minimal 1")
+    .max(100000, "Width maksimal 100000"),
+  qty: z
+    .number()
+    .min(1, "Qty minimal 1")
+    .max(10000, "Qty maksimal 10000"),
+  design: z
+    .number()
+    .max(1000, "Design maksimal 1000")
+    .optional()
+    .or(z.literal(0)),
+  eyelets: z
+    .boolean(),
+  shiming: z
+    .boolean(),
+  description: z
+    .string()
+    .max(300, "Keterangan maksimal 300 karakter")
+    .optional()
+    .or(z.literal("")),
+});
