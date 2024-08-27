@@ -1,7 +1,7 @@
 export interface OrderType {
   id: number;
   name: string;
-  description: string;
+  description?: string;
 }
 
 export interface Customer {
@@ -10,7 +10,7 @@ export interface Customer {
   address: string;
   contact: string;
   email: string;
-  description: string;
+  description?: string;
   createdById: number;
   user: {
     id: number;
@@ -38,12 +38,14 @@ export interface User {
 export interface OrderDetail {
   id: string;
   name: string;
-  price: number;
+  price?: number;
   width: number;
   height: number;
   qty: number;
   design: number;
-  description: number;
+  eyelets: boolean;
+  shiming: boolean;
+  description?: string;
 }
 
 export interface Order {
@@ -51,7 +53,7 @@ export interface Order {
   number: string;
   date: string;
   customer: string;
-  description: string;
+  description?: string;
   userId: number;
   OrderDetails: OrderDetail[];
   user: User;
