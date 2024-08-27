@@ -1,20 +1,21 @@
 
 "use client";
 
+import { forwardRef, useImperativeHandle, useState } from "react";
+import { useForm } from "react-hook-form";
+import { Button, Checkbox, Label, Modal, TextInput } from "flowbite-react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { OrderDetail, OrderDetailFormData } from "@/constants";
 import { orderDetailSchema } from "@/schemas/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Checkbox, Label, Modal, TextInput } from "flowbite-react";
-import { useEffect, useRef } from "react";
-import { useForm } from "react-hook-form";
 
 interface props {
   show: boolean;
   onAddHandler(item: OrderDetail): void;
+  onEditHandler(index: number, item: Partial<OrderDetail>): void;
   onCloseHandler(): void;
 }
 
-export function ModalInput({ show, onAddHandler, onCloseHandler }: props) {
+const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandler }: props, ref) => {
   const {
     register,
     handleSubmit,
@@ -25,16 +26,40 @@ export function ModalInput({ show, onAddHandler, onCloseHandler }: props) {
   } = useForm<OrderDetailFormData>({
     resolver: zodResolver(orderDetailSchema),
   });
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
 
   const onSubmit = (data: OrderDetailFormData) => {
-    onAddHandler({ ...data } as OrderDetail);
+    if (selectedIndex === null) {
+      onAddHandler({ ...data } as OrderDetail);
+    } else {
+      onEditHandler(selectedIndex, data);
+    }
+    setSelectedIndex(null);
     reset();
   }
 
   const onClose = () => {
     reset();
+    setSelectedIndex(null);
     onCloseHandler();
   }
+
+  useImperativeHandle(ref, () => ({
+    setOrderdetailForm(index: number, data: OrderDetail) {
+      const { name, width, height, qty, design, eyelets, shiming, description } = data;
+      setSelectedIndex(index);
+      setValue('name', name);
+      setValue('width', width);
+      setValue('height', height);
+      setValue('qty', qty);
+      setValue('design', design);
+      setValue('eyelets', eyelets);
+      setValue('shiming', shiming);
+      setValue('description', description);
+    }
+  }));
+
+
 
   return (
     <>
@@ -63,8 +88,8 @@ export function ModalInput({ show, onAddHandler, onCloseHandler }: props) {
                     {...register('width', { valueAsNumber: true })}
                     id="width"
                     type="number"
-                    placeholder="0"
                     color={errors.width && 'failure'}
+                    min={1}
                     max={100000}
                   />
                 </div>
@@ -76,8 +101,8 @@ export function ModalInput({ show, onAddHandler, onCloseHandler }: props) {
                     {...register('height', { valueAsNumber: true })}
                     id="heigth"
                     type="number"
-                    placeholder="0"
                     color={errors.height && 'failure'}
+                    min={1}
                     max={100000}
                   />
                 </div>
@@ -89,8 +114,8 @@ export function ModalInput({ show, onAddHandler, onCloseHandler }: props) {
                     {...register('qty', { valueAsNumber: true })}
                     id="qty"
                     type="number"
-                    placeholder="0"
                     color={errors.qty && 'failure'}
+                    min={1}
                     max={10000}
                   />
                 </div>
@@ -102,7 +127,6 @@ export function ModalInput({ show, onAddHandler, onCloseHandler }: props) {
                     {...register('design', { valueAsNumber: true })}
                     id="design"
                     type="number"
-                    placeholder="0"
                     color={errors.design && 'failure'}
                     max={1000}
                   />
@@ -137,7 +161,7 @@ export function ModalInput({ show, onAddHandler, onCloseHandler }: props) {
             </div>
             <div className="w-full flex gap-2">
               <Button size={"sm"} color={"blue"} type="submit">
-                Tambah
+                {selectedIndex === null ? 'Tambah' : 'Simpan'}
               </Button>
               <Button size={"sm"} color={"red"} onClick={onClose}>
                 Batal
@@ -148,4 +172,6 @@ export function ModalInput({ show, onAddHandler, onCloseHandler }: props) {
       </Modal>
     </>
   );
-}
+});
+
+export default ModalInput;

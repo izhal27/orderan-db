@@ -1,20 +1,21 @@
 "use client";
 
-import BackButton from "@/components/buttons/BackButton";
-import type { CustomerFormData } from "@/constants/formTypes";
-import { OrderDetail, Order } from "@/constants/interfaces";
-import { showToast } from "@/helpers/toast";
-import localDate from "@/lib/getLocalDate";
-import { customerSchema } from "@/schemas/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Label, TextInput } from "flowbite-react";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Button, Label, TextInput } from "flowbite-react";
 import { HiDocumentAdd, HiSave, HiXCircle } from "react-icons/hi";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CustomerFormData } from "@/constants/formTypes";
+import { OrderDetail, Order } from "@/constants/interfaces";
+import { showToast } from "@/helpers/toast";
+import { customerSchema } from "@/schemas/schemas";
+import BackButton from "@/components/buttons/BackButton";
+import ConfirmModal from "@/components/ConfirmModal";
+import localDate from "@/lib/getLocalDate";
 import TableOrderDetail from "./TableOrderDetail";
-import { ModalInput } from "./ModalInput";
+import ModalInput from "./ModalInput";
 
 interface props {
   order?: Order;
@@ -44,8 +45,13 @@ export default function OrderAddEdit({ order }: props) {
     shiming: false,
     description: '',
   }));
-  const [data, setData] = useState<OrderDetail[]>([]);
+  const [data, setData] = useState<OrderDetail[]>(dummy);
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [deletedIndex, setDeletedIndex] = useState<number | null>(null)
+  const modalRef = useRef<{
+    setOrderdetailForm: (index: number, data: OrderDetail) => void
+  }>(null);
 
   useEffect(() => {
     // setFocus("name");
@@ -99,6 +105,13 @@ export default function OrderAddEdit({ order }: props) {
       showToast("error", "Terjadi kesalahan, coba lagi nanti.");
     }
   }
+
+  const updateItemAtIndex = (index: number, newItem: Partial<OrderDetail>): OrderDetail[] => {
+    const updatedData = [...data.map((item, i) =>
+      i === index ? { ...item, ...newItem } : item
+    )];
+    return updatedData;
+  };
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -178,14 +191,41 @@ export default function OrderAddEdit({ order }: props) {
             </Button>
           </div>
         </div>
-        <TableOrderDetail data={data} />
+        <TableOrderDetail
+          data={data}
+          onEditHandler={index => {
+            if (modalRef.current) {
+              modalRef.current.setOrderdetailForm(index, data[index]);
+            }
+            setShowModal(true);
+          }}
+          onRemoveHandler={(index) => {
+            setDeletedIndex(index);
+            setShowConfirmModal(true);
+          }}
+        />
         <ModalInput
           show={showModal}
           onAddHandler={(item) => {
-            setData(prevState => [item, ...prevState]);
+            setData(prevState => [...prevState, item]);
+            setShowModal(false);
+          }}
+          onEditHandler={(index, data) => {
+            setData([...updateItemAtIndex(index, data)]);
             setShowModal(false);
           }}
           onCloseHandler={() => setShowModal(false)}
+          ref={modalRef}
+        />
+        <ConfirmModal
+          text="Anda yakin ingin menghapus data ini?"
+          openModal={showConfirmModal}
+          onCloseHandler={() => setShowConfirmModal(false)}
+          onYesHandler={() => {
+            const updatedData = data.filter((_, i) => i !== deletedIndex);
+            setData([...updatedData]);
+            setShowConfirmModal(false);
+          }}
         />
       </div>
     </div>

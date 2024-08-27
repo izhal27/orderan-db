@@ -5,9 +5,11 @@ import { HiPencil, HiTrash } from "react-icons/hi";
 interface props {
   data: OrderDetail[];
   detailMode?: boolean;
+  onEditHandler(index: number): void;
+  onRemoveHandler(index: number): void;
 }
 
-export default function TableOrderDetail({ data, detailMode = false }: props) {
+export default function TableOrderDetail({ data, detailMode = false, onEditHandler, onRemoveHandler }: props) {
   return (
     <Table hoverable>
       <Table.Head>
@@ -22,10 +24,10 @@ export default function TableOrderDetail({ data, detailMode = false }: props) {
         <Table.HeadCell className="text-center">Aksi</Table.HeadCell>
       </Table.Head>
       <Table.Body className="divide-y">
-        {data?.map((item: OrderDetail) => {
+        {data?.map((item: OrderDetail, index) => {
           return (
             <Table.Row
-              key={item.id}
+              key={index}
               className="bg-white dark:border-gray-700 dark:bg-gray-800 text-center"
             >
               <Table.Cell>{item.name}</Table.Cell>
@@ -40,11 +42,11 @@ export default function TableOrderDetail({ data, detailMode = false }: props) {
                 <div className="flex gap-2 justify-center">
                   <HiPencil
                     className="cursor-pointer text-blue-500"
-                    onClick={() => console.log(item.id)}
+                    onClick={() => onEditHandler(index)}
                   />
                   <HiTrash
                     className="cursor-pointer text-red-500"
-                    onClick={() => console.log(item.id)}
+                    onClick={() => onRemoveHandler(index)}
                   />
                 </div>
               </Table.Cell>
