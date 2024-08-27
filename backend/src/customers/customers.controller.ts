@@ -48,6 +48,11 @@ export class CustomersController {
     return this.customersService.findMany();
   }
 
+  @Get('filter')
+  getSuggestions(@Query('query') query: string) {
+    return this.customersService.filter(query);
+  }
+
   @Get(':id')
   @ApiOkResponse({ type: CustomerEntity })
   findOne(@Param('id') id: string) {

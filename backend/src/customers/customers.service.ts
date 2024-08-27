@@ -75,6 +75,18 @@ export class CustomersService {
     }
   }
 
+  filter(query: string) {
+    return this.prismaService.customer.findMany({
+      where: {
+        name: {
+          contains: query,
+          mode: 'insensitive',
+        }
+      },
+      take: 10
+    })
+  }
+
   async findUnique(where: Prisma.CustomerWhereUniqueInput): Promise<Customer> {
     const article = await this.prismaService.customer.findUnique({
       where,
