@@ -2,21 +2,22 @@
 
 import BackButton from "@/components/buttons/BackButton";
 import type { CustomerFormData } from "@/constants/formTypes";
-import type { Customer, Order } from "@/constants/interfaces";
+import { OrderDetail, Order } from "@/constants/interfaces";
 import { showToast } from "@/helpers/toast";
 import localDate from "@/lib/getLocalDate";
 import { customerSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Label, Spinner, TextInput } from "flowbite-react";
+import { Button, TextInput } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { HiDocumentAdd, HiSave, HiXCircle } from "react-icons/hi";
+import TableOrderDetail from "./TableOrderDetail";
 
 interface props {
   order?: Order;
 }
-
 
 export default function OrderAddEdit({ order }: props) {
   const isEditMode = !!order;
@@ -31,6 +32,18 @@ export default function OrderAddEdit({ order }: props) {
   } = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
   });
+  const dummy = Array.from({ length: 10 }, (v, k) => ({
+    id: k.toString(),
+    name: 'FLEXY BANNER 280 gsm',
+    width: 200,
+    height: 100,
+    qty: ++k,
+    design: 1,
+    eyelets: true,
+    shiming: false,
+    description: '',
+  }));
+  const [data, setData] = useState<OrderDetail[]>(dummy);
 
   useEffect(() => {
     // setFocus("name");
@@ -91,37 +104,82 @@ export default function OrderAddEdit({ order }: props) {
       <h3 className="text-xl font-medium text-gray-900 dark:text-white">
         {`${isEditMode ? "Ubah" : "Tambah"} Order`}
       </h3>
-      <div className="max-w-xl">
-        <div className="flex flex-col gap-5">
-          <div className="flex items-center justify-between">
-            <label
-              htmlFor='tanggal'
-              className="font-medium text-gray-500 dark:text-gray-400"
-            >
-              Tanggal
-            </label>
-            <TextInput
-              disabled
-              type='text'
-              id='tanggal'
-              value={localDate(Date.now(), 'long')}
-            />
+      <div className="max-w-lg">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center">
+            <div className="w-1/4">
+              <label
+                htmlFor='tanggal'
+                className="font-medium text-gray-500 dark:text-gray-400"
+              >
+                Tanggal
+              </label>
+            </div>
+            <div>
+              <p className="font-medium text-gray-500 dark:text-gray-400">{localDate(Date.now(), 'long')}</p>
+            </div>
           </div>
-          <div className="flex items-center justify-around">
-            <label
-              htmlFor='pelanggan'
-              className="font-medium text-gray-500 dark:text-gray-400"
-            >
-              Pelanggan
-            </label>
-            <div className="flex justify-start">
+          <div className="flex items-center">
+            <div className="w-1/4">
+              <label
+                htmlFor='pelanggan'
+                className="inline-block font-medium text-gray-500 dark:text-gray-400"
+              >
+                Pelanggan
+              </label>
+            </div>
+            <div className="grow">
               <TextInput
                 type='text'
                 id='pelanggan'
               />
             </div>
           </div>
+          <div className="flex items-center">
+            <div className="w-1/4">
+              <label
+                htmlFor='keterangan'
+                className="inline-block font-medium text-gray-500 dark:text-gray-400"
+              >
+                Keterangan
+              </label>
+            </div>
+            <div className="grow">
+              <TextInput
+                type='text'
+                id='keterangan'
+              />
+            </div>
+          </div>
         </div>
+      </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between">
+          <div className="flex gap-4 items-center text-gray-500 dark:text-gray-400">
+            <div>
+              <Button size={"sm"} color={"blue"}>
+                <HiDocumentAdd className="mr-2 size-5" />
+                Tambah item
+              </Button>
+            </div>
+            <div className="flex gap-4">
+              <p>Items : {data.length}</p>
+              <p>|</p>
+              <p>Total Qty : {data.reduce((acc, od) => acc + od.qty, 0)}</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button size={"sm"} color={"green"}>
+              <HiSave className="mr-2 size-5" />
+              Simpan
+            </Button>
+            <Button size={"sm"} color={"red"} onClick={router.back}>
+              <HiXCircle className="mr-2 size-5" />
+              Batal
+            </Button>
+          </div>
+        </div>
+        <TableOrderDetail data={data} />
       </div>
     </div>
   );
