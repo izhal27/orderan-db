@@ -1,12 +1,11 @@
-
-"use client";
-
 import { forwardRef, useImperativeHandle, useState } from "react";
+import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { Button, Checkbox, Label, Modal, TextInput } from "flowbite-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { OrderDetail, OrderDetailFormData } from "@/constants";
+import { OrderDetail, OrderDetailFormData, OrderType } from "@/constants";
 import { orderDetailSchema } from "@/schemas/schemas";
+import AutoCompleteTextInput from "@/components/AutoCompleteTextInput";
 
 interface props {
   show: boolean;
@@ -16,6 +15,7 @@ interface props {
 }
 
 const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandler }: props, ref) => {
+  const { data: session } = useSession();
   const {
     register,
     handleSubmit,
@@ -26,7 +26,8 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
   } = useForm<OrderDetailFormData>({
     resolver: zodResolver(orderDetailSchema),
   });
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [orderTypeName, setOrderTypeName] = useState('');
 
   const onSubmit = (data: OrderDetailFormData) => {
     if (selectedIndex === null) {
@@ -59,6 +60,9 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
     }
   }));
 
+  const handleSelectOrderType = (orderType: OrderType) => {
+    setOrderTypeName(orderType.name);
+  };
 
 
   return (
@@ -73,10 +77,12 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
                 <div className="mb-2 block">
                   <Label htmlFor="order-type" value="Jenis Pesanan" />
                 </div>
-                <TextInput
-                  {...register('name')}
-                  id="order-type"
-                  color={errors.name && 'failure'}
+                <AutoCompleteTextInput<OrderType>
+                  fetchUrl="http://localhost:3002/api/order-types/filter"
+                  getDisplayValue={(customer: OrderType) => customer.name}
+                  getKeyValue={(customer: OrderType) => customer.id}
+                  onSelect={handleSelectOrderType}
+                  accessToken={session?.accessToken}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
