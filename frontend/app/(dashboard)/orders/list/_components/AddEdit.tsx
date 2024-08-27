@@ -1,21 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button, Label, TextInput } from "flowbite-react";
 import { HiDocumentAdd, HiSave, HiXCircle } from "react-icons/hi";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { CustomerFormData } from "@/constants/formTypes";
-import { OrderDetail, Order } from "@/constants/interfaces";
+import { OrderDetail, Order, Customer } from "@/constants/interfaces";
 import { showToast } from "@/helpers/toast";
-import { customerSchema } from "@/schemas/schemas";
 import BackButton from "@/components/buttons/BackButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import localDate from "@/lib/getLocalDate";
 import TableOrderDetail from "./TableOrderDetail";
 import ModalInput from "./ModalInput";
+import AutoCompleteTextInput from '@/components/AutoCompleteTextInput';
 
 interface props {
   order?: Order;
@@ -25,33 +23,14 @@ export default function OrderAddEdit({ order }: props) {
   const isEditMode = !!order;
   const router = useRouter();
   const { data: session } = useSession();
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    setFocus,
-    formState: { errors, isSubmitting },
-  } = useForm<CustomerFormData>({
-    resolver: zodResolver(customerSchema),
-  });
-  const dummy = Array.from({ length: 10 }, (v, k) => ({
-    id: k.toString(),
-    name: 'FLEXY BANNER 280 gsm',
-    width: 200,
-    height: 100,
-    qty: ++k,
-    design: 1,
-    eyelets: true,
-    shiming: false,
-    description: '',
-  }));
-  const [data, setData] = useState<OrderDetail[]>(dummy);
+  const [data, setData] = useState<OrderDetail[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [deletedIndex, setDeletedIndex] = useState<number | null>(null)
+  const [deletedIndex, setDeletedIndex] = useState<number | null>(null);
   const modalRef = useRef<{
     setOrderdetailForm: (index: number, data: OrderDetail) => void
   }>(null);
+  const [customer, setCustomer] = useState('')
 
   useEffect(() => {
     // setFocus("name");
@@ -113,6 +92,20 @@ export default function OrderAddEdit({ order }: props) {
     return updatedData;
   };
 
+  const handleFilterCustomer = async (query: string) => {
+    const response = await fetch(`http://localhost:3002/api/customers?query=${query}`, {
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json',
+      }
+    });
+    return await response.json();
+  }
+
+  const handleSelectCustomer = (customer: Customer) => {
+    setCustomer(customer.name);
+  };
+
   return (
     <div className="flex flex-col gap-4 p-4">
       <BackButton />
@@ -142,9 +135,12 @@ export default function OrderAddEdit({ order }: props) {
               />
             </div>
             <div className="grow">
-              <TextInput
-                type='text'
-                id='pelanggan'
+              <AutoCompleteTextInput<Customer>
+                fetchUrl="http://localhost:3002/api/customers/filter"
+                getDisplayValue={(customer: Customer) => customer.name}
+                getKeyValue={(customer: Customer) => customer.id}
+                onSelect={handleSelectCustomer}
+                accessToken={session?.accessToken}
               />
             </div>
           </div>
