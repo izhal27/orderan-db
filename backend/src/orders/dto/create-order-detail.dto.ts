@@ -10,6 +10,7 @@ export class CreateOrderDetailDto {
   })
   name: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({
