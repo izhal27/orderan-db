@@ -39,7 +39,7 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
   const fetchSuggestions = async (searchQuery: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3002/api/order-types?query=${searchQuery}`, {
+      const response = await fetch(`http://localhost:3002/api/order-types/filter?query=${searchQuery}`, {
         headers: {
           Authorization: `Bearer ${session?.accessToken}`,
           'Content-Type': 'application/json',
