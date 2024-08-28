@@ -10,6 +10,7 @@ interface props<T> {
   onSelect: (item: T) => void;
   minLength?: number;
   accessToken?: string;
+  onEmptyQueryHandler?(): void;
 }
 
 export default function AutoCompleteTextInput<T>({
@@ -19,6 +20,7 @@ export default function AutoCompleteTextInput<T>({
   onSelect,
   minLength = 3,
   accessToken,
+  onEmptyQueryHandler,
 }: props<T>) {
   const [query, setQuery] = useState<string>('');
   const [items, setItems] = useState<T[]>([]);
@@ -59,6 +61,9 @@ export default function AutoCompleteTextInput<T>({
 
   useEffect(() => {
     debouncedFetchSuggestions(query);
+    if (!query.trim().length) {
+      onEmptyQueryHandler && onEmptyQueryHandler();
+    }
     return () => {
       debouncedFetchSuggestions.cancel();
     };
