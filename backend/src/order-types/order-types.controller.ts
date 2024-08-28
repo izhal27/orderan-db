@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -38,6 +39,11 @@ export class OrderTypesController {
   @ApiOkResponse({ type: OrderTypeEntity, isArray: true })
   findAll() {
     return this.orderTypeService.findMany();
+  }
+
+  @Get('filter')
+  getSuggestions(@Query('query') query: string) {
+    return this.orderTypeService.filter(query);
   }
 
   @Get(':id')
