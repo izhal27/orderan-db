@@ -4,6 +4,7 @@ import { Button, Modal } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 interface props {
+  yesButtonColor?: 'failure' | 'success' | 'warning';
   text: string;
   openModal: boolean;
   onCloseHandler(): void;
@@ -11,6 +12,7 @@ interface props {
 }
 
 export default function ConfirmModal({
+  yesButtonColor = 'failure',
   text,
   openModal,
   onCloseHandler,
@@ -27,7 +29,7 @@ export default function ConfirmModal({
               {text}
             </h3>
             <div className="flex justify-center gap-4">
-              <Button color="failure" onClick={() => onYesHandler()}>
+              <Button color={yesButtonColor} onClick={() => onYesHandler()}>
                 "Ya, lanjutkan"
               </Button>
               <Button color="gray" onClick={() => onCloseHandler()}>

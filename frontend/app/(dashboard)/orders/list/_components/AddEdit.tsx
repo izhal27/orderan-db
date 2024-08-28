@@ -25,12 +25,14 @@ export default function OrderAddEdit({ order }: props) {
   const { data: session } = useSession();
   const [orderDetails, setOrderDetails] = useState<OrderDetail[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+  const [showConfirmSaveModal, setShowConfirmSaveModal] = useState(false);
   const [deletedIndex, setDeletedIndex] = useState<number | null>(null);
   const modalRef = useRef<{
     setOrderdetailForm: (index: number, data: OrderDetail) => void
   }>(null);
   const [customer, setCustomer] = useState('');
+  const [description, setDescription] = useState('');
   const [someEmpty, setSomeEmpty] = useState(true);
 
   useEffect(() => {
@@ -44,23 +46,26 @@ export default function OrderAddEdit({ order }: props) {
     // }
   }, [order]);
 
-  const onSubmit = async (data: CustomerFormData) => {
-    return !isEditMode ? addHandler(data) : editHandler(order!.id, data);
+  const onSubmit = async () => {
+    if (!isReadyForSave) {
+      return;
+    }
+    return !isEditMode ? addHandler() : editHandler();
   };
 
-  const addHandler = async (data: CustomerFormData) => {
-    // const res = await fetch("http://localhost:3002/api/orders", {
-    //   method: "POST",
-    //   headers: {
-    //     Authorization: `Bearer ${session?.accessToken}`,
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(data),
-    // });
-    // showInfo(res, await res.json());
+  const addHandler = async () => {
+    const res = await fetch("http://localhost:3002/api/orders", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ date: new Date().toISOString(), customer, description, orderDetails }),
+    });
+    showInfo(res);
   };
 
-  const editHandler = async (id: string, data: CustomerFormData) => {
+  const editHandler = async () => {
     // const res = await fetch(`http://localhost:3002/api/orders/${id}`, {
     //   method: "PATCH",
     //   headers: {
@@ -69,18 +74,16 @@ export default function OrderAddEdit({ order }: props) {
     //   },
     //   body: JSON.stringify(data),
     // });
-    // showInfo(res, await res.json());
+    // showInfo(res);
   };
 
-  function showInfo(res: Response, customer: any) {
+  function showInfo(res: Response) {
     if (res.ok) {
       showToast(
         "success",
-        `Pelanggan "${customer.name}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
+        `Pesanan "${customer}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
       );
       router.back();
-    } else if (res.status == 409) {
-      showToast("error", "Nama sudah digunakan, coba dengan nama yang lain.");
     } else {
       showToast("error", "Terjadi kesalahan, coba lagi nanti.");
     }
@@ -97,8 +100,10 @@ export default function OrderAddEdit({ order }: props) {
     setCustomer(customer.name);
   };
 
+  const isReadyForSave = customer.trim().length && orderDetails.some(item => item.name);
+
   useEffect(() => {
-    if (customer.trim().length && orderDetails.some(item => item.name)) {
+    if (isReadyForSave) {
       setSomeEmpty(false);
     } else {
       setSomeEmpty(true);
@@ -156,6 +161,8 @@ export default function OrderAddEdit({ order }: props) {
               <TextInput
                 type='text'
                 id='keterangan'
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
           </div>
@@ -177,7 +184,7 @@ export default function OrderAddEdit({ order }: props) {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button size={"sm"} color={"green"} disabled={someEmpty}>
+            <Button size={"sm"} color={"green"} disabled={someEmpty} onClick={() => setShowConfirmSaveModal(true)}>
               <HiSave className="mr-2 size-5" />
               Simpan
             </Button>
@@ -197,7 +204,7 @@ export default function OrderAddEdit({ order }: props) {
           }}
           onRemoveHandler={(index) => {
             setDeletedIndex(index);
-            setShowConfirmModal(true);
+            setShowConfirmDeleteModal(true);
           }}
         />
         <ModalInput
@@ -215,12 +222,21 @@ export default function OrderAddEdit({ order }: props) {
         />
         <ConfirmModal
           text="Anda yakin ingin menghapus data ini?"
-          openModal={showConfirmModal}
-          onCloseHandler={() => setShowConfirmModal(false)}
+          openModal={showConfirmDeleteModal}
+          onCloseHandler={() => setShowConfirmDeleteModal(false)}
           onYesHandler={() => {
             const updatedData = orderDetails.filter((_, i) => i !== deletedIndex);
             setOrderDetails([...updatedData]);
-            setShowConfirmModal(false);
+            setShowConfirmDeleteModal(false);
+          }}
+        />
+        <ConfirmModal
+          yesButtonColor="success"
+          text="Anda yakin ingin menyimpan data ini?"
+          openModal={showConfirmSaveModal}
+          onCloseHandler={() => setShowConfirmSaveModal(false)}
+          onYesHandler={() => {
+            onSubmit();
           }}
         />
       </div>
