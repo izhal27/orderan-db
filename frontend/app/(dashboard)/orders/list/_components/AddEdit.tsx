@@ -47,7 +47,7 @@ export default function OrderAddEdit({ order }: props) {
   }, [order]);
 
   const onSubmit = async () => {
-    if (!isReadyForSave) {
+    if (!readyForSave) {
       return;
     }
     return !isEditMode ? addHandler() : editHandler();
@@ -100,10 +100,10 @@ export default function OrderAddEdit({ order }: props) {
     setCustomer(customer.name);
   };
 
-  const isReadyForSave = customer.trim().length && orderDetails.some(item => item.name);
+  const readyForSave = customer.trim().length && orderDetails.some(item => item.name);
 
   useEffect(() => {
-    if (isReadyForSave) {
+    if (readyForSave) {
       setSomeEmpty(false);
     } else {
       setSomeEmpty(true);
