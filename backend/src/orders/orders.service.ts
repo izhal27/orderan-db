@@ -35,7 +35,7 @@ export class OrdersService {
   ): Promise<OrderEntity[]> {
     try {
       const { date, customer, description, orderDetails } = createOrderDto;
-      const number = orderNumber('DB-', 4);
+      const number = orderNumber('DB-', 3);
       return await this.prismaService.$transaction(
         async (prisma): Promise<OrderEntity[] | any> => {
           try {
