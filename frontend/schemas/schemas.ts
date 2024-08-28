@@ -63,9 +63,9 @@ export const userSchema = z.object({
 });
 
 export const orderDetailSchema = z.object({
-  name: z
-    .string()
-    .min(5, "Nama Jenis pesanan minimal 3 karakter"),
+  // name: z
+  //   .string()
+  //   .min(5, "Nama Jenis pesanan minimal 3 karakter"),
   width: z
     .number()
     .min(1, "Width minimal 1")
