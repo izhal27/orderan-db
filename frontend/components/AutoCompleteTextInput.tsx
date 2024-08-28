@@ -38,8 +38,6 @@ export default function AutoCompleteTextInput<T>({
         }
       });
       const data = await response.json();
-      console.log(JSON.stringify(data, null, 4));
-
       setItems(data);
     } catch (error) {
       console.error('Error fetching suggestions:', error);
