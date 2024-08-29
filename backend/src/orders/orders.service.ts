@@ -36,15 +36,16 @@ export class OrdersService {
     try {
       const { date, customer, description, orderDetails } = createOrderDto;
       const number = orderNumber('DB-', 3);
+      const customerUpperCase = customer.toUpperCase();
       return await this.prismaService.$transaction(
         async (prisma): Promise<OrderEntity[] | any> => {
           try {
-            await this.customersService.create({ name: customer }, userId);
+            await this.customersService.create({ name: customerUpperCase }, userId);
             return await prisma.order.create({
               data: {
                 number,
                 date,
-                customer,
+                customer: customerUpperCase,
                 description,
                 userId,
                 OrderDetails: {

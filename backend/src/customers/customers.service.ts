@@ -19,15 +19,9 @@ export class CustomersService {
     try {
       return this.prismaService.customer.upsert({
         where: {
-          name: data.name,
+          name: name,
         },
-        update: {
-          name,
-          address,
-          contact,
-          email,
-          description,
-        },
+        update: {},
         create: {
           name,
           address,
