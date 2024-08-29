@@ -14,7 +14,7 @@ interface props {
 
 function userImage(user: User) {
   return (
-    <UserAvatar rounded userImage={user.image} size="md">
+    <UserAvatar rounded userImage={user.image} size="sm">
       <div className="space-y-1 font-medium dark:text-white">
         <div className="text-sm font-bold text-gray-500 dark:text-gray-400">{user.name}</div>
         <span className="text-xs font-extralight text-gray-500 dark:text-gray-400">@{user.username}</span>
