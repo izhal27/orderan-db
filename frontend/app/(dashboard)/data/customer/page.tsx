@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AddButton from "@/components/buttons/AddButton";
 import type { Customer } from "@/constants";
 import { showToast } from "@/helpers";
@@ -27,7 +27,7 @@ export default function PelangganPage() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     setLoading(true);
     if (!session) {
       return;
@@ -53,58 +53,57 @@ export default function PelangganPage() {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
-  };
+  }, [session, currentPage, limit, search]);
 
   useEffect(() => {
-    const fetcCostumers = async () => {
-      await fetchCustomers();
-    };
     if (session) {
-      fetcCostumers();
+      fetchCustomers();
     }
-  }, [session, currentPage, limit, search]);
+  }, [session, currentPage, limit, search, fetchCustomers]);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [limit]);
 
-  const onRemoveHandler = async () => {
-    const res = await fetch(`http://localhost:3002/api/customers/${deleteId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-    });
-    if (res.ok) {
-      const deletedObject = await res.json();
-      await fetchCustomers();
-      setOpenModal(false);
-      showToast(
-        "success",
-        `Pelanggan "${deletedObject.name}" berhasil dihapus.`,
+  const onRemoveHandler = useCallback(async () => {
+    try {
+      const res = await fetch(`http://localhost:3002/api/customers/${deleteId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      });
+      if (res.ok) {
+        const deletedObject = await res.json();
+        await fetchCustomers();
+        setOpenModal(false);
+        showToast("success", `Pelanggan "${deletedObject.name}" berhasil dihapus.`);
+      }
+    } catch (error) {
+      showToast("error", "Gagal menghapus data, coba lagi nanti.");
+    }
+  }, [deleteId, session, fetchCustomers]);
+
+  const table = useMemo(() => {
+    if (loading) {
+      return (
+        <SkeletonTable
+          columnsName={["Nama", "Alamat", "Kontak", "Email", "Keterangan", ""]}
+        />
+      );
+    } else {
+      return (
+        <CustomerTable
+          data={customers}
+          onEditHandler={(id) => router.push(`${pathName}/${id}`)}
+          onRemoveHandler={(id) => {
+            setDeleteId(id);
+            setOpenModal(true);
+          }}
+        />
       );
     }
-  };
-
-  let table = null;
-  if (loading) {
-    table = (
-      <SkeletonTable
-        columnsName={["Nama", "ALamat", "Kontak", "Email", "Keterangan", ""]}
-      />
-    );
-  } else {
-    table = (
-      <CustomerTable
-        data={customers}
-        onEditHandler={(id) => router.push(`${pathName}/${id}`)}
-        onRemoveHandler={(id) => {
-          setDeleteId(id);
-          setOpenModal(true);
-        }}
-      />
-    );
-  }
+  }, [loading, customers, pathName, router]);
 
   return (
     <main className="flex flex-col gap-4 p-4">
