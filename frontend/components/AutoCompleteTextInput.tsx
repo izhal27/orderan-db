@@ -102,6 +102,7 @@ export default function AutoCompleteTextInput<T>({
             setShowItems(true)
           }
         }}
+        onBlur={() => setShowItems(false)}
         onFocus={() => setShowItems(true)}
         onKeyDown={handleKeyDown}
       />
