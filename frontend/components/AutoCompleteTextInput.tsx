@@ -7,7 +7,7 @@ interface props<T> {
   fetchUrl: string;
   getDisplayValue: (item: T) => string;
   getKeyValue: (item: T) => string | number;
-  onSelect: (item: T) => void;
+  onSelect: (item: T | string) => void;
   minLength?: number;
   accessToken?: string;
   onEmptyQueryHandler?(): void;
@@ -62,6 +62,9 @@ export default function AutoCompleteTextInput<T>({
     if (!query.trim().length) {
       onEmptyQueryHandler && onEmptyQueryHandler();
     }
+    if (!items.length || activeIndex === -1) {
+      onSelect(query);
+    }
     return () => {
       debouncedFetchSuggestions.cancel();
     };
@@ -70,7 +73,6 @@ export default function AutoCompleteTextInput<T>({
   const handleSuggestionClick = (item: T) => {
     setQuery(getDisplayValue(item));
     setShowItems(false);
-    onSelect(item);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -81,6 +83,9 @@ export default function AutoCompleteTextInput<T>({
     } else if (e.key === 'Enter') {
       if (activeIndex >= 0 && activeIndex < items.length) {
         handleSuggestionClick(items[activeIndex]);
+      } else {
+        onSelect(query);
+        setShowItems(false);
       }
     }
   };

@@ -9,6 +9,7 @@ import {
   Delete,
   ForbiddenException,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -43,6 +44,28 @@ export class OrdersController {
   @ApiOkResponse({ type: OrderEntity, isArray: true })
   findAll() {
     return this.ordersService.findMany();
+  }
+
+  @Get('filter')
+  filterOrders(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('customer') customer?: string,
+    @Query('userId') userId?: number,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number) {
+    return this.ordersService.filter({
+      startDate: startDate ? new Date(startDate) : undefined,
+      endDate: endDate ? new Date(endDate) : undefined,
+      customer: customer ? customer : undefined,
+      userId: userId ? Number(userId) : undefined,
+      sortBy,
+      sortOrder,
+      page: page ? Number(page) : undefined,
+      pageSize: pageSize ? Number(pageSize) : undefined,
+    });
   }
 
   @Get(':id')

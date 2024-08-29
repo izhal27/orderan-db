@@ -25,7 +25,12 @@ export default function ListOrderPage() {
     if (!session) {
       return;
     }
-    const url = new URL(`http://localhost:3002/api/orders`);
+
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+    const url = new URL(`http://localhost:3002/api/orders/filter?startDate=${startOfDay}&endDate=${endOfDay}`);
     const searchParams = new URLSearchParams();
     const res = await fetch(`${url}?${searchParams}`, {
       headers: {
@@ -34,7 +39,8 @@ export default function ListOrderPage() {
       cache: "no-store",
     });
     if (res?.ok) {
-      setOrders(await res.json());
+      const { data } = await res.json();
+      setOrders(data);
     } else {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }

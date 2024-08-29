@@ -5,7 +5,6 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button, Label, TextInput } from "flowbite-react";
 import { HiDocumentAdd, HiSave, HiXCircle } from "react-icons/hi";
-import { CustomerFormData } from "@/constants/formTypes";
 import { OrderDetail, Order, Customer } from "@/constants/interfaces";
 import { showToast } from "@/helpers/toast";
 import BackButton from "@/components/buttons/BackButton";
@@ -47,7 +46,7 @@ export default function OrderAddEdit({ order }: props) {
   }, [order]);
 
   const onSubmit = async () => {
-    if (!readyForSave) {
+    if (someEmpty) {
       return;
     }
     return !isEditMode ? addHandler() : editHandler();
@@ -96,14 +95,12 @@ export default function OrderAddEdit({ order }: props) {
     return updatedData;
   };
 
-  const handleSelectCustomer = (customer: Customer) => {
-    setCustomer(customer.name);
+  const handleSelectCustomer = (data: any) => {
+    setCustomer(data)
   };
 
-  const readyForSave = customer.trim().length && orderDetails.some(item => item.name);
-
   useEffect(() => {
-    if (readyForSave) {
+    if (customer?.trim().length && orderDetails.some(item => item.name)) {
       setSomeEmpty(false);
     } else {
       setSomeEmpty(true);

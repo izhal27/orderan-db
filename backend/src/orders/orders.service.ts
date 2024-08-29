@@ -131,6 +131,106 @@ export class OrdersService {
     }
   }
 
+  async filter(params: {
+    startDate?: Date;
+    endDate?: Date;
+    customer?: string;
+    userId?: number;
+    sortBy?: string;
+    sortOrder?: Prisma.SortOrder;
+    page?: number;
+    pageSize?: number;
+  }) {
+    const {
+      startDate,
+      endDate,
+      customer,
+      userId,
+      sortBy = 'date', // Default sorting by 'createdAt'
+      sortOrder = 'desc', // Default sorting order 'desc'
+      page,
+      pageSize,
+    } = params;
+
+    const where: Prisma.OrderWhereInput = {};
+
+    if (startDate && endDate) {
+      where.date = {
+        gte: startDate,
+        lte: endDate,
+      };
+    }
+
+    if (customer) {
+      where.customer = customer;
+    }
+
+    if (userId) {
+      where.userId = userId;
+    }
+
+    let skip: number | undefined;
+    let take: number | undefined;
+
+    if (page && pageSize) {
+      skip = (page - 1) * pageSize;
+      take = pageSize;
+    }
+
+    const orders = await this.prismaService.order.findMany({
+      where,
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+      skip,
+      take, include: {
+        OrderDetails: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            width: true,
+            height: true,
+            qty: true,
+            design: true,
+            eyelets: true,
+            shiming: true,
+            description: true,
+            MarkedPrinted: true,
+            orderId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+        MarkedPay: true,
+        MarkedTaken: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            image: true,
+            password: false
+          },
+        },
+      },
+    });
+
+    const total = await this.prismaService.order.count({
+      where,
+    });
+
+    return {
+      data: orders,
+      meta: {
+        total,
+        page: page ?? 1,
+        pageSize: pageSize ?? total,
+        totalPages: pageSize ? Math.ceil(total / pageSize) : 1,
+      },
+    };
+  }
+
   async findUnique(
     where: Prisma.OrderWhereUniqueInput,
   ): Promise<OrderEntity | null> {
