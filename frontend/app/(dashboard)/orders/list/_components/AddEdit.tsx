@@ -30,19 +30,16 @@ export default function OrderAddEdit({ order }: props) {
   const modalRef = useRef<{
     setOrderdetailForm: (index: number, data: OrderDetail) => void
   }>(null);
-  const [customer, setCustomer] = useState('');
-  const [description, setDescription] = useState('');
+  const [customer, setCustomer] = useState<string | undefined>('');
+  const [description, setDescription] = useState<string | undefined>('');
   const [someEmpty, setSomeEmpty] = useState(true);
 
   useEffect(() => {
-    // setFocus("name");
-    // if (isEditMode && customer) {
-    //   setValue("name", customer.name);
-    //   setValue("address", customer.address);
-    //   setValue("contact", customer.contact);
-    //   setValue("email", customer.email);
-    //   setValue("description", customer.description);
-    // }
+    if (order) {
+      setCustomer(order?.customer);
+      setDescription(order?.description);
+      setOrderDetails(order.OrderDetails);
+    }
   }, [order]);
 
   const onSubmit = async () => {
@@ -143,6 +140,8 @@ export default function OrderAddEdit({ order }: props) {
                 onSelect={handleSelectCustomer}
                 accessToken={session?.accessToken}
                 onEmptyQueryHandler={() => setSomeEmpty(true)}
+                value={isEditMode ? customer : ''}
+                onChange={(newValue) => setCustomer(newValue)}
               />
             </div>
           </div>

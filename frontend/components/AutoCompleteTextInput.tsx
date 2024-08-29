@@ -11,6 +11,8 @@ interface props<T> {
   minLength?: number;
   accessToken?: string;
   onEmptyQueryHandler?(): void;
+  value?: string; // New prop to control the input value
+  onChange?: (value: string) => void; // New prop to handle input changes
 }
 
 export default function AutoCompleteTextInput<T>({
@@ -21,8 +23,10 @@ export default function AutoCompleteTextInput<T>({
   minLength = 3,
   accessToken,
   onEmptyQueryHandler,
+  value = '', // Default to empty string
+  onChange,
 }: props<T>) {
-  const [query, setQuery] = useState<string>('');
+  const [internalQuery, setInternalQuery] = useState<string>(value);
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
@@ -58,22 +62,40 @@ export default function AutoCompleteTextInput<T>({
   );
 
   useEffect(() => {
-    debouncedFetchSuggestions(query);
-    if (!query.trim().length) {
-      onEmptyQueryHandler && onEmptyQueryHandler();
-    }
-    if (!items.length || activeIndex === -1) {
-      onSelect(query);
+    if (!value) {
+      debouncedFetchSuggestions(internalQuery);
+      if (!internalQuery.trim().length) {
+        onEmptyQueryHandler && onEmptyQueryHandler();
+      }
+      if (!items.length || activeIndex === -1) {
+        onSelect(internalQuery);
+      }
     }
     return () => {
       debouncedFetchSuggestions.cancel();
     };
-  }, [query, debouncedFetchSuggestions]);
+  }, [internalQuery, debouncedFetchSuggestions]);
+
+  useEffect(() => {
+    setInternalQuery(value);
+  }, [value]);
 
   const handleSuggestionClick = (item: T) => {
-    setQuery(getDisplayValue(item));
+    const selectedValue = getDisplayValue(item);
+    setInternalQuery(selectedValue);
+    onChange && onChange(selectedValue);
     setShowItems(false);
   };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setInternalQuery(newValue);
+    onChange && onChange(newValue);
+    if (newValue.length === 0) {
+      setShowItems(true);
+    }
+  };
+
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown') {
@@ -84,7 +106,7 @@ export default function AutoCompleteTextInput<T>({
       if (activeIndex >= 0 && activeIndex < items.length) {
         handleSuggestionClick(items[activeIndex]);
       } else {
-        onSelect(query);
+        onSelect(internalQuery);
         setShowItems(false);
       }
     }
@@ -93,16 +115,11 @@ export default function AutoCompleteTextInput<T>({
   return (
     <div className="relative">
       <TextInput
+        disabled={!!value}
         id="generic-text-input"
         placeholder="Type to search..."
-        value={query}
-        onChange={(e) => {
-          setQuery(e.target.value);
-          if (query.length === 0) {
-            setShowItems(true)
-          }
-        }}
-        onBlur={() => setShowItems(false)}
+        value={internalQuery}
+        onChange={handleInputChange}
         onFocus={() => setShowItems(true)}
         onKeyDown={handleKeyDown}
       />
