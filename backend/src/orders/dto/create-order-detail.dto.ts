@@ -3,6 +3,10 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrderDetailDto {
   @IsString()
+  @IsOptional()
+  id: string
+
+  @IsString()
   @IsNotEmpty()
   @ApiProperty({
     example: 'FLEXY BANNER 280 GSM',
