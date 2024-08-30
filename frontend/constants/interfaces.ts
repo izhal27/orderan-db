@@ -47,6 +47,12 @@ export interface OrderDetail {
   shiming: boolean;
   description?: string;
   deleted?: boolean;
+  MarkedPrinted?: {
+    id: string,
+    status: boolean,
+    printAt: string,
+    description: string,
+  }
 }
 
 export interface Order {

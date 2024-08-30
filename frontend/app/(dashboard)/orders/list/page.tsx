@@ -86,6 +86,7 @@ export default function ListOrderPage() {
       <OrderTable
         data={orders}
         onEditHandler={(id) => router.push(`${pathName}/${id}`)}
+        onDetailHandler={(id) => router.push(`${pathName}/detail/${id}`)}
         onRemoveHandler={(id) => {
           setDeleteId(id);
           setOpenModal(true);
