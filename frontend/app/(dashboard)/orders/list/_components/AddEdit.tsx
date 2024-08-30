@@ -27,6 +27,7 @@ export default function OrderAddEdit({ order }: props) {
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [showConfirmSaveModal, setShowConfirmSaveModal] = useState(false);
   const [deletedIndex, setDeletedIndex] = useState<number | null>(null);
+  const [deletedOrderDetails, setDeletedOrderDetails] = useState<OrderDetail[]>([]);
   const modalRef = useRef<{
     setOrderdetailForm: (index: number, data: OrderDetail) => void
   }>(null);
@@ -38,12 +39,12 @@ export default function OrderAddEdit({ order }: props) {
     if (order) {
       setCustomer(order?.customer);
       setDescription(order?.description);
-      setOrderDetails(order.OrderDetails);
+      setOrderDetails([...order.OrderDetails]);
     }
   }, [order]);
 
   const onSubmit = async () => {
-    if (someEmpty) {
+    if (!session || someEmpty) {
       return;
     }
     return !isEditMode ? addHandler() : editHandler();
@@ -62,15 +63,15 @@ export default function OrderAddEdit({ order }: props) {
   };
 
   const editHandler = async () => {
-    // const res = await fetch(`http://localhost:3002/api/orders/${id}`, {
-    //   method: "PATCH",
-    //   headers: {
-    //     Authorization: `Bearer ${session?.accessToken}`,
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(data),
-    // });
-    // showInfo(res);
+    const res = await fetch(`http://localhost:3002/api/orders/${order?.id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ description, orderDetails: [...orderDetails, ...deletedOrderDetails] }),
+    });
+    showInfo(res);
   };
 
   function showInfo(res: Response) {
@@ -221,6 +222,11 @@ export default function OrderAddEdit({ order }: props) {
           openModal={showConfirmDeleteModal}
           onCloseHandler={() => setShowConfirmDeleteModal(false)}
           onYesHandler={() => {
+            if (isEditMode && deletedIndex !== -1) {
+              const deletedOd = orderDetails[deletedIndex!];
+              deletedOd.deleted = true;
+              setDeletedOrderDetails(prevState => [...prevState, deletedOd]);
+            }
             const updatedData = orderDetails.filter((_, i) => i !== deletedIndex);
             setOrderDetails([...updatedData]);
             setShowConfirmDeleteModal(false);

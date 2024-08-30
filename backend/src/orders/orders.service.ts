@@ -53,20 +53,7 @@ export class OrdersService {
                 },
               },
               include: {
-                OrderDetails: {
-                  select: {
-                    name: true,
-                    price: true,
-                    width: true,
-                    height: true,
-                    qty: true,
-                    design: true,
-                    eyelets: true,
-                    shiming: true,
-                    description: true,
-                    MarkedPrinted: true,
-                  },
-                },
+                OrderDetails: true,
                 user: {
                   select: {
                     id: true,
@@ -94,24 +81,7 @@ export class OrdersService {
     try {
       return this.prismaService.order.findMany({
         include: {
-          OrderDetails: {
-            select: {
-              id: true,
-              name: true,
-              price: true,
-              width: true,
-              height: true,
-              qty: true,
-              design: true,
-              eyelets: true,
-              shiming: true,
-              description: true,
-              MarkedPrinted: true,
-              orderId: true,
-              createdAt: true,
-              updatedAt: true,
-            },
-          },
+          OrderDetails: true,
           MarkedPay: true,
           MarkedTaken: true,
           user: {
@@ -184,24 +154,7 @@ export class OrdersService {
       },
       skip,
       take, include: {
-        OrderDetails: {
-          select: {
-            id: true,
-            name: true,
-            price: true,
-            width: true,
-            height: true,
-            qty: true,
-            design: true,
-            eyelets: true,
-            shiming: true,
-            description: true,
-            MarkedPrinted: true,
-            orderId: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
+        OrderDetails: true,
         MarkedPay: true,
         MarkedTaken: true,
         user: {
@@ -237,7 +190,11 @@ export class OrdersService {
     const order = await this.prismaService.order.findUnique({
       where,
       include: {
-        OrderDetails: true,
+        OrderDetails: {
+          orderBy: {
+            createdAt: 'asc'
+          }
+        },
         MarkedPay: true,
         MarkedTaken: true,
         user: {
@@ -263,13 +220,16 @@ export class OrdersService {
     userId: number,
   ): Promise<OrderEntity | any> {
     const { date, customer, description, orderDetails } = updateOrderDto;
-    const newOd = orderDetails!.filter(od => od.id === null); // order detail yang ditambahkan
-    const existOd = orderDetails?.filter(od => od.id !== null);
-    const updatedOd = existOd?.map((od) => ({
-      where: { id: od.id },
-      data: { ...od },
-    }));
+    const newOd = orderDetails!.filter(od => !('id' in od)); // order detail baru yang ditambahkan
+    const existOd = orderDetails!.filter(od => "id" in od && !od.deleted);
+    const updatedOd = existOd?.map((od) => ({ where: { id: od.id }, data: { ...od } }));
+    const deletedOd = orderDetails?.filter(od => od.deleted === true)
+      .map(od => od.id);
+
     try {
+      await this.prismaService.orderDetail.deleteMany({
+        where: { id: { in: deletedOd } }
+      });
       return await this.prismaService.order.update({
         where: { id },
         data: {
