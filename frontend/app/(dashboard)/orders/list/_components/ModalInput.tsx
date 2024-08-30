@@ -187,7 +187,7 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
                     id="width"
                     type="number"
                     color={errors.width && 'failure'}
-                    min={1}
+                    min={0}
                     max={100000}
                   />
                 </div>
@@ -200,7 +200,7 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
                     id="heigth"
                     type="number"
                     color={errors.height && 'failure'}
-                    min={1}
+                    min={0}
                     max={100000}
                   />
                 </div>
@@ -226,6 +226,7 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
                     id="design"
                     type="number"
                     color={errors.design && 'failure'}
+                    min={0}
                     max={1000}
                   />
                 </div>

@@ -68,11 +68,11 @@ export const orderDetailSchema = z.object({
   //   .min(5, "Nama Jenis pesanan minimal 3 karakter"),
   width: z
     .number()
-    .min(1, "Width minimal 1")
+    .min(0, "Width minimal 0")
     .max(100000, "Width maksimal 100000"),
   height: z
     .number()
-    .min(1, "Heigth minimal 1")
+    .min(0, "Heigth minimal 0")
     .max(100000, "Width maksimal 100000"),
   qty: z
     .number()
@@ -80,6 +80,7 @@ export const orderDetailSchema = z.object({
     .max(10000, "Qty maksimal 10000"),
   design: z
     .number()
+    .min(0, "Design minimal 0")
     .max(1000, "Design maksimal 1000")
     .optional()
     .or(z.literal(0)),
