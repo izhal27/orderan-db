@@ -39,7 +39,8 @@ export default function AutoCompleteTextInput<T>({
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
-        }
+        },
+        cache: 'no-store',
       });
       const data = await response.json();
       setItems(data);
