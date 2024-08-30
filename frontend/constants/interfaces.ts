@@ -58,4 +58,6 @@ export interface Order {
   userId: number;
   OrderDetails: OrderDetail[];
   user: User;
+  createdAt: string;
+  updatedAt: string;
 }

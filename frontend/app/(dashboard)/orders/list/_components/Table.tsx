@@ -49,7 +49,7 @@ export default function OrderTable({
               >
                 <Table.Cell>{userImage(item.user)}</Table.Cell>
                 <Table.Cell>{item.number}</Table.Cell>
-                <Table.Cell>{localDate(item.date, 'long', false, true).substring(0, 5)}</Table.Cell>
+                <Table.Cell>{localDate(item.updatedAt, 'long', false, true).substring(0, 5)}</Table.Cell>
                 <Table.Cell>{item.customer}</Table.Cell>
                 <Table.Cell>{item.description}</Table.Cell>
                 <Table.Cell><span className="px-2 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold" >ON PROSES</span></Table.Cell>
