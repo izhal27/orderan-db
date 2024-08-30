@@ -53,7 +53,20 @@ export class OrdersService {
                 },
               },
               include: {
-                OrderDetails: true,
+                OrderDetails: {
+                  select: {
+                    name: true,
+                    price: true,
+                    width: true,
+                    height: true,
+                    qty: true,
+                    design: true,
+                    eyelets: true,
+                    shiming: true,
+                    description: true,
+                    MarkedPrinted: true,
+                  },
+                },
                 user: {
                   select: {
                     id: true,
@@ -81,7 +94,25 @@ export class OrdersService {
     try {
       return this.prismaService.order.findMany({
         include: {
-          OrderDetails: true,
+          OrderDetails: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              width: true,
+              height: true,
+              qty: true,
+              design: true,
+              eyelets: true,
+              shiming: true,
+              description: true,
+              MarkedPrinted: true,
+              deleted: true,
+              orderId: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
           MarkedPay: true,
           MarkedTaken: true,
           user: {
@@ -94,6 +125,9 @@ export class OrdersService {
             },
           },
         },
+        orderBy: {
+          createdAt: 'desc'
+        }
       });
     } catch (error) {
       this.logger.error(error);
@@ -153,8 +187,23 @@ export class OrdersService {
         [sortBy]: sortOrder,
       },
       skip,
-      take, include: {
-        OrderDetails: true,
+      take,
+      include: {
+        OrderDetails: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            width: true,
+            height: true,
+            qty: true,
+            design: true,
+            eyelets: true,
+            shiming: true,
+            description: true,
+            MarkedPrinted: true,
+          },
+        },
         MarkedPay: true,
         MarkedTaken: true,
         user: {
@@ -191,6 +240,23 @@ export class OrdersService {
       where,
       include: {
         OrderDetails: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            width: true,
+            height: true,
+            qty: true,
+            design: true,
+            eyelets: true,
+            shiming: true,
+            description: true,
+            MarkedPrinted: true,
+            deleted: true,
+            orderId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
           orderBy: {
             createdAt: 'asc'
           }
@@ -245,7 +311,20 @@ export class OrdersService {
           },
         },
         include: {
-          OrderDetails: true,
+          OrderDetails: {
+            select: {
+              name: true,
+              price: true,
+              width: true,
+              height: true,
+              qty: true,
+              design: true,
+              eyelets: true,
+              shiming: true,
+              description: true,
+              MarkedPrinted: true,
+            },
+          },
           user: {
             select: {
               id: true,
