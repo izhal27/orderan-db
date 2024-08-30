@@ -9,6 +9,7 @@ import UserAvatar from "@/components/UserAvatar";
 interface props {
   data: Order[];
   onEditHandler(id: string): void;
+  onDetailHandler(id: string): void;
   onRemoveHandler(id: string): void;
 }
 
@@ -26,6 +27,7 @@ function userImage(user: User) {
 export default function OrderTable({
   data,
   onEditHandler,
+  onDetailHandler,
   onRemoveHandler,
 }: props) {
   return (
@@ -57,7 +59,7 @@ export default function OrderTable({
                   <div className="flex gap-2 justify-center">
                     <HiDocumentSearch
                       className="cursor-pointer text-blue-500"
-                      onClick={() => onEditHandler(item.id)}
+                      onClick={() => onDetailHandler(item.id)}
                     />
                     <HiPencil
                       className="cursor-pointer text-blue-500"
