@@ -46,6 +46,7 @@ export interface OrderDetail {
   eyelets: boolean;
   shiming: boolean;
   description?: string;
+  deleted?: boolean;
 }
 
 export interface Order {

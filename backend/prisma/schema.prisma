@@ -62,6 +62,7 @@ model OrderDetail {
   eyelets       Boolean        @default(false)
   shiming       Boolean        @default(false)
   description   String?
+  deleted       Boolean?       @default(false)
   Order         Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId       String
   MarkedPrinted PrintedStatus?
