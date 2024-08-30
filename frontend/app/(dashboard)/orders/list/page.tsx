@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { showToast } from "@/helpers";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
@@ -19,8 +19,9 @@ export default function ListOrderPage() {
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
+  const fetchedRef = useRef(false);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     if (!session) {
       return;
@@ -30,9 +31,11 @@ export default function ListOrderPage() {
     const startOfDay = new Date(today.setHours(0, 0, 0, 0));
     const endOfDay = new Date(today.setHours(23, 59, 59, 999));
 
+    console.log('Start date: ' + new Date(startOfDay));
+    console.log('End date: ' + new Date(endOfDay));
+
     const url = new URL(`http://localhost:3002/api/orders/filter?startDate=${startOfDay}&endDate=${endOfDay}`);
-    const searchParams = new URLSearchParams();
-    const res = await fetch(`${url}?${searchParams}`, {
+    const res = await fetch(`${url}`, {
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
       },
@@ -45,18 +48,16 @@ export default function ListOrderPage() {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
-  };
+  }, [session]);
 
   useEffect(() => {
-    const fetcCostumers = async () => {
-      await fetchOrders();
-    };
-    if (session) {
-      fetcCostumers();
+    if (session && session.accessToken && !fetchedRef.current) {
+      fetchOrders();
+      fetchedRef.current = true;
     }
   }, [session]);
 
-  const onRemoveHandler = async () => {
+  const onRemoveHandler = useCallback(async () => {
     const res = await fetch(`http://localhost:3002/api/orders/${deleteId}`, {
       method: "DELETE",
       headers: {
@@ -72,7 +73,7 @@ export default function ListOrderPage() {
         `Order "${deletedObject.name}" berhasil dihapus.`,
       );
     }
-  };
+  }, [session, deleteId]);
 
   let table = null;
   if (loading) {

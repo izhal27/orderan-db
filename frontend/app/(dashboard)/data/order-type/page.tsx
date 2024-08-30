@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { OrderTypeTable } from "./_components/Table";
@@ -18,8 +18,13 @@ export default function JenisPesananPage() {
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>();
   const [loading, setLoading] = useState(true);
+  const fetchedRef = useRef(false);
 
-  useEffect(() => {
+  const fetchOrderTypes = useCallback(async () => {
+    setLoading(true);
+    if (!session) {
+      return;
+    }
     setLoading(true);
     const fetchData = async () => {
       const res = await fetch("http://localhost:3002/api/order-types", {
@@ -34,10 +39,16 @@ export default function JenisPesananPage() {
         showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
       }
     };
-    if (session) {
-      fetchData();
-    }
+    await fetchData();
     setLoading(false);
+  }, []);
+
+
+  useEffect(() => {
+    if (session && session.accessToken && !fetchedRef.current) {
+      fetchOrderTypes();
+      fetchedRef.current = true;
+    }
   }, [session]);
 
   const onRemoveHandler = async () => {
@@ -64,25 +75,26 @@ export default function JenisPesananPage() {
     }
   };
 
-  let table = null;
-  if (loading) {
-    table = (
-      <SkeletonTable
-        columnsName={["Nama", "ALamat", "Kontak", "Email", "Keterangan", ""]}
-      />
-    );
-  } else {
-    table = (
-      <OrderTypeTable
-        data={orderTypes}
-        onEditHandler={(id) => router.push(`${pathName}/${id}`)}
-        onRemoveHandler={(id) => {
-          setDeleteId(id);
-          setOpenModal(true);
-        }}
-      />
-    );
-  }
+  const table = useMemo(() => {
+    if (loading) {
+      return (
+        <SkeletonTable
+          columnsName={["Nama", "ALamat", "Kontak", "Email", "Keterangan", ""]}
+        />
+      );
+    } else {
+      return (
+        <OrderTypeTable
+          data={orderTypes}
+          onEditHandler={(id) => router.push(`${pathName}/${id}`)}
+          onRemoveHandler={(id) => {
+            setDeleteId(id);
+            setOpenModal(true);
+          }}
+        />
+      );
+    }
+  }, [loading, orderTypes, pathName, router]);
 
   return (
     <main className="flex flex-col gap-4 p-4">

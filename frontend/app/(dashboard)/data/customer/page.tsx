@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AddButton from "@/components/buttons/AddButton";
 import type { Customer } from "@/constants";
 import { showToast } from "@/helpers";
@@ -26,6 +26,7 @@ export default function PelangganPage() {
   const [totalData, setTotalData] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const fetchedRef = useRef(false);
 
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
@@ -53,13 +54,20 @@ export default function PelangganPage() {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
-  }, [session, currentPage, limit, search]);
+  }, [currentPage, limit, search]);
 
   useEffect(() => {
-    if (session) {
+    if (session && session.accessToken && !fetchedRef.current) {
+      fetchCustomers();
+      fetchedRef.current = true;
+    }
+  }, [session]);
+
+  useEffect(() => {
+    if (session && session.accessToken) {
       fetchCustomers();
     }
-  }, [session, currentPage, limit, search, fetchCustomers]);
+  }, [currentPage, limit, search, fetchCustomers]);
 
   useEffect(() => {
     setCurrentPage(1);
