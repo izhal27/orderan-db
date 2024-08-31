@@ -9,6 +9,7 @@ import SkeletonTable from "@/components/SkeletonTable";
 import { OrderType } from "@/constants";
 import { showToast } from "@/helpers";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useApiClient } from "@/lib/apiClient";
 
 export default function JenisPesananPage() {
   const { data: session } = useSession();
@@ -19,30 +20,18 @@ export default function JenisPesananPage() {
   const [deleteId, setDeleteId] = useState<number | null>();
   const [loading, setLoading] = useState(true);
   const fetchedRef = useRef(false);
+  const { request } = useApiClient()
 
   const fetchOrderTypes = useCallback(async () => {
     setLoading(true);
-    if (!session) {
-      return;
+    try {
+      const data = await request('/order-types');
+      setOrderTypes(data);
+    } catch (error) {
+      showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
-    setLoading(true);
-    const fetchData = async () => {
-      const res = await fetch("http://localhost:3002/api/order-types", {
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-        cache: "no-store",
-      });
-      if (res.ok) {
-        setOrderTypes(await res.json());
-      } else {
-        showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
-      }
-    };
-    await fetchData();
     setLoading(false);
-  }, []);
-
+  }, [session?.accessToken]);
 
   useEffect(() => {
     if (session && session.accessToken && !fetchedRef.current) {
@@ -51,29 +40,22 @@ export default function JenisPesananPage() {
     }
   }, [session]);
 
-  const onRemoveHandler = async () => {
-    const res = await fetch(
-      `http://localhost:3002/api/order-types/${deleteId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-      },
-    );
-    if (res.ok) {
-      const deletedObject = await res.json();
-      const updatedOrderTypes = orderTypes.filter(
+  const onRemoveHandler = useCallback(async () => {
+    try {
+      const url = `/order-types/${deleteId}`;
+      const deletedObject = await request(`${url}`, { method: "DELETE", body: "" });
+      setOrderTypes(prevState => prevState.filter(
         (item) => item.id !== deletedObject.id,
-      );
-      setOrderTypes(updatedOrderTypes);
-      setOpenModal(false);
+      ));
       showToast(
         "success",
         `Jenis Pesanan "${deletedObject.name}" berhasil dihapus.`,
       );
+    } catch (error) {
+      showToast("error", "Gagal menghapus data, coba lagi nanti.");
     }
-  };
+    setOpenModal(false);
+  }, [session?.accessToken, deleteId]);
 
   const table = useMemo(() => {
     if (loading) {

@@ -1,15 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { showToast } from "@/helpers";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import type { Order } from "@/constants";
 import OrderTable from "./_components/Table";
+import { Order } from "@/constants";
+import { showToast } from "@/helpers";
 import AddButton from "@/components/buttons/AddButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import SkeletonTable from "@/components/SkeletonTable";
 import getLocalDate from "@/lib/getLocalDate";
+import { useApiClient } from "@/lib/apiClient";
 
 export default function ListOrderPage() {
   const { data: session } = useSession();
@@ -20,35 +21,22 @@ export default function ListOrderPage() {
   const [deleteId, setDeleteId] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
   const fetchedRef = useRef(false);
+  const { request } = useApiClient();
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
-    if (!session) {
-      return;
-    }
-
-    const today = new Date();
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-
-    console.log('Start date: ' + new Date(startOfDay));
-    console.log('End date: ' + new Date(endOfDay));
-
-    const url = new URL(`http://localhost:3002/api/orders/filter?startDate=${startOfDay}&endDate=${endOfDay}`);
-    const res = await fetch(`${url}`, {
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      cache: "no-store",
-    });
-    if (res?.ok) {
-      const { data } = await res.json();
+    try {
+      const today = new Date();
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+      const url = `/orders/filter?startDate=${startOfDay}&endDate=${endOfDay}`;
+      const { data } = await request(url);
       setOrders(data);
-    } else {
+    } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
-  }, [session]);
+  }, [session?.accessToken]);
 
   useEffect(() => {
     if (session && session.accessToken && !fetchedRef.current) {
@@ -73,28 +61,29 @@ export default function ListOrderPage() {
         `Order "${deletedObject.name}" berhasil dihapus.`,
       );
     }
-  }, [session, deleteId]);
+  }, [session?.accessToken, deleteId]);
 
-  let table = null;
-  if (loading) {
-    table = (
-      <SkeletonTable
-        columnsName={["User", "Nomor", "Tanggal", "Pelanggan", "Keterangan", "Status", ""]}
-      />
-    );
-  } else {
-    table = (
-      <OrderTable
-        data={orders}
-        onEditHandler={(id) => router.push(`${pathName}/${id}`)}
-        onDetailHandler={(id) => router.push(`${pathName}/detail/${id}`)}
-        onRemoveHandler={(id) => {
-          setDeleteId(id);
-          setOpenModal(true);
-        }}
-      />
-    );
-  }
+  const table = useMemo(() => {
+    if (loading) {
+      return (
+        <SkeletonTable
+          columnsName={["User", "Nomor", "Tanggal", "Pelanggan", "Keterangan", "Status", ""]}
+        />
+      );
+    } else {
+      return (
+        <OrderTable
+          data={orders}
+          onEditHandler={(id) => router.push(`${pathName}/${id}`)}
+          onDetailHandler={(id) => router.push(`${pathName}/detail/${id}`)}
+          onRemoveHandler={(id) => {
+            setDeleteId(id);
+            setOpenModal(true);
+          }}
+        />
+      );
+    }
+  }, [loading, orders, pathName, router]);
 
   return (
     <main className="flex flex-col gap-4 p-4">

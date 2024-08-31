@@ -12,6 +12,7 @@ import SkeletonTable from "@/components/SkeletonTable";
 import SelectInput from "@/components/SelectInput";
 import SearchInput from "@/components/SearchInput";
 import PaginationTable from "@/components/Pagination";
+import { useApiClient } from "@/lib/apiClient";
 
 export default function PelangganPage() {
   const { data: session } = useSession();
@@ -27,34 +28,26 @@ export default function PelangganPage() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const fetchedRef = useRef(false);
+  const { request } = useApiClient();
 
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
-    if (!session) {
-      return;
-    }
-    const url = new URL(`http://localhost:3002/api/customers`);
+    const url = `/customers`;
     const searchParams = new URLSearchParams();
     const page = search ? "1" : currentPage.toString();
     searchParams.append("page", page);
     searchParams.append("limit", limit.toString());
     search && searchParams.append("search", search);
-    const res = await fetch(`${url}?${searchParams}`, {
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      cache: "no-store",
-    });
-    if (res?.ok) {
-      const { data, total, totalPages } = await res.json();
+    try {
+      const { data, total, totalPages } = await request(`${url}?${searchParams}`);
       setCustomers(data);
       setTotalData(total);
       setTotalPages(totalPages);
-    } else {
+    } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
-  }, [currentPage, limit, search]);
+  }, [session?.accessToken, currentPage, limit, search]);
 
   useEffect(() => {
     if (session && session.accessToken && !fetchedRef.current) {
@@ -64,10 +57,8 @@ export default function PelangganPage() {
   }, [session]);
 
   useEffect(() => {
-    if (session && session.accessToken) {
-      fetchCustomers();
-    }
-  }, [currentPage, limit, search, fetchCustomers]);
+    fetchCustomers();
+  }, [currentPage, limit, search]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -75,22 +66,15 @@ export default function PelangganPage() {
 
   const onRemoveHandler = useCallback(async () => {
     try {
-      const res = await fetch(`http://localhost:3002/api/customers/${deleteId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-      });
-      if (res.ok) {
-        const deletedObject = await res.json();
-        await fetchCustomers();
-        setOpenModal(false);
-        showToast("success", `Pelanggan "${deletedObject.name}" berhasil dihapus.`);
-      }
+      const url = `/customers/${deleteId}`;
+      const deletedObject = await request(`${url}`, { method: "DELETE", body: "" });;
+      await fetchCustomers();
+      showToast("success", `Pelanggan "${deletedObject.name}" berhasil dihapus.`);
     } catch (error) {
       showToast("error", "Gagal menghapus data, coba lagi nanti.");
     }
-  }, [deleteId, session, fetchCustomers]);
+    setOpenModal(false);
+  }, [session?.accessToken, deleteId]);
 
   const table = useMemo(() => {
     if (loading) {

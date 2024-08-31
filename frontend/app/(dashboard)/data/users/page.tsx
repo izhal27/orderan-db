@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { User } from "@/constants/interfaces";
@@ -9,6 +9,7 @@ import { UsersTable } from "./_components/Table";
 import SkeletonTable from "@/components/SkeletonTable";
 import { showToast } from "@/helpers";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useApiClient } from "@/lib/apiClient";
 
 export default function UsersPage() {
   const { data: session } = useSession();
@@ -18,29 +19,28 @@ export default function UsersPage() {
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>();
   const [loading, setLoading] = useState(true);
+  const fetchedRef = useRef(false);
+  const { request } = useApiClient();
 
-  useEffect(() => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
-    const fetchData = async () => {
-      const res = await fetch("http://localhost:3002/api/users", {
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-        cache: "no-store",
-      });
-      if (res.ok) {
-        setUsers(await res.json());
-      } else {
-        showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
-      }
-    };
-    if (session) {
-      fetchData();
+    try {
+      const data = await request('/users');
+      setUsers(data);
+    } catch (error) {
+      showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
+  }, [session?.accessToken]);
+
+  useEffect(() => {
+    if (session && session.accessToken && !fetchedRef.current) {
+      fetchUsers();
+      fetchedRef.current = true;
+    }
   }, [session]);
 
-  const onRemoveHandler = async () => {
+  const onRemoveHandler = useCallback(async () => {
     // periksa jika user yang mempunyai role admin masih ada setelah user dihapus
     // jika tidak, tampilkan error
     const filteredUsers = users.filter((user) => user.id !== deleteId);
@@ -51,46 +51,41 @@ export default function UsersPage() {
       showToast("error", "Minimal harus ada satu admin user.");
       setOpenModal(false);
     } else {
-      const res = await fetch(`http://localhost:3002/api/users/${deleteId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-      });
-      if (res.ok) {
-        const deletedObject = await res.json();
-        const updatedOrderTypes = users.filter(
+      try {
+        const url = `/users/${deleteId}`;
+        const deletedObject = await request(`${url}`, { method: "DELETE", body: "" });
+        setUsers(prevState => prevState.filter(
           (item) => item.id !== deletedObject.id,
+        ));
+        showToast("success", `User "${deletedObject.username}" berhasil dihapus.`,
         );
-        setUsers(updatedOrderTypes);
-        setOpenModal(false);
-        showToast(
-          "success",
-          `User "${deletedObject.username}" berhasil dihapus.`,
-        );
+      } catch (error) {
+        showToast("error", "Gagal menghapus data, coba lagi nanti.");
       }
+      setOpenModal(false);
     }
-  };
+  }, [session?.accessToken, deleteId]);
 
-  let table = null;
-  if (loading) {
-    table = (
-      <SkeletonTable
-        columnsName={["Username", "Email", "Nama", "Blocked", "Role", ""]}
-      />
-    );
-  } else {
-    table = (
-      <UsersTable
-        data={users}
-        onEditHandler={(id) => router.push(`${pathName}/${id}`)}
-        onRemoveHandler={(id) => {
-          setDeleteId(id);
-          setOpenModal(true);
-        }}
-      />
-    );
-  }
+  const table = useMemo(() => {
+    if (loading) {
+      return (
+        <SkeletonTable
+          columnsName={["Username", "Email", "Nama", "Blocked", "Role", ""]}
+        />
+      );
+    } else {
+      return (
+        <UsersTable
+          data={users}
+          onEditHandler={(id) => router.push(`${pathName}/${id}`)}
+          onRemoveHandler={(id) => {
+            setDeleteId(id);
+            setOpenModal(true);
+          }}
+        />
+      );
+    }
+  }, [loading, users, pathName, router]);
 
   return (
     <main className="flex flex-col gap-4 p-4">
