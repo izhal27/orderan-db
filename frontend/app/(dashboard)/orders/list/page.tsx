@@ -11,6 +11,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import SkeletonTable from "@/components/SkeletonTable";
 import getLocalDate from "@/lib/getLocalDate";
 import { useApiClient } from "@/lib/apiClient";
+import moment from 'moment-timezone'
 
 export default function ListOrderPage() {
   const { data: session } = useSession();
@@ -26,10 +27,10 @@ export default function ListOrderPage() {
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const today = new Date();
-      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-      const url = `/orders/filter?startDate=${startOfDay}&endDate=${endOfDay}`;
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      var start = moment.tz(timezone).startOf('day').utc();
+      var end = moment.tz(timezone).endOf('day').utc();
+      const url = `/orders/filter?startDate=${start.format()}&endDate=${end.format()}`;
       const { data } = await request(url);
       setOrders(data);
     } catch (error) {
