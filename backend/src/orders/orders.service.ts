@@ -150,7 +150,7 @@ export class OrdersService {
       endDate,
       customer,
       userId,
-      sortBy = 'date', // Default sorting by 'createdAt'
+      sortBy = 'updatedAt', // Default sorting by 'createdAt'
       sortOrder = 'desc', // Default sorting order 'desc'
       page,
       pageSize,
