@@ -14,7 +14,7 @@ import { useApiClient } from "@/lib/apiClient";
 import moment from 'moment-timezone'
 
 export default function ListOrderPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathName = usePathname();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -25,6 +25,9 @@ export default function ListOrderPage() {
   const { request } = useApiClient();
 
   const fetchOrders = useCallback(async () => {
+    if (!session?.accessToken) {
+      return;
+    }
     setLoading(true);
     try {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -65,7 +68,7 @@ export default function ListOrderPage() {
   }, [session?.accessToken, deleteId]);
 
   const table = useMemo(() => {
-    if (loading) {
+    if (loading || status === 'loading') {
       return (
         <SkeletonTable
           columnsName={["User", "Nomor", "Tanggal", "Pelanggan", "Keterangan", "Status", ""]}

@@ -15,7 +15,7 @@ import PaginationTable from "@/components/Pagination";
 import { useApiClient } from "@/lib/apiClient";
 
 export default function PelangganPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathName = usePathname();
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -31,6 +31,9 @@ export default function PelangganPage() {
   const { request } = useApiClient();
 
   const fetchCustomers = useCallback(async () => {
+    if (!session?.accessToken) {
+      return;
+    }
     setLoading(true);
     const url = `/customers`;
     const searchParams = new URLSearchParams();
@@ -77,7 +80,7 @@ export default function PelangganPage() {
   }, [session?.accessToken, deleteId]);
 
   const table = useMemo(() => {
-    if (loading) {
+    if (loading || status === 'loading') {
       return (
         <SkeletonTable
           columnsName={["Nama", "Alamat", "Kontak", "Email", "Keterangan", ""]}
