@@ -21,7 +21,7 @@ export class MarkPayDto {
     example: '2024-08-05T05:41:49.371Z',
     description: 'Pay date',
   })
-  payAt: Date;
+  payAt: string;
 
   @IsString()
   @IsOptional()
