@@ -1,5 +1,5 @@
 import { OrderDetail } from "@/constants";
-import { Button, Table } from "flowbite-react";
+import { Button, Checkbox, Table } from "flowbite-react";
 import React, { useState } from "react";
 import { HiChevronRight, HiChevronDown } from "react-icons/hi2";
 import { twMerge } from "tailwind-merge";
@@ -10,7 +10,6 @@ interface props {
 
 export default function TableShowDetail({ data }: props) {
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
-  console.log(JSON.stringify(data, null, 4));
 
   const toggleRow = (id: string) => {
     setExpandedRowId(expandedRowId === id ? null : id);
@@ -26,7 +25,7 @@ export default function TableShowDetail({ data }: props) {
         <Table.HeadCell className="text-center">Mata Ayam</Table.HeadCell>
         <Table.HeadCell className="text-center">Shiming</Table.HeadCell>
         <Table.HeadCell className="text-center">Keterangan</Table.HeadCell>
-        <Table.HeadCell className="text-center"></Table.HeadCell>
+        <Table.HeadCell className="text-center">Dicetak</Table.HeadCell>
       </Table.Head>
       <Table.Body className="divide-y">
         {data?.map((item: OrderDetail, index) => {
@@ -44,28 +43,12 @@ export default function TableShowDetail({ data }: props) {
                 <Table.Cell>{item.shiming ? 'Ya' : 'Tidak'}</Table.Cell>
                 <Table.Cell>{item.description}</Table.Cell>
                 <Table.Cell>
-                  <span onClick={() => toggleRow(item.id)} color="gray" className="cursor-pointer">
-                    {expandedRowId === item.id ? (
-                      <HiChevronDown className="h-5 w-5" />
-                    ) : (
-                      <HiChevronRight className="h-5 w-5" />
-                    )}
-                  </span>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell colSpan={9} className="p-0">
-                  <div className={twMerge(expandedRowId === item.id ? 'block' : 'hidden')}>
-                    <div className="p-4 bg-gray-200 dark:bg-gray-600 ">
-                      <div className="text-gray-600 dark:text-gray-200">
-                        {item.name}
-                        {item.MarkedPrinted?.status}
-                      </div>
-                    </div>
+                  <div className="flex flex-col items-center">
+                    <Checkbox id="marked-pay" />
+                    <span className="text-xs font-light">Oleh Username</span>
                   </div>
                 </Table.Cell>
               </Table.Row>
-
             </React.Fragment>
           );
         })}
