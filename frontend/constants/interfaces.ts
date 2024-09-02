@@ -64,6 +64,22 @@ export interface Order {
   userId: number;
   OrderDetails: OrderDetail[];
   user: User;
+  MarkedPay: {
+    id: string,
+    status: boolean
+    payAt: string, // DateTime
+    description?: string,
+    MarkedBy?: User,
+    markedById?: number,
+  }
+  MarkedTaken: {
+    id: string,
+    status: boolean
+    takenAt: string, // DateTime
+    description?: string,
+    MarkedBy?: User,
+    markedById?: number,
+  },
   createdAt: string;
   updatedAt: string;
 }

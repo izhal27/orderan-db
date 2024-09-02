@@ -16,12 +16,22 @@ interface props {
 function userImage(user: User) {
   return (
     <UserAvatar rounded userImage={user?.image} size="sm">
-      <div className="space-y-1 font-medium dark:text-white">
+      <div className="flex flex-col gap-1 items-start font-medium dark:text-white">
         <div className="text-sm font-bold text-gray-500 dark:text-gray-400">{user?.name}</div>
         <span className="text-xs font-extralight text-gray-500 dark:text-gray-400">@{user?.username}</span>
       </div>
     </UserAvatar >
   );
+}
+
+const getStatus = (order: Order) => {
+  let status: any = '-';
+  if ((order.MarkedPay || order.OrderDetails.some(od => od.MarkedPrinted) && !order.MarkedTaken)) {
+    status = <span className="px-2 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold" >ON PROSES</span>
+  } else if (order.MarkedTaken) {
+    status = <span className="px-2 py-1 bg-gray-500 dark:bg-green-400 rounded-full text-white dark:text-green-700 text-xs font-semibold" >SELESAI</span>
+  }
+  return status;
 }
 
 export default function OrderTable({
@@ -49,12 +59,12 @@ export default function OrderTable({
                 key={item.id}
                 className="bg-white dark:border-gray-700 dark:bg-gray-800 text-center"
               >
-                <Table.Cell>{userImage(item.user)}</Table.Cell>
+                <Table.Cell className="flex">{userImage(item.user)}</Table.Cell>
                 <Table.Cell>{item.number}</Table.Cell>
                 <Table.Cell>{localDate(item.updatedAt, 'long', false, true).substring(0, 5)}</Table.Cell>
                 <Table.Cell>{item.customer}</Table.Cell>
                 <Table.Cell>{item.description}</Table.Cell>
-                <Table.Cell><span className="px-2 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold" >ON PROSES</span></Table.Cell>
+                <Table.Cell>{getStatus(item)}</Table.Cell>
                 <Table.Cell>
                   <div className="flex gap-2 justify-center">
                     <HiDocumentSearch

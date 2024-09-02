@@ -68,7 +68,7 @@ export default function ListOrderPage() {
   }, [session?.accessToken, deleteId]);
 
   const table = useMemo(() => {
-    if (loading || status === 'loading') {
+    if (loading) {
       return (
         <SkeletonTable
           columnsName={["User", "Nomor", "Tanggal", "Pelanggan", "Keterangan", "Status", ""]}
