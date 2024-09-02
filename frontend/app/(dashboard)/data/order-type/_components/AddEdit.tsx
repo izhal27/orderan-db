@@ -3,6 +3,7 @@
 import BackButton from "@/components/buttons/BackButton";
 import type { OrderTypeFormData } from "@/constants/formTypes";
 import type { OrderType } from "@/constants/interfaces";
+import { useLoading } from "@/context/LoadingContext";
 import { showToast } from "@/helpers/toast";
 import { orderTypeSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,10 +26,11 @@ export default function OrderTypeAddEdit({ orderType }: props) {
     handleSubmit,
     setValue,
     setFocus,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<OrderTypeFormData>({
     resolver: zodResolver(orderTypeSchema),
   });
+  const { isLoading, setLoading } = useLoading();
 
   useEffect(() => {
     setFocus("name");
@@ -39,6 +41,7 @@ export default function OrderTypeAddEdit({ orderType }: props) {
   }, [orderType]);
 
   const onSubmit = async (data: OrderTypeFormData) => {
+    setLoading(true);
     return !isEditMode ? addHandler(data) : editHandler(orderType!.id, data);
   };
 
@@ -72,12 +75,14 @@ export default function OrderTypeAddEdit({ orderType }: props) {
         "success",
         `Jenis Pesanan "${orderType.name}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
       );
+      setLoading(false);
       router.back();
     } else if (res.status == 409) {
       showToast("error", "Nama sudah digunakan, coba dengan nama yang lain.");
     } else {
       showToast("error", "Terjadi kesalahan, coba lagi nanti.");
     }
+    setLoading(false);
   }
 
   return (
@@ -112,9 +117,9 @@ export default function OrderTypeAddEdit({ orderType }: props) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button color={"blue"} type="submit" disabled={isSubmitting}>
-            {isSubmitting && <Spinner size={"sm"} />}
-            <span className={isSubmitting ? "pl-3" : ""}>
+          <Button color={"blue"} type="submit" disabled={isLoading}>
+            {isLoading && <Spinner size={"sm"} />}
+            <span className={isLoading ? "pl-3" : ""}>
               {isEditMode ? "Simpan" : "Tambah"}
             </span>
           </Button>

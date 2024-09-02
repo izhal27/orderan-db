@@ -6,6 +6,8 @@ import { flowbiteTheme } from "./theme";
 import { twMerge } from "tailwind-merge";
 import ToastProvider from "@/context/ToastProvider";
 import "./globals.css";
+import { LoadingProvider } from "@/context/LoadingContext";
+import { LoadingModal } from "@/components/LoadingModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,7 +30,10 @@ const RootLayout: FC<PropsWithChildren> = function ({ children }) {
       <body className={twMerge("bg-gray-50 dark:bg-gray-900", inter.className)}>
         <SessionProvider>
           <Flowbite theme={{ theme: flowbiteTheme }}>
-            <ToastProvider>{children}</ToastProvider>
+            <LoadingProvider>
+              <ToastProvider>{children}</ToastProvider>
+              <LoadingModal />
+            </LoadingProvider>
           </Flowbite>
         </SessionProvider>
       </body>
