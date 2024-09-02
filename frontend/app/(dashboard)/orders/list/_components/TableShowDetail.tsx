@@ -1,19 +1,56 @@
 import { OrderDetail } from "@/constants";
-import { Button, Checkbox, Table } from "flowbite-react";
-import React, { useState } from "react";
-import { HiChevronRight, HiChevronDown } from "react-icons/hi2";
-import { twMerge } from "tailwind-merge";
+import { useLoading } from "@/context/LoadingContext";
+import { showToast } from "@/helpers";
+import { useApiClient } from "@/lib/apiClient";
+import { Checkbox, Table } from "flowbite-react";
+import debounce from "lodash.debounce";
+import { useSession } from "next-auth/react";
+import React, { useCallback, useEffect, useState } from "react";
 
 interface props {
   data: OrderDetail[];
 }
 
 export default function TableShowDetail({ data }: props) {
-  const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+  const { data: session } = useSession();
+  const { request } = useApiClient();
+  const { setLoading } = useLoading();
 
-  const toggleRow = (id: string) => {
-    setExpandedRowId(expandedRowId === id ? null : id);
+  const sendPostRequest = async (isChecked: boolean, id: string) => {
+    setLoading(true);
+    try {
+      if (isChecked) {
+        const data = await request(`/orders/detail/${id}/print`, {
+          method: 'POST',
+          body: {
+            status: true,
+            printAt: new Date().toISOString()
+          }
+        });
+        showToast('success', 'Berhasil ditandai sudah dicetak');
+      } else {
+        await request(`/orders/detail/${id}/cancel-print`, {
+          method: 'POST',
+          body: {
+            status: true,
+            printAt: new Date().toISOString()
+          }
+        });
+        showToast('warning', 'Berhasil menghapus tanda sudah dicetak');
+      }
+    } catch (error) {
+      showToast('error', 'Terjadi kesalahan, coba lagi nanti');
+    }
+    setLoading(false);
   };
+
+  const debouncedPostRequest = useCallback(debounce(sendPostRequest, 500), [session?.accessToken]);
+
+  const handleCheckboxClick = (e: any, id: string) => {
+    const isChecked = e.target.checked;
+    debouncedPostRequest(isChecked, id);
+  };
+
   return (
     <Table>
       <Table.Head>
@@ -44,8 +81,11 @@ export default function TableShowDetail({ data }: props) {
                 <Table.Cell>{item.description}</Table.Cell>
                 <Table.Cell>
                   <div className="flex flex-col items-center">
-                    <Checkbox id="marked-pay" />
-                    <span className="text-xs font-light">Oleh Username</span>
+                    <Checkbox
+                      id="marked-printed"
+                      onClick={(e) => handleCheckboxClick(e, item.id)}
+                      defaultChecked={item.MarkedPrinted?.status} />
+                    <span className="text-xs font-light">{item.MarkedPrinted?.PrintedBy?.username}</span>
                   </div>
                 </Table.Cell>
               </Table.Row>

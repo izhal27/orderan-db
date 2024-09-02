@@ -52,6 +52,7 @@ export interface OrderDetail {
     status: boolean,
     printAt: string,
     description: string,
+    PrintedBy: User,
   }
 }
 

@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { PrintedStatus, Prisma, User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 import {
@@ -19,6 +19,7 @@ import { OrderEntity } from './entities/order.entity';
 import { orderNumber } from '../helpers';
 import { CustomersService } from '../customers/customers.service';
 import { ADMIN } from '../types';
+import { UserEntity } from '../users/entities/user.entity';
 
 @Injectable()
 export class OrdersService {
@@ -365,10 +366,10 @@ export class OrdersService {
     }
   }
 
-  markPrint(orderDetailId: string, markPrintedDto: MarkPrintedDto, printedById: number) {
+  async markPrint(orderDetailId: string, markPrintedDto: MarkPrintedDto, printedById: number) {
     const { status, description, printAt } = markPrintedDto;
     try {
-      return this.prismaService.printedStatus.upsert({
+      const result = await this.prismaService.printedStatus.upsert({
         where: { orderDetailId },
         update: {
           status,
@@ -383,7 +384,18 @@ export class OrdersService {
           orderDetailId,
           printedById,
         },
+        select: {
+          id: true,
+          status: true,
+          printAt: true,
+          description: true,
+          orderDetailId: true,
+          printedById: true,
+          PrintedBy: true
+        }
       });
+      result.PrintedBy = this.sanitizeUser(result.PrintedBy as User) as User;
+      return result;
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(error);
@@ -451,6 +463,15 @@ export class OrdersService {
       case CancelType.TAKEN:
         return this.prismaService.takenStatus.delete({ where: { orderId } });
     }
+  }
+
+  sanitizeUser(user: User) {
+    return {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      image: user.image
+    };
   }
 }
 
