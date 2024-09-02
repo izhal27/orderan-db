@@ -76,10 +76,10 @@ export const DashboardSidebar: NextPage = function () {
               )}
             >
               <UserAvatar
-                width={144}
-                height={144}
+                width={80}
+                height={80}
                 userImage={session?.user.image}
-                size="xl"
+                size="lg"
                 bordered
                 rounded
               />

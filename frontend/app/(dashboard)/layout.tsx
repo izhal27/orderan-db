@@ -32,7 +32,7 @@ const DashboardLayoutContent: FC<PropsWithChildren> = function ({ children }) {
             id="main-content"
             className={twMerge(
               "relative h-full w-full overflow-y-auto bg-gray-50 dark:bg-gray-900",
-              isCollapsed ? "lg:ml-[4.5rem]" : "lg:ml-64",
+              isCollapsed ? "lg:ml-[4rem]" : "lg:ml-52",
             )}
           >
             {children}
