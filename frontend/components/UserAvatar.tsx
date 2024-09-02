@@ -11,6 +11,7 @@ interface props {
   size?: string;
   rounded?: boolean;
   bordered?: boolean;
+  className?: string;
 }
 
 type MyComponentPropsWithChildren = PropsWithChildren<props>;
@@ -23,6 +24,7 @@ export default function UserAvatar({
   rounded = false,
   bordered = false,
   children,
+  className,
 }: MyComponentPropsWithChildren) {
   const [srcImage, setSrcImage] = useState<undefined | string>(undefined);
 
@@ -37,6 +39,7 @@ export default function UserAvatar({
   if (srcImage) {
     image = (
       <Avatar
+        className={className}
         bordered={bordered}
         rounded={rounded}
         size={size}
