@@ -77,7 +77,7 @@ export default function SettingsPage() {
       });
     if (res.ok) {
       infoToast("success", "Perubahan berhasil disimpan");
-      router.back();
+      router.replace('/');
     } else if (res.status == 409) {
       infoToast(
         "error",
@@ -161,7 +161,7 @@ export default function SettingsPage() {
             {isSubmitting && <Spinner size={"sm"} />}
             <span className={isSubmitting ? "pl-3" : ""}>Simpan</span>
           </Button>
-          <Button color="red" onClick={() => router.back()}>
+          <Button color="red" onClick={() => router.replace('/')}>
             Batal
           </Button>
         </div>
