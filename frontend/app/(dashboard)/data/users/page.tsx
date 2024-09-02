@@ -12,7 +12,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { useApiClient } from "@/lib/apiClient";
 
 export default function UsersPage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const pathName = usePathname();
   const [users, setUsers] = useState<User[]>([]);
@@ -70,7 +70,7 @@ export default function UsersPage() {
   }, [session?.accessToken, deleteId]);
 
   const table = useMemo(() => {
-    if (loading || status === 'loading') {
+    if (loading) {
       return (
         <SkeletonTable
           columnsName={["Username", "Email", "Nama", "Blocked", "Role", ""]}

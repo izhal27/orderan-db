@@ -14,7 +14,7 @@ import { useApiClient } from "@/lib/apiClient";
 import moment from 'moment-timezone'
 
 export default function ListOrderPage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const pathName = usePathname();
   const [orders, setOrders] = useState<Order[]>([]);

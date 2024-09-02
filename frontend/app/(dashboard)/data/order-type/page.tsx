@@ -12,7 +12,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { useApiClient } from "@/lib/apiClient";
 
 export default function JenisPesananPage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const pathName = usePathname();
   const [orderTypes, setOrderTypes] = useState<OrderType[]>([]);
@@ -61,7 +61,7 @@ export default function JenisPesananPage() {
   }, [session?.accessToken, deleteId]);
 
   const table = useMemo(() => {
-    if (loading || status === 'loading') {
+    if (loading) {
       return (
         <SkeletonTable
           columnsName={["Nama", "ALamat", "Kontak", "Email", "Keterangan", ""]}

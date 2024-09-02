@@ -15,7 +15,7 @@ import PaginationTable from "@/components/Pagination";
 import { useApiClient } from "@/lib/apiClient";
 
 export default function PelangganPage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const pathName = usePathname();
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -80,7 +80,7 @@ export default function PelangganPage() {
   }, [session?.accessToken, deleteId]);
 
   const table = useMemo(() => {
-    if (loading || status === 'loading') {
+    if (loading) {
       return (
         <SkeletonTable
           columnsName={["Nama", "Alamat", "Kontak", "Email", "Keterangan", ""]}
