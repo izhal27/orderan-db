@@ -202,11 +202,44 @@ export class OrdersService {
             eyelets: true,
             shiming: true,
             description: true,
-            MarkedPrinted: true,
+            MarkedPrinted: {
+              include: {
+                PrintedBy: {
+                  select: {
+                    id: true,
+                    username: true,
+                    name: true,
+                    image: true,
+                  },
+                },
+              },
+            },
           },
         },
-        MarkedPay: true,
-        MarkedTaken: true,
+        MarkedPay: {
+          include: {
+            MarkedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
+        MarkedTaken: {
+          include: {
+            MarkedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
         user: {
           select: {
             id: true,
@@ -252,7 +285,18 @@ export class OrdersService {
             eyelets: true,
             shiming: true,
             description: true,
-            MarkedPrinted: true,
+            MarkedPrinted: {
+              include: {
+                PrintedBy: {
+                  select: {
+                    id: true,
+                    username: true,
+                    name: true,
+                    image: true,
+                  },
+                },
+              },
+            },
             deleted: true,
             orderId: true,
             createdAt: true,
@@ -262,15 +306,36 @@ export class OrdersService {
             createdAt: 'asc'
           }
         },
-        MarkedPay: true,
-        MarkedTaken: true,
+        MarkedPay: {
+          include: {
+            MarkedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              }
+            },
+          },
+        },
+        MarkedTaken: {
+          include: {
+            MarkedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
         user: {
           select: {
             id: true,
             username: true,
             name: true,
-            image: true,
-            password: false
+            image: true
           },
         },
       },
@@ -331,8 +396,7 @@ export class OrdersService {
               id: true,
               username: true,
               name: true,
-              image: true,
-              password: false
+              image: true
             },
           },
         },
@@ -369,7 +433,7 @@ export class OrdersService {
   async markPrint(orderDetailId: string, markPrintedDto: MarkPrintedDto, printedById: number) {
     const { status, description, printAt } = markPrintedDto;
     try {
-      const result = await this.prismaService.printedStatus.upsert({
+      return this.prismaService.printedStatus.upsert({
         where: { orderDetailId },
         update: {
           status,
@@ -391,11 +455,16 @@ export class OrdersService {
           description: true,
           orderDetailId: true,
           printedById: true,
-          PrintedBy: true
+          PrintedBy: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              image: true,
+            }
+          }
         }
       });
-      result.PrintedBy = this.sanitizeUser(result.PrintedBy as User) as User;
-      return result;
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(error);
@@ -463,15 +532,6 @@ export class OrdersService {
       case CancelType.TAKEN:
         return this.prismaService.takenStatus.delete({ where: { orderId } });
     }
-  }
-
-  sanitizeUser(user: User) {
-    return {
-      id: user.id,
-      username: user.username,
-      name: user.name,
-      image: user.image
-    };
   }
 }
 
