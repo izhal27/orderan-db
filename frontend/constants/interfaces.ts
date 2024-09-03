@@ -53,6 +53,8 @@ export interface OrderDetail {
     printAt: string,
     description: string,
     PrintedBy: User,
+    createdAt: string;
+    updatedAt: string;
   }
 }
 
@@ -72,6 +74,8 @@ export interface Order {
     description?: string,
     MarkedBy?: User,
     markedById?: number,
+    createdAt: string;
+    updatedAt: string;
   }
   MarkedTaken: {
     id: string,
@@ -80,6 +84,8 @@ export interface Order {
     description?: string,
     MarkedBy?: User,
     markedById?: number,
+    createdAt: string;
+    updatedAt: string;
   },
   createdAt: string;
   updatedAt: string;
