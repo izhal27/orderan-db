@@ -524,13 +524,13 @@ export class OrdersService {
   cancelStatus({ type, orderId, orderDetailId }: { type: CancelType, orderId?: string, orderDetailId?: string }) {
     switch (type) {
       case CancelType.PRINT:
-        return this.prismaService.printedStatus.delete({ where: { orderDetailId } });
+        return this.prismaService.printedStatus.update({ where: { orderDetailId: orderDetailId }, data: { status: false } });
 
       case CancelType.PAY:
-        return this.prismaService.payStatus.delete({ where: { orderId } });
+        return this.prismaService.payStatus.update({ where: { orderId }, data: { status: false } });
 
       case CancelType.TAKEN:
-        return this.prismaService.takenStatus.delete({ where: { orderId } });
+        return this.prismaService.takenStatus.update({ where: { orderId }, data: { status: false } });
     }
   }
 }
