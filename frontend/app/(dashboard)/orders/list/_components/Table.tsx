@@ -26,7 +26,7 @@ function userImage(user: User) {
 
 const getStatus = (order: Order) => {
   let status: any = '-';
-  if ((order.MarkedPay || order.OrderDetails.some(od => od.MarkedPrinted) && !order.MarkedTaken)) {
+  if ((order.MarkedPay || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken)) {
     status = <span className="px-2 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold" >ON PROSES</span>
   } else if (order.MarkedTaken) {
     status = <span className="px-2 py-1 bg-gray-500 dark:bg-green-400 rounded-full text-white dark:text-green-700 text-xs font-semibold" >SELESAI</span>
