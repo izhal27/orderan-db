@@ -125,7 +125,7 @@ export default function EditPage({ params }: { params: { id: string } }) {
 
   const getStatus = useCallback((order: Order) => {
     let status: any = null;
-    if ((order.MarkedPay || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken)) {
+    if ((order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken)) {
       status = <span className="px-3 py-2 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-base font-semibold" >ON PROSES</span>
     } else if (order?.MarkedTaken?.status) {
       status = <span className="px-3 py-2 bg-gray-500 dark:bg-green-400 rounded-full text-white dark:text-green-700 text-base font-semibold" >SELESAI</span>
