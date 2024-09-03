@@ -343,6 +343,8 @@ export class OrdersService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
+    console.log(JSON.stringify(order, null, 4));
+
     return order;
   }
 
@@ -448,13 +450,7 @@ export class OrdersService {
           orderDetailId,
           printedById,
         },
-        select: {
-          id: true,
-          status: true,
-          printAt: true,
-          description: true,
-          orderDetailId: true,
-          printedById: true,
+        include: {
           PrintedBy: {
             select: {
               id: true,
@@ -524,7 +520,20 @@ export class OrdersService {
   cancelStatus({ type, orderId, orderDetailId }: { type: CancelType, orderId?: string, orderDetailId?: string }) {
     switch (type) {
       case CancelType.PRINT:
-        return this.prismaService.printedStatus.update({ where: { orderDetailId: orderDetailId }, data: { status: false } });
+        return this.prismaService.printedStatus.update({
+          where: { orderDetailId: orderDetailId },
+          data: { status: false },
+          include: {
+            PrintedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        });
 
       case CancelType.PAY:
         return this.prismaService.payStatus.update({ where: { orderId }, data: { status: false } });

@@ -47,15 +47,7 @@ export interface OrderDetail {
   shiming: boolean;
   description?: string;
   deleted?: boolean;
-  MarkedPrinted?: {
-    id: string,
-    status: boolean,
-    printAt: string,
-    description: string,
-    PrintedBy: User,
-    createdAt: string;
-    updatedAt: string;
-  }
+  MarkedPrinted?: MarkedPrinted
 }
 
 export interface Order {
@@ -67,26 +59,40 @@ export interface Order {
   userId: number;
   OrderDetails: OrderDetail[];
   user: User;
-  MarkedPay: {
-    id: string,
-    status: boolean
-    payAt: string, // DateTime
-    description?: string,
-    MarkedBy?: User,
-    markedById?: number,
-    createdAt: string;
-    updatedAt: string;
-  }
-  MarkedTaken: {
-    id: string,
-    status: boolean
-    takenAt: string, // DateTime
-    description?: string,
-    MarkedBy?: User,
-    markedById?: number,
-    createdAt: string;
-    updatedAt: string;
-  },
+  MarkedPay: MarkedPay,
+  MarkedTaken: MarkedTaken,
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MarkedPrinted {
+  id: string,
+  status: boolean,
+  printAt: string,
+  description: string,
+  PrintedBy: User,
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MarkedPay {
+  id: string,
+  status: boolean
+  payAt: string, // DateTime
+  description?: string,
+  MarkedBy?: User,
+  markedById?: number,
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MarkedTaken {
+  id: string,
+  status: boolean
+  takenAt: string, // DateTime
+  description?: string,
+  MarkedBy?: User,
+  markedById?: number,
   createdAt: string;
   updatedAt: string;
 }

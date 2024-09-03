@@ -1,56 +1,18 @@
-import { OrderDetail } from "@/constants";
-import { useLoading } from "@/context/LoadingContext";
-import { showToast } from "@/helpers";
-import { useApiClient } from "@/lib/apiClient";
+import { Fragment } from "react";
 import { Checkbox, Table } from "flowbite-react";
-import debounce from "lodash.debounce";
-import { useSession } from "next-auth/react";
-import React, { useCallback, useEffect, useState } from "react";
+import { twMerge } from "tailwind-merge";
+import { OrderDetail } from "@/constants";
+import localDate from "@/lib/getLocalDate";
+import { HiChevronDown, HiChevronRight } from "react-icons/hi";
 
 interface props {
   data: OrderDetail[];
+  expandedRowId: string | null,
+  onExpandedRowToggleHandler(id: string): void;
+  onCheckBoxPrintedClickHandler(e: any, orderDetailId: string): void,
 }
 
-export default function TableShowDetail({ data }: props) {
-  const { data: session } = useSession();
-  const { request } = useApiClient();
-  const { setLoading } = useLoading();
-
-  const sendPostRequest = async (isChecked: boolean, id: string) => {
-    setLoading(true);
-    try {
-      if (isChecked) {
-        const data = await request(`/orders/detail/${id}/print`, {
-          method: 'POST',
-          body: {
-            status: true,
-            printAt: new Date().toISOString()
-          }
-        });
-        showToast('success', 'Berhasil ditandai sudah dicetak');
-      } else {
-        await request(`/orders/detail/${id}/cancel-print`, {
-          method: 'POST',
-          body: {
-            status: true,
-            printAt: new Date().toISOString()
-          }
-        });
-        showToast('warning', 'Berhasil menghapus tanda sudah dicetak');
-      }
-    } catch (error) {
-      showToast('error', 'Terjadi kesalahan, coba lagi nanti');
-    }
-    setLoading(false);
-  };
-
-  const debouncedPostRequest = useCallback(debounce(sendPostRequest, 500), [session?.accessToken]);
-
-  const handleCheckboxClick = (e: any, id: string) => {
-    const isChecked = e.target.checked;
-    debouncedPostRequest(isChecked, id);
-  };
-
+export default function TableShowDetail({ data, expandedRowId, onExpandedRowToggleHandler, onCheckBoxPrintedClickHandler }: props) {
   return (
     <Table>
       <Table.Head>
@@ -67,7 +29,7 @@ export default function TableShowDetail({ data }: props) {
       <Table.Body className="divide-y">
         {data?.map((item: OrderDetail, index) => {
           return (
-            <React.Fragment key={index}>
+            <Fragment key={index}>
               <Table.Row
                 className="bg-white dark:border-gray-700 dark:bg-gray-800 text-center"
               >
@@ -80,16 +42,49 @@ export default function TableShowDetail({ data }: props) {
                 <Table.Cell>{item.shiming ? 'Ya' : 'Tidak'}</Table.Cell>
                 <Table.Cell>{item.description}</Table.Cell>
                 <Table.Cell>
-                  <div className="flex flex-col items-center">
+                  <div className="flex items-center justify-center gap-1">
                     <Checkbox
                       id="marked-printed"
-                      onClick={(e) => handleCheckboxClick(e, item.id)}
+                      onClick={(e) => onCheckBoxPrintedClickHandler(e, item.id)}
                       defaultChecked={item.MarkedPrinted?.status} />
-                    <span className="text-xs font-light">{item.MarkedPrinted?.PrintedBy?.username}</span>
+                    {
+                      item.MarkedPrinted && (
+                        <span onClick={() => onExpandedRowToggleHandler(item.id)} color="gray" className="cursor-pointer">
+                          {expandedRowId === item.id ? (
+                            <HiChevronDown className="h-5 w-5" />
+                          ) : (
+                            <HiChevronRight className="h-5 w-5" />
+                          )}
+                        </span>
+                      )
+                    }
                   </div>
                 </Table.Cell>
               </Table.Row>
-            </React.Fragment>
+              {
+                item.MarkedPrinted && (
+                  <Table.Row>
+                    <Table.Cell colSpan={9} className="p-0">
+                      <div className={twMerge(expandedRowId === item.id ? 'block' : 'hidden')}>
+                        <div className="p-4 bg-gray-100 dark:bg-gray-700 ">
+                          <div className="text-gray-700 dark:text-gray-300">
+                            {
+                              item.MarkedPrinted.status ?
+                                <span className="text-sm font-light">
+                                  {`Ditandai telah dicetak oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${localDate(item.MarkedPrinted?.updatedAt, 'long', true, true)}`}
+                                </span> :
+                                <span className="text-sm font-light">
+                                  {`Ditandai batal cetak oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${localDate(item.MarkedPrinted?.updatedAt, 'long', true, true)}`}
+                                </span>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    </Table.Cell>
+                  </Table.Row>
+                )
+              }
+            </Fragment>
           );
         })}
       </Table.Body>
