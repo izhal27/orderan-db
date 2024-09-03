@@ -424,6 +424,15 @@ export class OrdersService {
           OrderDetails: true,
           MarkedPay: true,
           MarkedTaken: true,
+          user: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+              name: true,
+              image: true,
+            }
+          }
         },
       });
     } catch (error) {
