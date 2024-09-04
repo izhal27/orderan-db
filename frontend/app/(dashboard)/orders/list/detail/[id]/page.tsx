@@ -278,11 +278,11 @@ export default function DetailPage({ params }: { params: { id: string } }) {
             <div>{order && getStatus(order)}</div>
             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
               <Label htmlFor="marked-pay" className="flex gap-2 items-center text-gray-500 dark:text-gray-400">
-                <Checkbox id="marked-pay" onClick={handleCheckboxPayClick} defaultChecked={order?.MarkedPay.status} />
+                <Checkbox id="marked-pay" onChange={handleCheckboxPayClick} checked={order?.MarkedPay.status ? true : false} />
                 Dibayar
               </Label>
               <Label htmlFor="marked-taken" className="flex gap-2 items-center text-gray-500 dark:text-gray-400">
-                <Checkbox id="marked-taken" onClick={handleCheckboxTakenClick} defaultChecked={order?.MarkedTaken.status} />
+                <Checkbox id="marked-taken" onChange={handleCheckboxTakenClick} checked={order?.MarkedTaken.status ? true : false} />
                 Diambil
               </Label>
             </div>

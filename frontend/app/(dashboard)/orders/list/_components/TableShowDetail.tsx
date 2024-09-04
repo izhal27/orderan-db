@@ -49,7 +49,7 @@ export default function TableShowDetail({ data, expandedRowId, onExpandedRowTogg
                       defaultChecked={item.MarkedPrinted?.status} />
                     {
                       item.MarkedPrinted && (
-                        <span onClick={() => onExpandedRowToggleHandler(item.id)} color="gray" className="cursor-pointer">
+                        <span onChange={() => onExpandedRowToggleHandler(item.id)} color="gray" className="cursor-pointer">
                           {expandedRowId === item.id ? (
                             <HiChevronDown className="h-5 w-5" />
                           ) : (
