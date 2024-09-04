@@ -45,11 +45,11 @@ export default function TableShowDetail({ data, expandedRowId, onExpandedRowTogg
                   <div className="flex items-center justify-center gap-1">
                     <Checkbox
                       id="marked-printed"
-                      onClick={(e) => onCheckBoxPrintedClickHandler(e, item.id)}
+                      onChange={(e) => onCheckBoxPrintedClickHandler(e, item.id)}
                       defaultChecked={item.MarkedPrinted?.status} />
                     {
                       item.MarkedPrinted && (
-                        <span onChange={() => onExpandedRowToggleHandler(item.id)} color="gray" className="cursor-pointer">
+                        <span onClick={() => onExpandedRowToggleHandler(item.id)} color="gray" className="cursor-pointer">
                           {expandedRowId === item.id ? (
                             <HiChevronDown className="h-5 w-5" />
                           ) : (
