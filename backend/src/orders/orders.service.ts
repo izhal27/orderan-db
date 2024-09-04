@@ -492,6 +492,16 @@ export class OrdersService {
           orderId,
           markedById,
         },
+        include: {
+          MarkedBy: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              image: true,
+            }
+          }
+        }
       });
     } catch (error) {
       this.logger.error(error);
@@ -517,6 +527,16 @@ export class OrdersService {
           orderId,
           markedById,
         },
+        include: {
+          MarkedBy: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              image: true,
+            }
+          }
+        }
       });
     } catch (error) {
       this.logger.error(error);
@@ -543,10 +563,36 @@ export class OrdersService {
         });
 
       case CancelType.PAY:
-        return this.prismaService.payStatus.update({ where: { orderId }, data: { status: false } });
+        return this.prismaService.payStatus.update({
+          where: { orderId },
+          data: { status: false },
+          include: {
+            MarkedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        });
 
       case CancelType.TAKEN:
-        return this.prismaService.takenStatus.update({ where: { orderId }, data: { status: false } });
+        return this.prismaService.takenStatus.update({
+          where: { orderId },
+          data: { status: false },
+          include: {
+            MarkedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        });
     }
   }
 }
