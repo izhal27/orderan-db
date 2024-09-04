@@ -15,7 +15,17 @@ import { showToast } from "@/helpers";
 import { useApiClient } from "@/lib/apiClient";
 import { useLoading } from "@/context/LoadingContext";
 
-export default function EditPage({ params }: { params: { id: string } }) {
+type EventType = {
+  urlMarked: string;
+  urlCancel: string;
+  body: any;
+  isChecked: boolean;
+  id: string;
+  onSuccessMarkedHandler(result: any): void;
+  onSuccessUnmarkedHandler(result: any): void;
+}
+
+export default function DetailPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
   const [order, setOrder] = useState<Order | undefined>(undefined);
   const [loading, setLoading] = useState(true);
@@ -45,26 +55,22 @@ export default function EditPage({ params }: { params: { id: string } }) {
     }
   }, [session]);
 
-  const sendPostMarkedPrinted = useCallback(debounce(async (isChecked: boolean, id: string) => {
+  const sendPostMarked = useCallback(debounce(async ({
+    urlMarked, urlCancel, body, isChecked, onSuccessMarkedHandler, onSuccessUnmarkedHandler }: EventType) => {
     setModalLoading(true);
     try {
       if (isChecked) {
-        const result = await request(`/orders/detail/${id}/print`, {
+        const result = await request(urlMarked, {
           method: 'POST',
-          body: {
-            status: true,
-            printAt: new Date().toISOString()
-          }
+          body,
         });
-        updatePrintedStatus(result.orderDetailId, result);
-        showToast('success', 'Berhasil ditandai sudah dicetak');
+        onSuccessMarkedHandler(result);
       } else {
-        const result = await request(`/orders/detail/${id}/cancel-print`, {
+        const result = await request(urlCancel, {
           method: 'POST',
           body: {}
         });
-        updatePrintedStatus(result.orderDetailId, result);
-        showToast('warning', 'Berhasil menghapus tanda sudah dicetak');
+        onSuccessUnmarkedHandler(result);
       }
     } catch (error) {
       showToast('error', 'Terjadi kesalahan, coba lagi nanti');
@@ -74,7 +80,24 @@ export default function EditPage({ params }: { params: { id: string } }) {
 
   const handleCheckboxPrintedClick = (e: any, id: string) => {
     const isChecked = e.target.checked;
-    sendPostMarkedPrinted(isChecked, id);
+    sendPostMarked({
+      urlMarked: `/orders/detail/${id}/print`,
+      urlCancel: `/orders/detail/${id}/cancel-print`,
+      body: {
+        status: true,
+        printAt: new Date().toISOString()
+      },
+      isChecked,
+      id,
+      onSuccessMarkedHandler: (result) => {
+        updatePrintedStatus(result.orderDetailId, result);
+        showToast('success', 'Berhasil ditandai sudah dicetak');
+      },
+      onSuccessUnmarkedHandler: (result) => {
+        updatePrintedStatus(result.orderDetailId, result);
+        showToast('warning', 'Berhasil menghapus tanda sudah dicetak');
+      },
+    });
   };
 
   const updatePrintedStatus = useCallback((orderDetailId: string, markedPrint: MarkedPrinted) => {
