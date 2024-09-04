@@ -343,8 +343,6 @@ export class OrdersService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
-    console.log(JSON.stringify(order, null, 4));
-
     return order;
   }
 
