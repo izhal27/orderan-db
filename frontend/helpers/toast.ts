@@ -42,3 +42,5 @@ export const showToast = (
       return toast(content, optionsToApply);
   }
 };
+
+export const COMMON_ERROR_MESSAGE = "Maaf, Terjadi kesalahan. Coba lagi nanti.";
