@@ -20,7 +20,6 @@ type EventType = {
   urlCancel: string;
   body: any;
   isChecked: boolean;
-  id: string;
   onSuccessMarkedHandler(result: any): void;
   onSuccessUnmarkedHandler(result: any): void;
 }
@@ -40,8 +39,8 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     }
     setLoading(true);
     try {
-      const data = await request(`/orders/${params.id}`);
-      setOrder(data);
+      const result = await request(`/orders/${params.id}`);
+      setOrder(result);
     } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
@@ -88,7 +87,6 @@ export default function DetailPage({ params }: { params: { id: string } }) {
         printAt: new Date().toISOString()
       },
       isChecked,
-      id,
       onSuccessMarkedHandler: (result) => {
         updatePrintedStatus(result.orderDetailId, result);
         showToast('success', 'Berhasil ditandai sudah dicetak');
@@ -118,6 +116,74 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     setExpandedRowId(expandedRowId === id ? null : id);
   }
 
+  const handleCheckboxPayClick = (e: any) => {
+    const isChecked = e.target.checked;
+    const updateState = (result: any) => {
+      setOrder(prevState => {
+        let updatedState = { ...prevState! };
+        updatedState.MarkedPay = { ...result };
+        return updatedState;
+      });
+    }
+    sendPostMarked({
+      urlMarked: `/orders/${order?.id}/pay`,
+      urlCancel: `/orders/${order?.id}/cancel-pay`,
+      body: {
+        status: true,
+        payAt: new Date().toISOString()
+      },
+      isChecked,
+      onSuccessMarkedHandler: (result) => {
+        updateState(result);
+        showToast('success', 'Berhasil ditandai sudah dibayar');
+      },
+      onSuccessUnmarkedHandler: (result) => {
+        updateState(result);
+        showToast('warning', 'Berhasil menghapus tanda sudah dibayar');
+      },
+    });
+  };
+
+
+  const handleCheckboxTakenClick = (e: any) => {
+    const isChecked = e.target.checked;
+    const updateState = (result: any) => {
+      setOrder(prevState => {
+        let updatedState = { ...prevState! };
+        updatedState.MarkedTaken = { ...result };
+        return updatedState;
+      });
+    }
+    sendPostMarked({
+      urlMarked: `/orders/${order?.id}/taken`,
+      urlCancel: `/orders/${order?.id}/cancel-taken`,
+      body: {
+        status: true,
+        takenAt: new Date().toISOString()
+      },
+      isChecked,
+      onSuccessMarkedHandler: (result) => {
+        updateState(result);
+        showToast('success', 'Berhasil ditandai sudah diambil');
+      },
+      onSuccessUnmarkedHandler: (result) => {
+        updateState(result);
+        showToast('warning', 'Berhasil menghapus tanda sudah diambil');
+      },
+    });
+  };
+
+  const getStatus = useCallback((order: Order) => {
+    let status: any = null;
+    if ((order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && order.MarkedTaken?.status)) {
+      status = <span className="px-3 py-2 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-base font-semibold">ON PROSES</span>
+    }
+    if (order.MarkedPay?.status && order?.MarkedTaken?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status)) {
+      status = <span className="px-3 py-2 bg-green-500 dark:bg-green-400 rounded-full text-white dark:text-gray-700 text-base font-semibold">SELESAI</span>
+    }
+    return status;
+  }, [order]);
+
   const table = useMemo(() => {
     if (loading) {
       return (
@@ -136,16 +202,6 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       );
     }
   }, [loading, order?.OrderDetails, expandedRowId]);
-
-  const getStatus = useCallback((order: Order) => {
-    let status: any = null;
-    if ((order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken)) {
-      status = <span className="px-3 py-2 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-base font-semibold" >ON PROSES</span>
-    } else if (order?.MarkedTaken?.status) {
-      status = <span className="px-3 py-2 bg-gray-500 dark:bg-green-400 rounded-full text-white dark:text-green-700 text-base font-semibold" >SELESAI</span>
-    }
-    return status;
-  }, [order]);
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -206,11 +262,13 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                 <p className={twMerge("font-medium", order?.MarkedPay?.status ? 'text-green-400' : 'text-red-400')}>
                   {order?.MarkedPay?.status ? 'Selesai' : 'Belum'}
                 </p>
+                {order?.MarkedPay && <span className="text-xs  col-span-3 font-light">Ditandai {order?.MarkedPay.status ? 'dibayar' : 'batal'} oleh {`${order?.MarkedPay.MarkedBy?.name} @${order?.MarkedPay.MarkedBy?.username} ${localDate(order?.MarkedPay?.updatedAt, 'short', true, true)}`}</span>}
                 <p>Diambil</p>
                 <span>:</span>
-                <p className={twMerge("font-medium", order?.MarkedPay?.status ? 'text-green-400' : 'text-red-400')}>
-                  {order?.MarkedPay?.status ? 'Selesai' : 'Belum'}
+                <p className={twMerge("font-medium", order?.MarkedTaken?.status ? 'text-green-400' : 'text-red-400')}>
+                  {order?.MarkedTaken?.status ? 'Selesai' : 'Belum'}
                 </p>
+                {order?.MarkedTaken && <span className="text-xs  col-span-3 font-light">Ditandai {order?.MarkedTaken.status ? 'diambil' : 'batal'} oleh {`${order?.MarkedTaken.MarkedBy?.name} @${order?.MarkedTaken.MarkedBy?.username} ${localDate(order?.MarkedTaken?.updatedAt, 'short', true, true)}`}</span>}
               </div>
             </div>
           </div>
@@ -219,13 +277,12 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           <div className="flex flex-col justify-between items-end">
             <div>{order && getStatus(order)}</div>
             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              Tandai sudah
               <Label htmlFor="marked-pay" className="flex gap-2 items-center text-gray-500 dark:text-gray-400">
-                <Checkbox id="marked-pay" />
+                <Checkbox id="marked-pay" onClick={handleCheckboxPayClick} defaultChecked={order?.MarkedPay.status} />
                 Dibayar
               </Label>
               <Label htmlFor="marked-taken" className="flex gap-2 items-center text-gray-500 dark:text-gray-400">
-                <Checkbox id="marked-taken" />
+                <Checkbox id="marked-taken" onClick={handleCheckboxTakenClick} defaultChecked={order?.MarkedTaken.status} />
                 Diambil
               </Label>
             </div>
