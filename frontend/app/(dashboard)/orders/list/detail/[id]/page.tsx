@@ -2,18 +2,18 @@
 
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { MarkedPrinted, Order } from "@/constants";
-import BackButton from "@/components/buttons/BackButton";
 import { Label, Checkbox } from "flowbite-react";
+import debounce from "lodash.debounce";
+import { twMerge } from "tailwind-merge";
+import { MarkedPrinted, Order } from "@/constants";
+import UserAvatar from "@/components/UserAvatar";
+import BackButton from "@/components/buttons/BackButton";
+import SkeletonTable from "@/components/SkeletonTable";
 import TableShowDetail from "../../_components/TableShowDetail";
 import localDate from "@/lib/getLocalDate";
-import UserAvatar from "@/components/UserAvatar";
-import { twMerge } from "tailwind-merge";
-import SkeletonTable from "@/components/SkeletonTable";
 import { showToast } from "@/helpers";
 import { useApiClient } from "@/lib/apiClient";
 import { useLoading } from "@/context/LoadingContext";
-import debounce from "lodash.debounce";
 
 export default function EditPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
@@ -30,17 +30,7 @@ export default function EditPage({ params }: { params: { id: string } }) {
     }
     setLoading(true);
     try {
-      const res = await fetch(
-        `http://localhost:3002/api/orders/${params.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-            "Content-Type": "application/json",
-          },
-          cache: "no-store",
-        },
-      );
-      const data = await res.json();
+      const data = await request(`/orders/${params.id}`);
       setOrder(data);
     } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
@@ -59,28 +49,28 @@ export default function EditPage({ params }: { params: { id: string } }) {
     setModalLoading(true);
     try {
       if (isChecked) {
-        const data = await request(`/orders/detail/${id}/print`, {
+        const result = await request(`/orders/detail/${id}/print`, {
           method: 'POST',
           body: {
             status: true,
             printAt: new Date().toISOString()
           }
         });
-        updatePrintedStatus(data.orderDetailId, data);
+        updatePrintedStatus(result.orderDetailId, result);
         showToast('success', 'Berhasil ditandai sudah dicetak');
       } else {
-        const data = await request(`/orders/detail/${id}/cancel-print`, {
+        const result = await request(`/orders/detail/${id}/cancel-print`, {
           method: 'POST',
           body: {}
         });
-        updatePrintedStatus(data.orderDetailId, data);
+        updatePrintedStatus(result.orderDetailId, result);
         showToast('warning', 'Berhasil menghapus tanda sudah dicetak');
       }
     } catch (error) {
       showToast('error', 'Terjadi kesalahan, coba lagi nanti');
     }
     setModalLoading(false);
-  }, 500), [session?.accessToken]);
+  }, 500), [session?.accessToken, order]);
 
   const handleCheckboxPrintedClick = (e: any, id: string) => {
     const isChecked = e.target.checked;
@@ -94,8 +84,9 @@ export default function EditPage({ params }: { params: { id: string } }) {
       od.MarkedPrinted = { ...od.MarkedPrinted, ...markedPrint };
       const updatedOd = order.OrderDetails.toSpliced(index, 1, od);
       setOrder(prevState => {
-        prevState!.OrderDetails = [...updatedOd];
-        return prevState;
+        const updatedState = prevState;
+        updatedState!.OrderDetails = [...updatedOd];
+        return updatedState;
       });
     }
   }, [order]);
@@ -131,7 +122,7 @@ export default function EditPage({ params }: { params: { id: string } }) {
       status = <span className="px-3 py-2 bg-gray-500 dark:bg-green-400 rounded-full text-white dark:text-green-700 text-base font-semibold" >SELESAI</span>
     }
     return status;
-  }, [order, order?.OrderDetails]);
+  }, [order]);
 
   return (
     <div className="flex flex-col gap-4 p-4">
