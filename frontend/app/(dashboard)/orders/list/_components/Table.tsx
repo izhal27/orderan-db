@@ -1,7 +1,7 @@
 "use client";
 
 import { Table } from "flowbite-react";
-import { HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
+import { HiCheck, HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
 import { Order, User } from "@/constants";
 import localDate from "@/lib/getLocalDate";
 import UserAvatar from "@/components/UserAvatar";
@@ -26,10 +26,11 @@ function userImage(user: User) {
 
 const getStatus = (order: Order) => {
   let status: any = '-';
-  if ((order.MarkedPay || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken)) {
-    status = <span className="px-2 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold" >ON PROSES</span>
-  } else if (order.MarkedTaken) {
-    status = <span className="px-2 py-1 bg-gray-500 dark:bg-green-400 rounded-full text-white dark:text-green-700 text-xs font-semibold" >SELESAI</span>
+  if ((order.MarkedPay || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken.status)) {
+    status = <span className="px-3 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold">ON PROSES</span>
+  }
+  if (order.MarkedTaken?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status) && order.MarkedTaken?.status) {
+    status = <span className="px-3 py-1 bg-green-500 dark:bg-green-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold inline-flex items-center justify-center w-fit gap-2"><HiCheck className="inline-block" /> SELESAI</span>
   }
   return status;
 }

@@ -3,15 +3,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
+import moment from 'moment-timezone'
 import OrderTable from "./_components/Table";
 import { Order } from "@/constants";
-import { showToast } from "@/helpers";
+import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers";
 import AddButton from "@/components/buttons/AddButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import SkeletonTable from "@/components/SkeletonTable";
 import getLocalDate from "@/lib/getLocalDate";
 import { useApiClient } from "@/lib/apiClient";
-import moment from 'moment-timezone'
 
 export default function ListOrderPage() {
   const { data: session } = useSession();
@@ -20,7 +20,7 @@ export default function ListOrderPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | undefined>();
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const fetchedRef = useRef(false);
   const { request } = useApiClient();
 
@@ -28,7 +28,7 @@ export default function ListOrderPage() {
     if (!session?.accessToken) {
       return;
     }
-    setLoading(true);
+    setIsLoading(true);
     try {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       var start = moment.tz(timezone).startOf('day').utc();
@@ -37,9 +37,9 @@ export default function ListOrderPage() {
       const { data } = await request(url);
       setOrders(data);
     } catch (error) {
-      showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
+      showToast("error", COMMON_ERROR_MESSAGE);
     }
-    setLoading(false);
+    setIsLoading(false);
   }, [session?.accessToken]);
 
   useEffect(() => {
@@ -50,25 +50,25 @@ export default function ListOrderPage() {
   }, [session]);
 
   const onRemoveHandler = useCallback(async () => {
-    const res = await fetch(`http://localhost:3002/api/orders/${deleteId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-    });
-    if (res.ok) {
-      const deletedObject = await res.json();
-      await fetchOrders();
-      setOpenModal(false);
+    try {
+      const deletedObject = await request(`/orders/${deleteId}`, { method: 'DELETE', body: {} });
+      const index = orders.findIndex(o => o.id === deletedObject.id);
+      setOrders(prevState => {
+        const updatedState = [...prevState.toSpliced(index, 1)];
+        return updatedState;
+      })
       showToast(
         "success",
-        `Order "${deletedObject.name}" berhasil dihapus.`,
+        `Pesanan "${deletedObject.customer}" berhasil dihapus.`,
       );
+    } catch (error) {
+      showToast("error", COMMON_ERROR_MESSAGE);
     }
+    setOpenModal(false);
   }, [session?.accessToken, deleteId]);
 
   const table = useMemo(() => {
-    if (loading) {
+    if (isLoading) {
       return (
         <SkeletonTable
           columnsName={["User", "Nomor", "Tanggal", "Pelanggan", "Keterangan", "Status", ""]}
@@ -87,7 +87,7 @@ export default function ListOrderPage() {
         />
       );
     }
-  }, [loading, orders, pathName, router]);
+  }, [isLoading, orders, pathName, router]);
 
   return (
     <main className="flex flex-col gap-4 p-4">

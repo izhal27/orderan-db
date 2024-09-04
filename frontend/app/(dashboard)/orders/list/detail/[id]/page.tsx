@@ -14,6 +14,7 @@ import localDate from "@/lib/getLocalDate";
 import { showToast } from "@/helpers";
 import { useApiClient } from "@/lib/apiClient";
 import { useLoading } from "@/context/LoadingContext";
+import { HiCheck } from "react-icons/hi";
 
 type EventType = {
   urlMarked: string;
@@ -175,11 +176,11 @@ export default function DetailPage({ params }: { params: { id: string } }) {
 
   const getStatus = useCallback((order: Order) => {
     let status: any = null;
-    if ((order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && order.MarkedTaken?.status)) {
-      status = <span className="px-3 py-2 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-base font-semibold">ON PROSES</span>
+    if ((order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken?.status)) {
+      status = <span className="px-4 py-2 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-base font-semibold">ON PROSES</span>
     }
     if (order.MarkedPay?.status && order?.MarkedTaken?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status)) {
-      status = <span className="px-3 py-2 bg-green-500 dark:bg-green-400 rounded-full text-white dark:text-gray-700 text-base font-semibold">SELESAI</span>
+      status = <span className="px-4 py-2 bg-green-500 dark:bg-green-400 rounded-full text-white dark:text-gray-700 text-base font-semibold inline-flex items-center justify-center w-fit gap-2"><HiCheck className="inline-block" /> SELESAI</span>
     }
     return status;
   }, [order]);
@@ -226,7 +227,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
               <p>Tanggal</p>
               <span>:</span>
               <p className="font-medium">
-                {localDate(Date.now(), 'long')}
+                {localDate(Date.now(), 'medium')}
               </p>
               <p>Pelanggan</p>
               <span>:</span>
@@ -262,13 +263,13 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                 <p className={twMerge("font-medium", order?.MarkedPay?.status ? 'text-green-400' : 'text-red-400')}>
                   {order?.MarkedPay?.status ? 'Selesai' : 'Belum'}
                 </p>
-                {order?.MarkedPay && <span className="text-xs  col-span-3 font-light">Ditandai {order?.MarkedPay.status ? 'dibayar' : 'batal'} oleh {`${order?.MarkedPay.MarkedBy?.name} @${order?.MarkedPay.MarkedBy?.username} ${localDate(order?.MarkedPay?.updatedAt, 'short', true, true)}`}</span>}
+                {order?.MarkedPay && <span className="text-xs  col-span-3 font-light">{order?.MarkedPay.status ? 'Ditandai' : 'Dibatalkan'} oleh {`${order?.MarkedPay.MarkedBy?.name} @${order?.MarkedPay.MarkedBy?.username} ${localDate(order?.MarkedPay?.updatedAt, 'short', true, true)}`}</span>}
                 <p>Diambil</p>
                 <span>:</span>
                 <p className={twMerge("font-medium", order?.MarkedTaken?.status ? 'text-green-400' : 'text-red-400')}>
                   {order?.MarkedTaken?.status ? 'Selesai' : 'Belum'}
                 </p>
-                {order?.MarkedTaken && <span className="text-xs  col-span-3 font-light">Ditandai {order?.MarkedTaken.status ? 'diambil' : 'batal'} oleh {`${order?.MarkedTaken.MarkedBy?.name} @${order?.MarkedTaken.MarkedBy?.username} ${localDate(order?.MarkedTaken?.updatedAt, 'short', true, true)}`}</span>}
+                {order?.MarkedTaken && <span className="text-xs  col-span-3 font-light">{order?.MarkedTaken.status ? 'Ditandai' : 'Dibatalkan'} oleh {`${order?.MarkedTaken.MarkedBy?.name} @${order?.MarkedTaken.MarkedBy?.username} ${localDate(order?.MarkedTaken?.updatedAt, 'short', true, true)}`}</span>}
               </div>
             </div>
           </div>
