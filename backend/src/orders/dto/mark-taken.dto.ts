@@ -21,7 +21,7 @@ export class MarkTakenDto {
     example: '2024-08-05T05:41:49.371Z',
     description: 'Taken date',
   })
-  takenAt: Date;
+  takenAt: string;
 
   @IsString()
   @IsOptional()

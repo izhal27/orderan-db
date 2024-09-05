@@ -1,3 +1,4 @@
+import UserAvatar from "@/components/UserAvatar";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { Sidebar } from "flowbite-react";
 import type { NextPage } from "next";
@@ -13,16 +14,15 @@ import {
 } from "react-icons/bi";
 import { HiColorSwatch, HiDocumentText, HiFolder } from "react-icons/hi";
 import { twMerge } from "tailwind-merge";
-import UserAvatar from '@/components/UserAvatar';
 
 const orderUrls = [
   {
-    url: "/orders/daftar",
+    url: "/orders/list",
     icon: HiDocumentText,
     text: "Daftar",
   },
   {
-    url: "/orders/laporan",
+    url: "/orders/report",
     icon: BiSolidReport,
     text: "Laporan",
   },
@@ -76,16 +76,18 @@ export const DashboardSidebar: NextPage = function () {
               )}
             >
               <UserAvatar
-                width={144}
-                height={144}
+                width={80}
+                height={80}
                 userImage={session?.user.image}
-                size='xl' bordered
+                size="lg"
+                bordered
+                rounded
               />
-              <div className="font-medium dark:text-white">
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="font-semibold text-center truncate w-full dark:text-white">
+                <div>{session?.user.name}</div>
+                <div className="text-sm font-light text-gray-500 dark:text-gray-400">
                   @{session?.user.username}
                 </div>
-                <div>{session?.user.name}</div>
               </div>
             </div>
             <Sidebar.Collapse

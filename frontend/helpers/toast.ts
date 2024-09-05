@@ -1,14 +1,13 @@
-import { toast, ToastContent, ToastOptions, Slide, Id, Bounce } from "react-toastify";
-
+import { Id, Slide, toast, ToastContent, ToastOptions } from "react-toastify";
 
 export const defaultToastOptions: ToastOptions = {
-  position: "bottom-right",
-  autoClose: 4000,
-  hideProgressBar: false,
+  position: "top-center",
+  autoClose: 2000,
+  hideProgressBar: true,
   closeOnClick: true,
   progress: undefined,
   theme: "light",
-  transition: Bounce,
+  transition: Slide,
 };
 
 type ToastType = "success" | "error" | "info" | "warning" | "default";
@@ -43,3 +42,5 @@ export const showToast = (
       return toast(content, optionsToApply);
   }
 };
+
+export const COMMON_ERROR_MESSAGE = "Maaf, Terjadi kesalahan. Coba lagi nanti.";

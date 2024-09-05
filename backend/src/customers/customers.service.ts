@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Customer, Prisma } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
+import { PaginationDto } from 'src/common';
 
 @Injectable()
 export class CustomersService {
@@ -18,15 +19,9 @@ export class CustomersService {
     try {
       return this.prismaService.customer.upsert({
         where: {
-          name: data.name,
+          name: name,
         },
-        update: {
-          name,
-          address,
-          contact,
-          email,
-          description,
-        },
+        update: {},
         create: {
           name,
           address,
@@ -72,6 +67,18 @@ export class CustomersService {
       this.logger.error(error);
       throw new BadRequestException(error);
     }
+  }
+
+  filter(query: string) {
+    return this.prismaService.customer.findMany({
+      where: {
+        name: {
+          contains: query,
+          mode: 'insensitive',
+        }
+      },
+      take: 10
+    })
   }
 
   async findUnique(where: Prisma.CustomerWhereUniqueInput): Promise<Customer> {
@@ -131,5 +138,49 @@ export class CustomersService {
       this.logger.error(error);
       throw new BadRequestException(error);
     }
+  }
+
+  async paginate(paginationDto: PaginationDto) {
+    let { page = 1, limit = 25, search } = paginationDto;
+    const skip = (page - 1) * limit;
+    const take = limit;
+
+    const where = search
+      ? {
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: 'insensitive' as const
+            }
+          },
+        ],
+      }
+      : {};
+
+    let [data, total] = await Promise.all([
+      this.prismaService.customer.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { name: 'asc' },
+      }),
+      this.prismaService.customer.count(),
+    ]);
+
+    // jika data pencarian kurang dari limit,
+    // set total menjadi total data dan page 1
+    if (search && data.length <= limit) {
+      total = data.length;
+      page = 1;
+    }
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }

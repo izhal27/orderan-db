@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import CustomerAddEdit from "../_components/AddEdit";
-import { Customer } from "@/constant/interfaces";
+import { Customer } from "@/constants";
 
 export default function EditPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
@@ -12,20 +12,21 @@ export default function EditPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (session) {
       const fetchData = async () => {
-        const res = await fetch(`http://localhost:3002/api/customers/${params.id}`,
+        const res = await fetch(
+          `http://localhost:3002/api/customers/${params.id}`,
           {
             headers: {
               Authorization: `Bearer ${session?.accessToken}`,
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
-            cache: 'no-store'
+            cache: "no-store",
           },
         );
         setCustomer(await res.json());
-      }
+      };
       fetchData();
     }
-  }, [session])
+  }, [session]);
 
-  return <CustomerAddEdit customer={customer} />
+  return <CustomerAddEdit customer={customer} />;
 }

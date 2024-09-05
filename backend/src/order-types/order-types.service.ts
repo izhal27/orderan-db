@@ -35,6 +35,18 @@ export class OrderTypesService {
     }
   }
 
+  filter(query: string) {
+    return this.prismaService.orderType.findMany({
+      where: {
+        name: {
+          contains: query,
+          mode: 'insensitive',
+        }
+      },
+      take: 10
+    })
+  }
+
   async findUnique(
     where: Prisma.OrderTypeWhereUniqueInput,
   ): Promise<OrderType | null> {

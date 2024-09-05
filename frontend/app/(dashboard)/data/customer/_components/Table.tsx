@@ -1,102 +1,60 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import type { Customer } from "@/constants";
 import { Table } from "flowbite-react";
 import { HiPencil, HiTrash } from "react-icons/hi";
-import { showToast } from "@/helpers/toast";
-import { ConfirmModal } from "../../../../../components/ConfirmModal";
-import { Customer } from "@/constant/interfaces";
 
-export function CustomerTable() {
-  const { data: session } = useSession();
-  const router = useRouter();
-  const pathName = usePathname();
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [openModal, setOpenModal] = useState(false);
-  const [deleteId, setDeleteId] = useState<string | undefined>()
+interface props {
+  data: Customer[];
+  onEditHandler(id: string): void;
+  onRemoveHandler(id: string): void;
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch('http://localhost:3002/api/customers', {
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`
-        },
-        cache: 'no-store'
-      });
-      if (res.ok) {
-        setCustomers(await res.json());
-      }
-    }
-    if (session) {
-      fetchData();
-    }
-  }, [session]);
-
-  const onRemoveHandler = async () => {
-    const res = await fetch(`http://localhost:3002/api/customers/${deleteId}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`
-      }
-    });
-    if (res.ok) {
-      const deletedObject = await res.json();
-      const updatedCustomers = customers.filter(item => item.id !== deletedObject.id);
-      setCustomers(updatedCustomers);
-      setOpenModal(false);
-      showToast('success', `Pelanggan "${deletedObject.name}" berhasil dihapus.`);
-    }
-  }
-
-
+export default function CustomerTable({
+  data,
+  onEditHandler,
+  onRemoveHandler,
+}: props) {
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <Table hoverable>
         <Table.Head>
-          <Table.HeadCell>Nama</Table.HeadCell>
-          <Table.HeadCell>Alamat</Table.HeadCell>
-          <Table.HeadCell>Kontak</Table.HeadCell>
-          <Table.HeadCell>Email</Table.HeadCell>
-          <Table.HeadCell>Keterangan</Table.HeadCell>
-          <Table.HeadCell>Aksi</Table.HeadCell>
+          <Table.HeadCell className="text-center">Nama</Table.HeadCell>
+          <Table.HeadCell className="text-center">Alamat</Table.HeadCell>
+          <Table.HeadCell className="text-center">Kontak</Table.HeadCell>
+          <Table.HeadCell className="text-center">Email</Table.HeadCell>
+          <Table.HeadCell className="text-center">Keterangan</Table.HeadCell>
+          <Table.HeadCell className="text-center">Aksi</Table.HeadCell>
         </Table.Head>
         <Table.Body className="divide-y">
-          {
-            customers?.map((item: Customer) => {
-              return (
-                <Table.Row key={item.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                  <Table.Cell>{item.name}</Table.Cell>
-                  <Table.Cell>{item.address}</Table.Cell>
-                  <Table.Cell>{item.contact}</Table.Cell>
-                  <Table.Cell>{item.email}</Table.Cell>
-                  <Table.Cell>{item.description}</Table.Cell>
-                  <Table.Cell>
-                    <div className="flex gap-1">
-                      <HiPencil
-                        className="cursor-pointer text-blue-500"
-                        onClick={() => router.push(`${pathName}/${item.id}`)}
-                      />
-                      <HiTrash
-                        className="ml-2 cursor-pointer text-red-500"
-                        onClick={() => {
-                          setDeleteId(item.id);
-                          setOpenModal(true);
-                        }}
-                      />
-                    </div>
-                  </Table.Cell>
-                </Table.Row>
-              )
-            })
-          }
+          {data?.map((item: Customer) => {
+            return (
+              <Table.Row
+                key={item.id}
+                className="bg-white dark:border-gray-700 dark:bg-gray-800"
+              >
+                <Table.Cell>{item.name}</Table.Cell>
+                <Table.Cell>{item.address}</Table.Cell>
+                <Table.Cell>{item.contact}</Table.Cell>
+                <Table.Cell>{item.email}</Table.Cell>
+                <Table.Cell>{item.description}</Table.Cell>
+                <Table.Cell>
+                  <div className="flex gap-1 justify-center">
+                    <HiPencil
+                      className="cursor-pointer text-blue-500"
+                      onClick={() => onEditHandler(item.id)}
+                    />
+                    <HiTrash
+                      className="ml-2 cursor-pointer text-red-500"
+                      onClick={() => onRemoveHandler(item.id)}
+                    />
+                  </div>
+                </Table.Cell>
+              </Table.Row>
+            );
+          })}
         </Table.Body>
       </Table>
-      <ConfirmModal
-        text="Anda yakin ingin menghapus data ini?" openModal={openModal}
-        onCloseHandler={() => setOpenModal(false)}
-        onYesHandler={() => onRemoveHandler()} />
     </div>
   );
 }

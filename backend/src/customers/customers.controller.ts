@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -17,8 +18,7 @@ import {
 import { CustomerEntity } from './entities/customer.entity';
 import { CustomersService } from './customers.service';
 import { UpdateCustomerDto, CreateCustomerDto } from './dto';
-import { GetCurrentUserId, Roles } from '../common/decorators';
-import { Role } from '../common';
+import { GetCurrentUserId, PaginationDto, Role, Roles } from '../common';
 
 @Controller('customers')
 @ApiTags('customers')
@@ -37,8 +37,20 @@ export class CustomersController {
 
   @Get()
   @ApiOkResponse({ type: CustomerEntity, isArray: true })
+  async findManyWithPaginate(@Query() paginationDto: PaginationDto) {
+    // '/customers?page=1&limit=10: Fetches the first page with 10 customers.'
+    return this.customersService.paginate(paginationDto);
+  }
+
+  @Get()
+  @ApiOkResponse({ type: CustomerEntity, isArray: true })
   findAll() {
     return this.customersService.findMany();
+  }
+
+  @Get('filter')
+  getSuggestions(@Query('query') query: string) {
+    return this.customersService.filter(query);
   }
 
   @Get(':id')

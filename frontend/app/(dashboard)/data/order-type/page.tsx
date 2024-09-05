@@ -1,7 +1,86 @@
-import AddButton from "@/components/buttons/AddButton";
-import { OrderTypeTable } from "./_components/Table";
+'use client'
 
-export default async function JenisPesananPage() {
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
+import { OrderTypeTable } from "./_components/Table";
+import AddButton from "@/components/buttons/AddButton";
+import SkeletonTable from "@/components/SkeletonTable";
+import { OrderType } from "@/constants";
+import { showToast } from "@/helpers";
+import ConfirmModal from "@/components/ConfirmModal";
+import { useApiClient } from "@/lib/apiClient";
+
+export default function JenisPesananPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const pathName = usePathname();
+  const [orderTypes, setOrderTypes] = useState<OrderType[]>([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>();
+  const [loading, setLoading] = useState(true);
+  const fetchedRef = useRef(false);
+  const { request } = useApiClient()
+
+  const fetchOrderTypes = useCallback(async () => {
+    if (!session?.accessToken) {
+      return;
+    }
+    setLoading(true);
+    try {
+      const data = await request('/order-types');
+      setOrderTypes(data);
+    } catch (error) {
+      showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
+    }
+    setLoading(false);
+  }, [session?.accessToken]);
+
+  useEffect(() => {
+    if (session && session.accessToken && !fetchedRef.current) {
+      fetchOrderTypes();
+      fetchedRef.current = true;
+    }
+  }, [session]);
+
+  const onRemoveHandler = useCallback(async () => {
+    try {
+      const url = `/order-types/${deleteId}`;
+      const deletedObject = await request(`${url}`, { method: "DELETE", body: "" });
+      setOrderTypes(prevState => prevState.filter(
+        (item) => item.id !== deletedObject.id,
+      ));
+      showToast(
+        "success",
+        `Jenis Pesanan "${deletedObject.name}" berhasil dihapus.`,
+      );
+    } catch (error) {
+      showToast("error", "Gagal menghapus data, coba lagi nanti.");
+    }
+    setOpenModal(false);
+  }, [session?.accessToken, deleteId]);
+
+  const table = useMemo(() => {
+    if (loading) {
+      return (
+        <SkeletonTable
+          columnsName={["Nama", "ALamat", "Kontak", "Email", "Keterangan", ""]}
+        />
+      );
+    } else {
+      return (
+        <OrderTypeTable
+          data={orderTypes}
+          onEditHandler={(id) => router.push(`${pathName}/${id}`)}
+          onRemoveHandler={(id) => {
+            setDeleteId(id);
+            setOpenModal(true);
+          }}
+        />
+      );
+    }
+  }, [loading, orderTypes, pathName, router]);
+
   return (
     <main className="flex flex-col gap-4 p-4">
       <div>
@@ -17,7 +96,13 @@ export default async function JenisPesananPage() {
           <AddButton />
         </div>
       </div>
-      <OrderTypeTable />
+      {table}
+      <ConfirmModal
+        text="Anda yakin ingin menghapus data ini?"
+        openModal={openModal}
+        onCloseHandler={() => setOpenModal(false)}
+        onYesHandler={() => onRemoveHandler()}
+      />
     </main>
   );
 }

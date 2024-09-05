@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import OrderTypeAddEdit from "../_components/AddEdit";
-import { OrderType } from "@/constant/interfaces";
+import { OrderType } from "@/constants";
 
 export default function EditPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
@@ -12,21 +12,22 @@ export default function EditPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (session) {
       const fetchData = async () => {
-        const res = await fetch(`http://localhost:3002/api/order-types/${params.id}`,
+        const res = await fetch(
+          `http://localhost:3002/api/order-types/${params.id}`,
           {
             headers: {
               Authorization: `Bearer ${session?.accessToken}`,
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
-            cache: 'no-store'
+            cache: "no-store",
           },
         );
         const data = await res.json();
         setOrderType(data);
-      }
+      };
       fetchData();
     }
-  }, [session])
+  }, [session]);
 
-  return <OrderTypeAddEdit orderType={orderType} />
+  return <OrderTypeAddEdit orderType={orderType} />;
 }

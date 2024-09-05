@@ -94,15 +94,22 @@ export class UsersController {
   }
 
   @Patch('/:id/profile')
+  @UseInterceptors(FileInterceptor('image', multerOptions))
   @ApiOkResponse({ type: UserEntity })
-  updateProfil(
+  async updateProfil(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
-    @GetCurrentUserId() currentId: number
+    @GetCurrentUserId() currentId: number,
+    @UploadedFile() file: Express.Multer.File
   ) {
     // only current user can update profile
     if (id !== currentId) {
       throw new ForbiddenException('403 Forbidden');
+    }
+    const currentUser = await this.usersService.findUnique({ id });
+    if (file) {
+      this.removeImage(currentUser?.image!);
+      updateUserDto.image = file.filename;
     }
     return this.usersService.update({ where: { id }, data: updateUserDto });
   }

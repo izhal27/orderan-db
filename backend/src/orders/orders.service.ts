@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { PrintedStatus, Prisma, User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 import {
@@ -19,6 +19,7 @@ import { OrderEntity } from './entities/order.entity';
 import { orderNumber } from '../helpers';
 import { CustomersService } from '../customers/customers.service';
 import { ADMIN } from '../types';
+import { UserEntity } from '../users/entities/user.entity';
 
 @Injectable()
 export class OrdersService {
@@ -35,16 +36,17 @@ export class OrdersService {
   ): Promise<OrderEntity[]> {
     try {
       const { date, customer, description, orderDetails } = createOrderDto;
-      const number = orderNumber('DB-', 4);
+      const number = orderNumber('DB-', 3);
+      const customerUpperCase = customer.toUpperCase();
       return await this.prismaService.$transaction(
         async (prisma): Promise<OrderEntity[] | any> => {
           try {
-            await this.customersService.create({ name: customer }, userId);
+            await this.customersService.create({ name: customerUpperCase }, userId);
             return await prisma.order.create({
               data: {
                 number,
                 date,
-                customer,
+                customer: customerUpperCase,
                 description,
                 userId,
                 OrderDetails: {
@@ -63,7 +65,7 @@ export class OrdersService {
                     eyelets: true,
                     shiming: true,
                     description: true,
-                    MarkedPrintered: true,
+                    MarkedPrinted: true,
                   },
                 },
                 user: {
@@ -105,7 +107,8 @@ export class OrdersService {
               eyelets: true,
               shiming: true,
               description: true,
-              MarkedPrintered: true,
+              MarkedPrinted: true,
+              deleted: true,
               orderId: true,
               createdAt: true,
               updatedAt: true,
@@ -123,11 +126,145 @@ export class OrdersService {
             },
           },
         },
+        orderBy: {
+          createdAt: 'desc'
+        }
       });
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(error);
     }
+  }
+
+  async filter(params: {
+    startDate?: Date;
+    endDate?: Date;
+    customer?: string;
+    userId?: number;
+    sortBy?: string;
+    sortOrder?: Prisma.SortOrder;
+    page?: number;
+    pageSize?: number;
+  }) {
+    const {
+      startDate,
+      endDate,
+      customer,
+      userId,
+      sortBy = 'updatedAt', // Default sorting by 'createdAt'
+      sortOrder = 'desc', // Default sorting order 'desc'
+      page,
+      pageSize,
+    } = params;
+
+    const where: Prisma.OrderWhereInput = {};
+
+    if (startDate && endDate) {
+      where.date = {
+        gte: startDate,
+        lte: endDate,
+      };
+    }
+
+    if (customer) {
+      where.customer = customer;
+    }
+
+    if (userId) {
+      where.userId = userId;
+    }
+
+    let skip: number | undefined;
+    let take: number | undefined;
+
+    if (page && pageSize) {
+      skip = (page - 1) * pageSize;
+      take = pageSize;
+    }
+
+    const orders = await this.prismaService.order.findMany({
+      where,
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+      skip,
+      take,
+      include: {
+        OrderDetails: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            width: true,
+            height: true,
+            qty: true,
+            design: true,
+            eyelets: true,
+            shiming: true,
+            description: true,
+            MarkedPrinted: {
+              include: {
+                PrintedBy: {
+                  select: {
+                    id: true,
+                    username: true,
+                    name: true,
+                    image: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        MarkedPay: {
+          include: {
+            MarkedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
+        MarkedTaken: {
+          include: {
+            MarkedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            image: true,
+            password: false
+          },
+        },
+      },
+    });
+
+    const total = await this.prismaService.order.count({
+      where,
+    });
+
+    return {
+      data: orders,
+      meta: {
+        total,
+        page: page ?? 1,
+        pageSize: pageSize ?? total,
+        totalPages: pageSize ? Math.ceil(total / pageSize) : 1,
+      },
+    };
   }
 
   async findUnique(
@@ -136,16 +273,69 @@ export class OrdersService {
     const order = await this.prismaService.order.findUnique({
       where,
       include: {
-        OrderDetails: true,
-        MarkedPay: true,
-        MarkedTaken: true,
+        OrderDetails: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            width: true,
+            height: true,
+            qty: true,
+            design: true,
+            eyelets: true,
+            shiming: true,
+            description: true,
+            MarkedPrinted: {
+              include: {
+                PrintedBy: {
+                  select: {
+                    id: true,
+                    username: true,
+                    name: true,
+                    image: true,
+                  },
+                },
+              },
+            },
+            deleted: true,
+            orderId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          orderBy: {
+            createdAt: 'asc'
+          }
+        },
+        MarkedPay: {
+          include: {
+            MarkedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              }
+            },
+          },
+        },
+        MarkedTaken: {
+          include: {
+            MarkedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
         user: {
           select: {
             id: true,
             username: true,
             name: true,
-            image: true,
-            password: false
+            image: true
           },
         },
       },
@@ -162,11 +352,16 @@ export class OrdersService {
     userId: number,
   ): Promise<OrderEntity | any> {
     const { date, customer, description, orderDetails } = updateOrderDto;
-    const updatedOd = orderDetails?.map((od) => ({
-      where: { id: od.id },
-      data: { ...od },
-    }));
+    const newOd = orderDetails!.filter(od => !('id' in od)); // order detail baru yang ditambahkan
+    const existOd = orderDetails!.filter(od => "id" in od && !od.deleted);
+    const updatedOd = existOd?.map((od) => ({ where: { id: od.id }, data: { ...od } }));
+    const deletedOd = orderDetails?.filter(od => od.deleted === true)
+      .map(od => od.id);
+
     try {
+      await this.prismaService.orderDetail.deleteMany({
+        where: { id: { in: deletedOd } }
+      });
       return await this.prismaService.order.update({
         where: { id },
         data: {
@@ -176,17 +371,32 @@ export class OrdersService {
           userId,
           OrderDetails: {
             updateMany: updatedOd,
+            createMany: {
+              data: newOd
+            }
           },
         },
         include: {
-          OrderDetails: true,
+          OrderDetails: {
+            select: {
+              name: true,
+              price: true,
+              width: true,
+              height: true,
+              qty: true,
+              design: true,
+              eyelets: true,
+              shiming: true,
+              description: true,
+              MarkedPrinted: true,
+            },
+          },
           user: {
             select: {
               id: true,
               username: true,
               name: true,
-              image: true,
-              password: false
+              image: true
             },
           },
         },
@@ -212,6 +422,15 @@ export class OrdersService {
           OrderDetails: true,
           MarkedPay: true,
           MarkedTaken: true,
+          user: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+              name: true,
+              image: true,
+            }
+          }
         },
       });
     } catch (error) {
@@ -220,7 +439,7 @@ export class OrdersService {
     }
   }
 
-  markPrint(orderDetailId: string, markPrintedDto: MarkPrintedDto, printedById: number) {
+  async markPrint(orderDetailId: string, markPrintedDto: MarkPrintedDto, printedById: number) {
     const { status, description, printAt } = markPrintedDto;
     try {
       return this.prismaService.printedStatus.upsert({
@@ -238,6 +457,16 @@ export class OrdersService {
           orderDetailId,
           printedById,
         },
+        include: {
+          PrintedBy: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              image: true,
+            }
+          }
+        }
       });
     } catch (error) {
       this.logger.error(error);
@@ -263,6 +492,16 @@ export class OrdersService {
           orderId,
           markedById,
         },
+        include: {
+          MarkedBy: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              image: true,
+            }
+          }
+        }
       });
     } catch (error) {
       this.logger.error(error);
@@ -288,10 +527,78 @@ export class OrdersService {
           orderId,
           markedById,
         },
+        include: {
+          MarkedBy: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              image: true,
+            }
+          }
+        }
       });
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(error);
     }
   }
+
+  cancelStatus({ type, orderId, orderDetailId }: { type: CancelType, orderId?: string, orderDetailId?: string }) {
+    switch (type) {
+      case CancelType.PRINT:
+        return this.prismaService.printedStatus.update({
+          where: { orderDetailId: orderDetailId },
+          data: { status: false },
+          include: {
+            PrintedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        });
+
+      case CancelType.PAY:
+        return this.prismaService.payStatus.update({
+          where: { orderId },
+          data: { status: false },
+          include: {
+            MarkedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        });
+
+      case CancelType.TAKEN:
+        return this.prismaService.takenStatus.update({
+          where: { orderId },
+          data: { status: false },
+          include: {
+            MarkedBy: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        });
+    }
+  }
+}
+
+export const enum CancelType {
+  PRINT,
+  PAY,
+  TAKEN
 }

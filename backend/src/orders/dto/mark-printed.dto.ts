@@ -21,7 +21,7 @@ export class MarkPrintedDto {
     example: '2024-08-05T05:41:49.371Z',
     description: 'Printed date',
   })
-  printAt: Date;
+  printAt: string;
 
   @IsString()
   @IsOptional()

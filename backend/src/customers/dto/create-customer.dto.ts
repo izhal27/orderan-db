@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
 import {
   IsNotEmpty,
   IsOptional,
@@ -12,6 +12,7 @@ export class CreateCustomerDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
+  @Transform(((param) => param.value.toUpperCase()))
   @ApiProperty({
     example: 'John Doe',
     description: 'Customer name',

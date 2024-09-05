@@ -112,6 +112,7 @@ export class AuthService {
         username: user.username,
         name: user.name,
         image: user.image,
+        email: user.email,
         role: user.role?.name
       },
       expiresIn: this.configService.get(JWT_EXPIRES),

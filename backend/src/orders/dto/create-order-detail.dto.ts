@@ -1,7 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Exclude } from 'class-transformer';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrderDetailDto {
+  @IsString()
+  @IsOptional()
+  id: string
+
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
@@ -10,6 +15,7 @@ export class CreateOrderDetailDto {
   })
   name: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({
@@ -90,4 +96,8 @@ export class CreateOrderDetailDto {
     description: 'Order ID',
   })
   orderId: string;
+
+  @IsBoolean()
+  @IsOptional()
+  deleted: boolean;
 }
