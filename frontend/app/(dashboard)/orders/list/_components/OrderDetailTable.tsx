@@ -9,7 +9,7 @@ interface props {
   onRemoveHandler(index: number): void;
 }
 
-export default function TableOrderDetail({ data, detailMode = false, onEditHandler, onRemoveHandler }: props) {
+export default function OrderDetailTable({ data, detailMode = false, onEditHandler, onRemoveHandler }: props) {
   return (
     <Table hoverable>
       <Table.Head>

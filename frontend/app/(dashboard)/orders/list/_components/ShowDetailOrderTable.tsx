@@ -12,7 +12,7 @@ interface props {
   onCheckBoxPrintedClickHandler(e: any, orderDetailId: string): void,
 }
 
-export default function TableShowDetail({ data, expandedRowId, onExpandedRowToggleHandler, onCheckBoxPrintedClickHandler }: props) {
+export default function ShowDetailOrderTable({ data, expandedRowId, onExpandedRowToggleHandler, onCheckBoxPrintedClickHandler }: props) {
   return (
     <Table>
       <Table.Head>

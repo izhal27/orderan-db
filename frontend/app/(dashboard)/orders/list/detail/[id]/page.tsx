@@ -9,7 +9,7 @@ import { MarkedPrinted, Order } from "@/constants";
 import UserAvatar from "@/components/UserAvatar";
 import BackButton from "@/components/buttons/BackButton";
 import SkeletonTable from "@/components/SkeletonTable";
-import TableShowDetail from "../../_components/TableShowDetail";
+import ShowDetailOrderTable from "../../_components/ShowDetailOrderTable";
 import localDate from "@/lib/getLocalDate";
 import { showToast } from "@/helpers";
 import { useApiClient } from "@/lib/apiClient";
@@ -194,7 +194,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       );
     } else {
       return (
-        <TableShowDetail
+        <ShowDetailOrderTable
           data={order?.OrderDetails || []}
           expandedRowId={expandedRowId}
           onExpandedRowToggleHandler={(id) => toggleRowExpanded(id)}

@@ -10,7 +10,7 @@ import { showToast } from "@/helpers/toast";
 import BackButton from "@/components/buttons/BackButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import localDate from "@/lib/getLocalDate";
-import TableOrderDetail from "./TableOrderDetail";
+import OrderDetailTable from "./OrderDetailTable";
 import ModalInput from "./ModalInput";
 import AutoCompleteTextInput from '@/components/AutoCompleteTextInput';
 
@@ -191,7 +191,7 @@ export default function OrderAddEdit({ order }: props) {
             </Button>
           </div>
         </div>
-        <TableOrderDetail
+        <OrderDetailTable
           data={orderDetails}
           onEditHandler={index => {
             if (modalRef.current) {
