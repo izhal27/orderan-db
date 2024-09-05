@@ -2,7 +2,7 @@
 
 import { Table } from "flowbite-react";
 import { HiCheck, HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
-import { Order, User } from "@/constants";
+import { Order, Roles, User } from "@/constants";
 import localDate from "@/lib/getLocalDate";
 import UserAvatar from "@/components/UserAvatar";
 
@@ -27,7 +27,7 @@ function userImage(user: User) {
 
 const getStatus = (order: Order) => {
   let status: any = '-';
-  if ((order.MarkedPay.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken.status)) {
+  if ((order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken?.status)) {
     status = <span className="px-3 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold">ON PROSES</span>
   }
   if (order.MarkedPay?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status) && order.MarkedTaken?.status) {
@@ -77,7 +77,7 @@ export default function OrderTable({
                     {
                       // jika role user saat ini designer atau operator dan status sudah on proses
                       // maka sembunyikan button edit dan hapus
-                      role && (role.includes('designer') || role.includes('operator')) &&
+                      role && (role.includes(Roles.DESIGNER) || role.includes(Roles.OPERATOR)) &&
                         (item.MarkedPay?.status || item.MarkedTaken?.status || item.OrderDetails.every(od => od.MarkedPrinted?.status)) ?
                         null : <>
                           <HiPencil

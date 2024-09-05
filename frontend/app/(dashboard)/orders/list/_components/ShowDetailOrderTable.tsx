@@ -1,18 +1,24 @@
 import { Fragment } from "react";
 import { Checkbox, Table } from "flowbite-react";
-import { twMerge } from "tailwind-merge";
-import { OrderDetail } from "@/constants";
-import localDate from "@/lib/getLocalDate";
 import { HiChevronDown, HiChevronRight } from "react-icons/hi";
+import { OrderDetail, Roles } from "@/constants";
+import localDate from "@/lib/getLocalDate";
 
 interface props {
   data: OrderDetail[];
   expandedRowId: string | null,
   onExpandedRowToggleHandler(id: string): void;
   onCheckBoxPrintedClickHandler(e: any, orderDetailId: string): void,
+  role: string | undefined;
 }
 
-export default function ShowDetailOrderTable({ data, expandedRowId, onExpandedRowToggleHandler, onCheckBoxPrintedClickHandler }: props) {
+export default function ShowDetailOrderTable({
+  data,
+  expandedRowId,
+  onExpandedRowToggleHandler,
+  onCheckBoxPrintedClickHandler,
+  role }: props
+) {
   return (
     <Table>
       <Table.Head>
@@ -43,10 +49,16 @@ export default function ShowDetailOrderTable({ data, expandedRowId, onExpandedRo
                 <Table.Cell>{item.description}</Table.Cell>
                 <Table.Cell>
                   <div className="flex items-center justify-center gap-1">
-                    <Checkbox
-                      id="marked-printed"
-                      onChange={(e) => onCheckBoxPrintedClickHandler(e, item.id)}
-                      defaultChecked={item.MarkedPrinted?.status} />
+                    {
+                      // jika user bertipe admin atau operator
+                      // maka tampilkan checkbox marked printed
+                      !role?.includes(Roles.ADMINISTRASI) && !role?.includes(Roles.DESIGNER) ?
+                        <Checkbox
+                          id="marked-printed"
+                          onChange={(e) => onCheckBoxPrintedClickHandler(e, item.id)}
+                          defaultChecked={item.MarkedPrinted?.status} /> :
+                        <span>{item.MarkedPrinted?.status ? 'Sudah' : 'Belum'}</span>
+                    }
                     {
                       item.MarkedPrinted && (
                         <span onClick={() => onExpandedRowToggleHandler(item.id)} color="gray" className="cursor-pointer">
@@ -65,16 +77,16 @@ export default function ShowDetailOrderTable({ data, expandedRowId, onExpandedRo
                 item.MarkedPrinted && (
                   <Table.Row>
                     <Table.Cell colSpan={9} className="p-0">
-                      <div className={twMerge(expandedRowId === item.id ? 'block' : 'hidden')}>
+                      <div className={expandedRowId === item.id ? 'block' : 'hidden'}>
                         <div className="p-4 bg-gray-100 dark:bg-gray-700 ">
                           <div className="text-gray-700 dark:text-gray-300">
                             {
                               item.MarkedPrinted.status ?
                                 <span className="text-sm font-light">
-                                  {`Ditandai telah dicetak oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${localDate(item.MarkedPrinted?.updatedAt, 'long', true, true)}`}
+                                  {`Ditandai dicetak oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${localDate(item.MarkedPrinted?.updatedAt, 'long', true, true)}`}
                                 </span> :
                                 <span className="text-sm font-light">
-                                  {`Ditandai batal cetak oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${localDate(item.MarkedPrinted?.updatedAt, 'long', true, true)}`}
+                                  {`Dibatalkan oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${localDate(item.MarkedPrinted?.updatedAt, 'long', true, true)}`}
                                 </span>
                             }
                           </div>

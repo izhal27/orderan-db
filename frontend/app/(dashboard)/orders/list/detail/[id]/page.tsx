@@ -5,7 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Label, Checkbox } from "flowbite-react";
 import debounce from "lodash.debounce";
 import { twMerge } from "tailwind-merge";
-import { MarkedPrinted, Order } from "@/constants";
+import { HiCheck } from "react-icons/hi";
+import { MarkedPrinted, Order, Roles } from "@/constants";
 import UserAvatar from "@/components/UserAvatar";
 import BackButton from "@/components/buttons/BackButton";
 import SkeletonTable from "@/components/SkeletonTable";
@@ -14,7 +15,6 @@ import localDate from "@/lib/getLocalDate";
 import { showToast } from "@/helpers";
 import { useApiClient } from "@/lib/apiClient";
 import { useLoading } from "@/context/LoadingContext";
-import { HiCheck } from "react-icons/hi";
 
 type EventType = {
   urlMarked: string;
@@ -177,10 +177,10 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   const getStatus = useCallback((order: Order) => {
     let status: any = null;
     if ((order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken?.status)) {
-      status = <span className="px-4 py-2 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-base font-semibold">ON PROSES</span>
+      status = <span className="px-4 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-base font-semibold">ON PROSES</span>
     }
     if (order.MarkedPay?.status && order?.MarkedTaken?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status)) {
-      status = <span className="px-4 py-2 bg-green-500 dark:bg-green-400 rounded-full text-white dark:text-gray-700 text-base font-semibold inline-flex items-center justify-center w-fit gap-2"><HiCheck className="inline-block" /> SELESAI</span>
+      status = <span className="px-4 py-1 bg-green-500 dark:bg-green-400 rounded-full text-white dark:text-gray-700 text-base font-semibold inline-flex items-center justify-center w-fit gap-2"><HiCheck className="inline-block" /> SELESAI</span>
     }
     return status;
   }, [order]);
@@ -199,6 +199,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           expandedRowId={expandedRowId}
           onExpandedRowToggleHandler={(id) => toggleRowExpanded(id)}
           onCheckBoxPrintedClickHandler={handleCheckboxPrintedClick}
+          role={session?.user?.role}
         />
       );
     }
@@ -223,53 +224,35 @@ export default function DetailPage({ params }: { params: { id: string } }) {
             />
           </div>
           <div className="flex gap-x-6">
-            <div className="grid grid-cols-[auto,auto,1fr] items-center gap-x-4 text-gray-500 dark:text-gray-400">
-              <p>Tanggal</p>
-              <span>:</span>
-              <p className="font-medium">
-                {localDate(Date.now(), 'medium')}
-              </p>
-              <p>Pelanggan</p>
-              <span>:</span>
-              <p className="font-medium">
-                {order?.customer}
-              </p>
-              <p>Keterangan</p>
-              <span>:</span>
-              <p className="font-medium">
-                {order?.description}
-              </p>
+            <div className="grid grid-cols-[auto,auto,1fr] text-sm gap-x-4 text-gray-500 dark:text-gray-400">
+              <p>Tanggal</p><span>:</span><p>{localDate(Date.now(), 'medium')}</p>
+              <p>Pelanggan</p><span>:</span><p>{order?.customer}</p>
+              <p>Keterangan</p><span>:</span><p>{order?.description}</p>
             </div>
-            <div className="flex items-start gap-2">
-              <p className="font-semibold text-gray-500 dark:text-gray-400">Total</p>
+            <div className="flex items-start gap-2 text-sm">
+              <p className="font-medium text-gray-500 dark:text-gray-400">Total</p>
               <div className="grid grid-cols-[auto,auto,1fr] items-center gap-x-4 text-gray-500 dark:text-gray-400">
-                <p>Item</p>
-                <span>:</span>
-                <p className="font-medium">
-                  {order?.OrderDetails?.length}
-                </p>
-                <p>Qty</p>
-                <span>:</span>
-                <p className="font-medium">
+                <p>Item</p><span>:</span><p>{order?.OrderDetails?.length}</p>
+                <p>Qty</p><span>:</span><p>
                   {order?.OrderDetails?.reduce((acc, od) => acc + od.qty, 0)}
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-2">
-              <p className="font-semibold text-gray-500 dark:text-gray-400">Status</p>
+            <div className="flex items-start gap-2 text-sm">
+              <p className="font-medium text-gray-500 dark:text-gray-400">Status</p>
               <div className="grid grid-cols-[auto,auto,1fr] items-center gap-x-4 text-gray-500 dark:text-gray-400">
                 <p>Dibayar</p>
                 <span>:</span>
                 <p className={twMerge("font-medium", order?.MarkedPay?.status ? 'text-green-400' : 'text-red-400')}>
                   {order?.MarkedPay?.status ? 'Selesai' : 'Belum'}
                 </p>
-                {order?.MarkedPay && <span className="text-xs  col-span-3 font-light">{order?.MarkedPay.status ? 'Ditandai' : 'Dibatalkan'} oleh {`${order?.MarkedPay.MarkedBy?.name} @${order?.MarkedPay.MarkedBy?.username} ${localDate(order?.MarkedPay?.updatedAt, 'short', true, true)}`}</span>}
+                {order?.MarkedPay && <span className="text-xs col-span-3 font-light">{order?.MarkedPay?.status ? 'Ditandai' : 'Dibatalkan'} oleh {`${order?.MarkedPay.MarkedBy?.name} @${order?.MarkedPay.MarkedBy?.username} ${localDate(order?.MarkedPay?.updatedAt, 'short', true, true)}`}</span>}
                 <p>Diambil</p>
                 <span>:</span>
                 <p className={twMerge("font-medium", order?.MarkedTaken?.status ? 'text-green-400' : 'text-red-400')}>
                   {order?.MarkedTaken?.status ? 'Selesai' : 'Belum'}
                 </p>
-                {order?.MarkedTaken && <span className="text-xs  col-span-3 font-light">{order?.MarkedTaken.status ? 'Ditandai' : 'Dibatalkan'} oleh {`${order?.MarkedTaken.MarkedBy?.name} @${order?.MarkedTaken.MarkedBy?.username} ${localDate(order?.MarkedTaken?.updatedAt, 'short', true, true)}`}</span>}
+                {order?.MarkedTaken && <span className="text-xs col-span-3 font-light">{order?.MarkedTaken?.status ? 'Ditandai' : 'Dibatalkan'} oleh {`${order?.MarkedTaken.MarkedBy?.name} @${order?.MarkedTaken.MarkedBy?.username} ${localDate(order?.MarkedTaken?.updatedAt, 'short', true, true)}`}</span>}
               </div>
             </div>
           </div>
@@ -278,26 +261,32 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           <div className="flex flex-col justify-between items-end">
             <div>{order && getStatus(order)}</div>
             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <Label htmlFor="marked-pay" className="flex gap-2 items-center text-gray-500 dark:text-gray-400">
-                <Checkbox
-                  id="marked-pay"
-                  onChange={handleCheckboxPayClick}
-                  checked={order?.MarkedPay?.status ? true : false}
-                  // disable jika status sudah diambil
-                  disabled={order?.MarkedTaken.status}
-                />
-                Dibayar
-              </Label>
-              <Label htmlFor="marked-taken" className="flex gap-2 items-center text-gray-500 dark:text-gray-400">
-                <Checkbox
-                  id="marked-taken"
-                  onChange={handleCheckboxTakenClick}
-                  checked={order?.MarkedPay?.status && order?.MarkedTaken?.status ? true : false}
-                  // disable jika belum ada pembayaran atau semua belum ditandai dicetak
-                  disabled={!order?.MarkedPay?.status || !order?.OrderDetails?.every(od => od.MarkedPrinted?.status)}
-                />
-                Diambil
-              </Label>
+              {
+                // hanya user yang bertipe role admin atau administrasi yang bisa menandai terbayar dan diambil
+                session?.user?.role?.includes(Roles.ADMIN) || session?.user?.role?.includes(Roles.ADMINISTRASI) ?
+                  <>
+                    <Label htmlFor="marked-pay" className="flex gap-2 items-center text-gray-500 dark:text-gray-400">
+                      <Checkbox
+                        id="marked-pay"
+                        onChange={handleCheckboxPayClick}
+                        checked={order?.MarkedPay?.status ? true : false}
+                        // disable jika status sudah diambil
+                        disabled={order?.MarkedTaken?.status}
+                        className="disabled:text-gray-500"
+                      />
+                      Dibayar
+                    </Label>
+                    <Label htmlFor="marked-taken" className="flex gap-2 items-center text-gray-500 dark:text-gray-400">
+                      <Checkbox
+                        id="marked-taken"
+                        onChange={handleCheckboxTakenClick}
+                        checked={order?.MarkedPay?.status && order?.MarkedTaken?.status ? true : false}
+                      // disable jika belum ada pembayaran atau semua belum ditandai dicetak
+                      />
+                      Diambil
+                    </Label>
+                  </> : null
+              }
             </div>
           </div>
         </div>
