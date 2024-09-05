@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import moment from 'moment-timezone'
-import OrderTable from "./_components/Table";
+import OrderTable from "./_components/OrderTable";
 import { Order } from "@/constants";
 import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers";
 import AddButton from "@/components/buttons/AddButton";
@@ -84,6 +84,7 @@ export default function ListOrderPage() {
             setDeleteId(id);
             setOpenModal(true);
           }}
+          role={session?.user.role}
         />
       );
     }

@@ -11,6 +11,7 @@ interface props {
   onEditHandler(id: string): void;
   onDetailHandler(id: string): void;
   onRemoveHandler(id: string): void;
+  role: string | undefined;
 }
 
 function userImage(user: User) {
@@ -26,10 +27,10 @@ function userImage(user: User) {
 
 const getStatus = (order: Order) => {
   let status: any = '-';
-  if ((order.MarkedPay || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken.status)) {
+  if ((order.MarkedPay.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken.status)) {
     status = <span className="px-3 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold">ON PROSES</span>
   }
-  if (order.MarkedTaken?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status) && order.MarkedTaken?.status) {
+  if (order.MarkedPay?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status) && order.MarkedTaken?.status) {
     status = <span className="px-3 py-1 bg-green-500 dark:bg-green-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold inline-flex items-center justify-center w-fit gap-2"><HiCheck className="inline-block" /> SELESAI</span>
   }
   return status;
@@ -40,6 +41,7 @@ export default function OrderTable({
   onEditHandler,
   onDetailHandler,
   onRemoveHandler,
+  role,
 }: props) {
   return (
     <div className="flex flex-col gap-4">
@@ -72,14 +74,22 @@ export default function OrderTable({
                       className="cursor-pointer text-blue-500"
                       onClick={() => onDetailHandler(item.id)}
                     />
-                    <HiPencil
-                      className="cursor-pointer text-blue-500"
-                      onClick={() => onEditHandler(item.id)}
-                    />
-                    <HiTrash
-                      className="cursor-pointer text-red-500"
-                      onClick={() => onRemoveHandler(item.id)}
-                    />
+                    {
+                      // jika role user saat ini designer atau operator dan status sudah on proses
+                      // maka sembunyikan button edit dan hapus
+                      role && (role.includes('designer') || role.includes('operator')) &&
+                        (item.MarkedPay?.status || item.MarkedTaken?.status || item.OrderDetails.every(od => od.MarkedPrinted?.status)) ?
+                        null : <>
+                          <HiPencil
+                            className="cursor-pointer text-blue-500"
+                            onClick={() => onEditHandler(item.id)}
+                          />
+                          <HiTrash
+                            className="cursor-pointer text-red-500"
+                            onClick={() => onRemoveHandler(item.id)}
+                          />
+                        </>
+                    }
                   </div>
                 </Table.Cell>
               </Table.Row>
