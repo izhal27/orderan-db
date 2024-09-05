@@ -92,7 +92,7 @@ export class OrdersController {
   }
 
   @Post('/detail/:orderDetailId/print')
-  @Roles(Role.Admin, Role.Administrasi, Role.Operator)
+  @Roles(Role.Admin, Role.Operator)
   @HttpCode(200)
   markPrinted(@Param('orderDetailId') id: string,
     @Body() markPrintedDto: MarkPrintedDto,
@@ -101,7 +101,7 @@ export class OrdersController {
   }
 
   @Post('/detail/:orderDetailId/cancel-print')
-  @Roles(Role.Admin, Role.Administrasi)
+  @Roles(Role.Admin, Role.Operator)
   @HttpCode(200)
   cancelMarkPrinted(@Param('orderDetailId') id: string,) {
     return this.ordersService.cancelStatus({ type: CancelType.PRINT, orderDetailId: id });
