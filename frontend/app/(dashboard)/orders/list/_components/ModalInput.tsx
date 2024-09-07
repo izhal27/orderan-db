@@ -8,6 +8,7 @@ import { Button, Checkbox, Label, Modal, Spinner, TextInput } from "flowbite-rea
 import { zodResolver } from "@hookform/resolvers/zod";
 import { OrderDetail, OrderDetailFormData, OrderType } from "@/constants";
 import { orderDetailSchema } from "@/schemas/schemas";
+import OrderTypeSelectInput from "./OrderTypeSelectInput";
 
 interface props {
   show: boolean;
@@ -24,74 +25,16 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
     setValue,
     setFocus,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<OrderDetailFormData>({
     resolver: zodResolver(orderDetailSchema),
   });
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [orderTypeName, setOrderTypeName] = useState('');
-  const [query, setQuery] = useState<string>('');
-  const [items, setItems] = useState<OrderType[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [activeIndex, setActiveIndex] = useState<number>(-1);
-  const [showItems, setShowItems] = useState<boolean>(true);
-
-  const fetchSuggestions = async (searchQuery: string) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`http://localhost:3002/api/order-types/filter?query=${searchQuery}`, {
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json',
-        }
-      });
-      const data = await response.json();
-      setItems(data);
-    } catch (error) {
-      console.error('Error fetching suggestions:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const debouncedFetchSuggestions = useCallback(
-    debounce((searchQuery: string) => {
-      if (searchQuery.length >= 3) {
-        fetchSuggestions(searchQuery);
-      } else {
-        setItems([]);
-      }
-    }, 500), // 500ms debounce delay
-    [session]
-  );
-
-  useEffect(() => {
-    debouncedFetchSuggestions(query);
-    return () => {
-      debouncedFetchSuggestions.cancel();
-    };
-  }, [query, debouncedFetchSuggestions]);
-
-  const handleSuggestionClick = (item: OrderType) => {
-    setQuery(item.name);
-    setShowItems(false);
-    setOrderTypeName(item.name);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'ArrowDown') {
-      setActiveIndex((prevIndex) => (prevIndex < items.length - 1 ? prevIndex + 1 : prevIndex));
-    } else if (e.key === 'ArrowUp') {
-      setActiveIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : 0));
-    } else if (e.key === 'Enter') {
-      if (activeIndex >= 0 && activeIndex < items.length) {
-        handleSuggestionClick(items[activeIndex]);
-      }
-    }
-  };
 
   const onSubmit = (data: OrderDetailFormData) => {
-    if (!query) {
+    console.log(orderTypeName);
+    if (!orderTypeName) {
       return;
     }
     const orderDetail = { name: orderTypeName, ...data };
@@ -101,14 +44,12 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
       onEditHandler(selectedIndex, orderDetail as OrderDetail);
     }
     setSelectedIndex(null);
-    setQuery('');
     reset();
   }
 
   const onClose = () => {
     reset();
     setSelectedIndex(null);
-    setQuery('');
     onCloseHandler();
   }
 
@@ -116,8 +57,7 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
     setOrderdetailForm(index: number, data: OrderDetail) {
       const { name, width, height, qty, design, eyelets, shiming, description } = data;
       setSelectedIndex(index);
-      // setValue('name', name);
-      setQuery(name);
+      setOrderTypeName(name);
       setValue('width', width);
       setValue('height', height);
       setValue('qty', qty);
@@ -142,39 +82,9 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
                 </div>
 
                 <div className="relative">
-                  <TextInput
-                    id="generic-text-input"
-                    placeholder="Type to search..."
-                    value={query}
-                    onChange={(e) => {
-                      setQuery(e.target.value);
-                      if (query.length === 0) {
-                        setShowItems(true)
-                      }
-                    }}
-                    onFocus={() => setShowItems(true)}
-                    onKeyDown={handleKeyDown}
+                  <OrderTypeSelectInput 
+                    onSelectValueHandler={(value) => setOrderTypeName(value)}
                   />
-                  {loading && (
-                    <div className="absolute right-2 top-2">
-                      <Spinner size="sm" />
-                    </div>
-                  )}
-                  {showItems && items.length > 0 && (
-                    <ul className="absolute bg-white border rounded mt-2 w-full z-10">
-                      {items.map((item, index) => (
-                        <li
-                          key={item.id}
-                          className={`p-2 cursor-pointer ${index === activeIndex ? 'bg-blue-500 text-white' : 'bg-white text-black'
-                            }`}
-                          onClick={() => handleSuggestionClick(item)}
-                          onMouseEnter={() => setActiveIndex(index)}
-                        >
-                          {item.name}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
