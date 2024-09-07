@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 
 export const useApiClient = () => {
   const { data: session } = useSession();
-  const baseUrl = "http://localhost:3002/api";
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002/api";
 
   const request = async (endpoint: string, { method = "GET", body, headers = {} as Record<string, string>, ...customConfig }: {
     method?: string;
