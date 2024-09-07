@@ -1,11 +1,11 @@
 import { Fragment } from "react";
 import { Checkbox, Table } from "flowbite-react";
 import { HiChevronDown, HiChevronRight } from "react-icons/hi";
-import { OrderDetail, Roles } from "@/constants";
+import { Order, OrderDetail, Roles } from "@/constants";
 import localDate from "@/lib/getLocalDate";
 
 interface props {
-  data: OrderDetail[];
+  order?: Order;
   expandedRowId: string | null,
   onExpandedRowToggleHandler(id: string): void;
   onCheckBoxPrintedClickHandler(e: any, orderDetailId: string): void,
@@ -13,7 +13,7 @@ interface props {
 }
 
 export default function ShowDetailOrderTable({
-  data,
+  order,
   expandedRowId,
   onExpandedRowToggleHandler,
   onCheckBoxPrintedClickHandler,
@@ -33,7 +33,7 @@ export default function ShowDetailOrderTable({
         <Table.HeadCell className="text-center">Dicetak</Table.HeadCell>
       </Table.Head>
       <Table.Body className="divide-y">
-        {data?.map((item: OrderDetail, index) => {
+        {order?.OrderDetails?.map((item: OrderDetail, index) => {
           return (
             <Fragment key={index}>
               <Table.Row
@@ -56,7 +56,10 @@ export default function ShowDetailOrderTable({
                         <Checkbox
                           id="marked-printed"
                           onChange={(e) => onCheckBoxPrintedClickHandler(e, item.id)}
-                          defaultChecked={item.MarkedPrinted?.status} /> :
+                          defaultChecked={item.MarkedPrinted?.status}
+                          disabled={order?.MarkedTaken?.status}
+                          className="disabled:text-gray-500 disabled:cursor-not-allowed"
+                        /> :
                         <span>{item.MarkedPrinted?.status ? 'Sudah' : 'Belum'}</span>
                     }
                     {

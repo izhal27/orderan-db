@@ -67,8 +67,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
         onSuccessMarkedHandler(result);
       } else {
         const result = await request(urlCancel, {
-          method: 'POST',
-          body: {}
+          method: 'POST'
         });
         onSuccessUnmarkedHandler(result);
       }
@@ -195,7 +194,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     } else {
       return (
         <ShowDetailOrderTable
-          data={order?.OrderDetails || []}
+          order={order}
           expandedRowId={expandedRowId}
           onExpandedRowToggleHandler={(id) => toggleRowExpanded(id)}
           onCheckBoxPrintedClickHandler={handleCheckboxPrintedClick}
@@ -203,7 +202,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
         />
       );
     }
-  }, [loading, order?.OrderDetails, expandedRowId]);
+  }, [loading, order, expandedRowId]);
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -272,7 +271,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                         checked={order?.MarkedPay?.status ? true : false}
                         // disable jika status sudah diambil
                         disabled={order?.MarkedTaken?.status}
-                        className="disabled:text-gray-500"
+                        className="disabled:text-gray-500 disabled:cursor-not-allowed"
                       />
                       Dibayar
                     </Label>
@@ -281,7 +280,9 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                         id="marked-taken"
                         onChange={handleCheckboxTakenClick}
                         checked={order?.MarkedPay?.status && order?.MarkedTaken?.status ? true : false}
-                      // disable jika belum ada pembayaran atau semua belum ditandai dicetak
+                        // disable jika belum ada pembayaran atau semua belum ditandai dicetak
+                        disabled={!order?.MarkedPay?.status || !order?.OrderDetails?.every(od => od.MarkedPrinted?.status)}
+                        className="disabled:text-gray-500 disabled:cursor-not-allowed"
                       />
                       Diambil
                     </Label>
@@ -293,30 +294,6 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       </div >
       <div className="flex flex-col gap-4">
         {table}
-        {/* <ConfirmModal
-          text="Anda yakin ingin membatalkan status ini?"
-          openModal={showConfirmDeleteModal}
-          onCloseHandler={() => setShowConfirmDeleteModal(false)}
-          onYesHandler={() => {
-            if (isEditMode && deletedIndex !== -1) {
-              const deletedOd = orderDetails[deletedIndex!];
-              deletedOd.deleted = true;
-              setDeletedOrderDetails(prevState => [...prevState, deletedOd]);
-            }
-            const updatedData = orderDetails.filter((_, i) => i !== deletedIndex);
-            setOrderDetails([...updatedData]);
-            setShowConfirmDeleteModal(false);
-          }}
-        />
-        <ConfirmModal
-          yesButtonColor="success"
-          text="Anda yakin ingin menyimpan data ini?"
-          openModal={showConfirmSaveModal}
-          onCloseHandler={() => setShowConfirmSaveModal(false)}
-          onYesHandler={() => {
-            onSubmit();
-          }}
-        /> */}
       </div>
     </div >
   );
