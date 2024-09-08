@@ -201,7 +201,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
         />
       );
     }
-  }, [loading, order, expandedRowId]);
+  }, [loading, session?.user?.role, order, expandedRowId]);
 
   return (
     <div className="flex flex-col gap-4 p-4">
