@@ -5,9 +5,10 @@ import { useApiClient } from "@/lib/apiClient";
 
 interface props {
     onSelectValueHandler: (value: string) => void;
+    value: string | undefined;
 }
 
-export default function OrderTypeSelectInput({ onSelectValueHandler }: props) {
+export default function OrderTypeSelectInput({ onSelectValueHandler, value }: props) {
     const [options, setOptions] = useState<OrderType[]>([]);
     const [selectedValue, setSelectedValue] = useState<string>('');
     const {request} = useApiClient();
@@ -23,9 +24,14 @@ export default function OrderTypeSelectInput({ onSelectValueHandler }: props) {
     useEffect(() => {
         fetchOrderTypes();
     }, []);
+
+    useEffect(() => {
+        if (value) {
+            setSelectedValue(value);
+        }
+    }, [value]);
     
     const handleChange = (value: string) => {
-        console.log(value);
         setSelectedValue(value);
         onSelectValueHandler(value);
     }   

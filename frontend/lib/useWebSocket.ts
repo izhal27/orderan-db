@@ -10,7 +10,7 @@ const useWebSocket = (events: EventMap) => {
   useEffect(() => {
     // Initialize socket connection
     socketRef.current = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3002');
-
+    
     // Subscribe to all events
     Object.entries(events).forEach(([event, handler]) => {
       socketRef.current?.on(event, handler);

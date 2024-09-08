@@ -63,6 +63,7 @@ export interface Order {
   MarkedTaken: MarkedTaken,
   createdAt: string;
   updatedAt: string;
+  animate?: boolean;
 }
 
 export interface MarkedPrinted {
@@ -95,4 +96,10 @@ export interface MarkedTaken {
   markedById?: number,
   createdAt: string;
   updatedAt: string;
+}
+
+export interface WebSocketEvent {
+  event: string,
+  data: any,
+  userId: string
 }

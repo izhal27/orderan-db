@@ -1,12 +1,11 @@
 'use client'
 
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
-import debounce from 'lodash.debounce';
-import { Button, Checkbox, Label, Modal, Spinner, TextInput } from "flowbite-react";
+import { Button, Checkbox, Label, Modal, TextInput } from "flowbite-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { OrderDetail, OrderDetailFormData, OrderType } from "@/constants";
+import { OrderDetail, OrderDetailFormData } from "@/constants";
 import { orderDetailSchema } from "@/schemas/schemas";
 import OrderTypeSelectInput from "./OrderTypeSelectInput";
 
@@ -33,7 +32,6 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
   const [orderTypeName, setOrderTypeName] = useState('');
 
   const onSubmit = (data: OrderDetailFormData) => {
-    console.log(orderTypeName);
     if (!orderTypeName) {
       return;
     }
@@ -50,6 +48,7 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
   const onClose = () => {
     reset();
     setSelectedIndex(null);
+    setOrderTypeName('');
     onCloseHandler();
   }
 
@@ -84,6 +83,7 @@ const ModalInput = forwardRef(({ show, onAddHandler, onEditHandler, onCloseHandl
                 <div className="relative">
                   <OrderTypeSelectInput 
                     onSelectValueHandler={(value) => setOrderTypeName(value)}
+                    value={orderTypeName}
                   />
                 </div>
               </div>

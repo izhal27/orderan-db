@@ -5,13 +5,14 @@ import { HiCheck, HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
 import { Order, Roles, User } from "@/constants";
 import localDate from "@/lib/getLocalDate";
 import UserAvatar from "@/components/UserAvatar";
+import { twMerge } from "tailwind-merge";
 
 interface props {
-  data: Order[];
+  order: Order[];
   onEditHandler(id: string): void;
   onDetailHandler(id: string): void;
   onRemoveHandler(id: string): void;
-  role: string | undefined;
+  session: any | undefined;
 }
 
 function userImage(user: User) {
@@ -37,12 +38,27 @@ const getStatus = (order: Order) => {
 }
 
 export default function OrderTable({
-  data,
+  order,
   onEditHandler,
   onDetailHandler,
   onRemoveHandler,
-  role,
+  session,
 }: props) {
+  // hanya user yang membuat order atau admin, administrasi yang bisa edit dan hapus order
+   const canEditOrder = (item: Order) => {
+    if (!session) return false;    
+    const isCreator = session.user.id === item.user.id;
+    const isAdminOrAdministrasi = session.user.role.includes(Roles.ADMIN) || session.user.role.includes(Roles.ADMINISTRASI);    
+    return isCreator || isAdminOrAdministrasi;
+  };
+
+  // jika role user saat ini designer atau operator dan status sudah on proses
+  // maka sembunyikan button edit dan hapus
+  const isOrderInProcess = (item: Order) => {
+    const isAdminOrAdministrasi = session.user.role.includes(Roles.ADMIN) || session.user.role.includes(Roles.ADMINISTRASI);
+    return !isAdminOrAdministrasi && (item.MarkedPay?.status || item.MarkedTaken?.status || item.OrderDetails.some(od => od.MarkedPrinted?.status));
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <Table hoverable>
@@ -56,11 +72,11 @@ export default function OrderTable({
           <Table.HeadCell className="text-center">Aksi</Table.HeadCell>
         </Table.Head>
         <Table.Body className="divide-y">
-          {data?.map((item: Order) => {
+          {order?.map((item: Order) => {
             return (
               <Table.Row
                 key={item.id}
-                className="bg-white dark:border-gray-700 dark:bg-gray-800 text-center"
+                className={twMerge("bg-white dark:border-gray-700 dark:bg-gray-800 text-center", item.animate ? "animate-splash dark:animate-splashDark" : "")}
               >
                 <Table.Cell className="flex">{userImage(item.user)}</Table.Cell>
                 <Table.Cell>{item.number}</Table.Cell>
@@ -75,11 +91,8 @@ export default function OrderTable({
                       onClick={() => onDetailHandler(item.id)}
                     />
                     {
-                      // jika role user saat ini designer atau operator dan status sudah on proses
-                      // maka sembunyikan button edit dan hapus
-                      role && (role.includes(Roles.DESIGNER) || role.includes(Roles.OPERATOR)) &&
-                        (item.MarkedPay?.status || item.MarkedTaken?.status || item.OrderDetails.every(od => od.MarkedPrinted?.status)) ?
-                        null : <>
+                      canEditOrder(item) && !isOrderInProcess(item) && (
+                        <>
                           <HiPencil
                             className="cursor-pointer text-blue-500"
                             onClick={() => onEditHandler(item.id)}
@@ -89,6 +102,7 @@ export default function OrderTable({
                             onClick={() => onRemoveHandler(item.id)}
                           />
                         </>
+                      )
                     }
                   </div>
                 </Table.Cell>
