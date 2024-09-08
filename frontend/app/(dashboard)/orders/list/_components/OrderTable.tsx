@@ -47,14 +47,15 @@ export default function OrderTable({
   // hanya user yang membuat order atau admin, administrasi yang bisa edit dan hapus order
    const canEditOrder = (item: Order) => {
     if (!session) return false;    
-    const isCreator = session.user.id === item.user.id;
-    const isAdminOrAdministrasi = session.user.role.includes(Roles.ADMIN) || session.user.role.includes(Roles.ADMINISTRASI);    
+    const isCreator = session?.user?.id === item.user.id;
+    const isAdminOrAdministrasi = session?.user?.role?.includes(Roles.ADMIN) || session?.user?.role?.includes(Roles.ADMINISTRASI);    
     return isCreator || isAdminOrAdministrasi;
   };
 
   // jika role user saat ini designer atau operator dan status sudah on proses
   // maka sembunyikan button edit dan hapus
   const isOrderInProcess = (item: Order) => {
+    if (!session) return;    
     const isAdminOrAdministrasi = session.user.role.includes(Roles.ADMIN) || session.user.role.includes(Roles.ADMINISTRASI);
     return !isAdminOrAdministrasi && (item.MarkedPay?.status || item.MarkedTaken?.status || item.OrderDetails.some(od => od.MarkedPrinted?.status));
   };

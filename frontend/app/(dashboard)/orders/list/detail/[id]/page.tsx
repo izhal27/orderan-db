@@ -62,7 +62,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       if (isChecked) {
         const result = await request(urlMarked, {
           method: 'POST',
-          body,
+          body: JSON.stringify(body),
         });
         onSuccessMarkedHandler(result);
       } else {

@@ -30,10 +30,6 @@ export const useApiClient = () => {
       cache: 'no-store',
     };
 
-    if (body) {
-      config.body = body instanceof FormData ? body : JSON.stringify(body);
-    }
-
     const response = await fetch(`${baseUrl}${endpoint}`, config);
 
     if (!response.ok) {

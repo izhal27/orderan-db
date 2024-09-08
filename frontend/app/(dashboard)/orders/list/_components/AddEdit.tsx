@@ -6,13 +6,14 @@ import { useRouter } from "next/navigation";
 import { Button, Label, TextInput } from "flowbite-react";
 import { HiDocumentAdd, HiSave, HiXCircle } from "react-icons/hi";
 import { OrderDetail, Order, Customer } from "@/constants/interfaces";
-import { showToast } from "@/helpers/toast";
+import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
 import BackButton from "@/components/buttons/BackButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import localDate from "@/lib/getLocalDate";
 import OrderDetailTable from "./OrderDetailTable";
 import ModalInput from "./ModalInput";
 import AutoCompleteTextInput from '@/components/AutoCompleteTextInput';
+import { useApiClient } from "@/lib/apiClient";
 
 interface props {
   order?: Order;
@@ -34,6 +35,7 @@ export default function OrderAddEdit({ order }: props) {
   const [customer, setCustomer] = useState<string | undefined>('');
   const [description, setDescription] = useState<string | undefined>('');
   const [someEmpty, setSomeEmpty] = useState(true);
+  const {request} = useApiClient();
 
   useEffect(() => {
     if (order) {
@@ -51,39 +53,35 @@ export default function OrderAddEdit({ order }: props) {
   };
 
   const addHandler = async () => {
-    const res = await fetch("http://localhost:3002/api/orders", {
+    try {
+    const res = await request("/orders", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({ date: new Date().toISOString(), customer, description, orderDetails }),
     });
-    showInfo(res);
+    showInfo(res);      
+    } catch (error) {      
+      showToast("error", COMMON_ERROR_MESSAGE);
+    }
   };
 
   const editHandler = async () => {
-    const res = await fetch(`http://localhost:3002/api/orders/${order?.id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ description, orderDetails: [...orderDetails, ...deletedOrderDetails] }),
-    });
-    showInfo(res);
+    try {      
+      const res = await request(`/orders/${order?.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ description, orderDetails: [...orderDetails, ...deletedOrderDetails] }),
+      });
+      showInfo(res);
+    } catch (error) {
+      showToast("error", COMMON_ERROR_MESSAGE);
+    }
   };
 
   function showInfo(res: Response) {
-    if (res.ok) {
-      showToast(
-        "success",
-        `Pesanan "${customer}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
-      );
-      router.back();
-    } else {
-      showToast("error", "Terjadi kesalahan, coba lagi nanti.");
-    }
+    showToast(
+      "success",
+      `Pesanan "${customer?.toUpperCase()}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
+    );
+    router.back();
   }
 
   const updateItemAtIndex = (index: number, newItem: Partial<OrderDetail>): OrderDetail[] => {
