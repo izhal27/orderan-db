@@ -144,7 +144,6 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     });
   };
 
-
   const handleCheckboxTakenClick = (e: any) => {
     const isChecked = e.target.checked;
     const updateState = (result: any) => {

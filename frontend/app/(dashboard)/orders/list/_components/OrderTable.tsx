@@ -56,7 +56,7 @@ export default function OrderTable({
   // maka sembunyikan button edit dan hapus
   const isOrderInProcess = (item: Order) => {
     if (!session) return;    
-    const isAdminOrAdministrasi = session.user.role.includes(Roles.ADMIN) || session.user.role.includes(Roles.ADMINISTRASI);
+    const isAdminOrAdministrasi = session?.user?.role?.includes(Roles.ADMIN) || session?.user?.role?.includes(Roles.ADMINISTRASI);
     return !isAdminOrAdministrasi && (item.MarkedPay?.status || item.MarkedTaken?.status || item.OrderDetails.some(od => od.MarkedPrinted?.status));
   };
 
