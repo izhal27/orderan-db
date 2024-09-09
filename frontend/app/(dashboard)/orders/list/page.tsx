@@ -13,17 +13,20 @@ import SkeletonTable from "@/components/SkeletonTable";
 import getLocalDate from "@/lib/getLocalDate";
 import { useApiClient } from "@/lib/apiClient";
 import useWebSocket from "@/lib/useWebSocket";
+import { useOrderWebSocket } from "@/lib/useOrderWebSocket";
 
 export default function ListOrderPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const pathName = usePathname();
   const { request } = useApiClient();
-  const [orders, setOrders] = useState<Order[]>([]);
+  // const [orders, setOrders] = useState<Order[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const fetchedRef = useRef(false);
+  const [initialOrders, setInitialOrders] = useState<Order[]>([]);
+  const orders = useOrderWebSocket(initialOrders, session?.user.id);
 
   const fetchOrders = useCallback(async () => {
     if (!session?.accessToken) {
@@ -36,7 +39,7 @@ export default function ListOrderPage() {
       var end = moment.tz(timezone).endOf('day').utc();
       const url = `/orders/filter?startDate=${start.format()}&endDate=${end.format()}`;
       const { data } = await request(url);
-      setOrders(data);
+      setInitialOrders(data);
     } catch (error) {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
@@ -54,7 +57,7 @@ export default function ListOrderPage() {
     try {
       const deletedObject = await request(`/orders/${deleteId}`, { method: 'DELETE' });
       const index = orders.findIndex(o => o.id === deletedObject.id);
-      setOrders(prevOrders => {
+      setInitialOrders(prevOrders => {
         const updatedState = [...prevOrders.toSpliced(index, 1)];
         return updatedState;
       })
@@ -69,11 +72,11 @@ export default function ListOrderPage() {
   }, [session?.accessToken, deleteId]);
 
   const handleOrderStatusChange = (event: WebSocketEvent, statusType: 'Print' | 'Pay' | 'Taken') => {
-    setOrders(prevOrders => prevOrders.map(order => {
+    setInitialOrders(prevOrders => prevOrders.map(order => {
       let updatedOrder = { ...order };
-      
+
       if (statusType === 'Print') {
-        const updatedOrderDetails = order.OrderDetails.map(detail => 
+        const updatedOrderDetails = order.OrderDetails.map(detail =>
           detail.id === event.data.orderDetailId ? { ...detail, MarkedPrinted: event.data } : detail
         );
         if (updatedOrderDetails.some(detail => detail.id === event.data.orderDetailId)) {
@@ -88,78 +91,16 @@ export default function ListOrderPage() {
           updatedOrder = { ...updatedOrder, MarkedTaken: event.data, animate: true };
         }
       }
-      
+
       return updatedOrder.animate ? updatedOrder : order;
     }));
 
     setTimeout(() => {
-      setOrders(prevOrders => prevOrders.map(order => 
+      setInitialOrders(prevOrders => prevOrders.map(order =>
         order.animate ? { ...order, animate: false } : order
       ));
     }, 700);
   };
-
-  useWebSocket({
-    "order:new": (event: WebSocketEvent) => {
-      if (event.userId !== session?.user.id) {
-        const newOrder = { ...event.data, animate: true };
-        setOrders(prevOrders => [newOrder, ...prevOrders]);
-        setTimeout(() => {
-          setOrders(prevOrders => 
-            prevOrders.map(order => 
-              order.id === newOrder.id ? { ...order, animate: false } : order
-            )
-          );
-        }, 700);
-      } else {
-        setOrders(prevOrders => [event.data, ...prevOrders]);
-      }
-    },
-    "order:update": (event: WebSocketEvent) => {
-      if (event.userId !== session?.user.id) {
-        const updatedOrder = { ...event.data, animate: true };
-        setOrders(prevOrders => {
-        const filteredOrders = prevOrders.filter(order => order.id !== updatedOrder.id);
-        return [updatedOrder, ...filteredOrders];
-      });
-      setTimeout(() => {
-        setOrders(prevOrders => 
-          prevOrders.map(order => 
-            order.id === updatedOrder.id ? { ...order, animate: false } : order
-          )
-        );
-      }, 700);
-    } else {
-      setOrders(prevOrders => {
-        const filteredOrders = prevOrders.filter(order => order.id !== event.data.id);
-        return [event.data, ...filteredOrders];
-      });
-    }
-    },
-    "order:delete": (event: WebSocketEvent) => {
-      if (event.userId !== session?.user.id) {
-        setOrders(prevOrders => prevOrders.filter(order => order.id !== event.data));
-      }
-    },
-    "order:markPrint": (event: WebSocketEvent) => {
-      handleOrderStatusChange(event, 'Print');
-    },
-    "order:cancelPrint": (event: WebSocketEvent) => {      
-      handleOrderStatusChange(event, 'Print');
-    },
-    "order:markPay": (event: WebSocketEvent) => {
-      handleOrderStatusChange(event, 'Pay');
-    },
-    "order:cancelPay": (event: WebSocketEvent) => {
-      handleOrderStatusChange(event, 'Pay');
-    },
-    "order:markTaken": (event: WebSocketEvent) => {
-      handleOrderStatusChange(event, 'Taken');
-    },
-    "order:cancelTaken": (event: WebSocketEvent) => {
-      handleOrderStatusChange(event, 'Taken');
-    },
-  });
 
   const table = useMemo(() => {
     if (isLoading) {
