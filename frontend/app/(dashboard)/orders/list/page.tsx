@@ -55,11 +55,6 @@ export default function ListOrderPage() {
   const onRemoveHandler = useCallback(async () => {
     try {
       const deletedObject = await request(`/orders/${deleteId}`, { method: 'DELETE' });
-      const index = orders.findIndex(o => o.id === deletedObject.id);
-      setInitialOrders(prevOrders => {
-        const updatedState = [...prevOrders.toSpliced(index, 1)];
-        return updatedState;
-      })
       showToast(
         "success",
         `Pesanan "${deletedObject.customer}" berhasil dihapus.`,
@@ -69,37 +64,6 @@ export default function ListOrderPage() {
     }
     setOpenModal(false);
   }, [session?.accessToken, deleteId]);
-
-  const handleOrderStatusChange = (event: WebSocketEvent, statusType: 'Print' | 'Pay' | 'Taken') => {
-    setInitialOrders(prevOrders => prevOrders.map(order => {
-      let updatedOrder = { ...order };
-
-      if (statusType === 'Print') {
-        const updatedOrderDetails = order.OrderDetails.map(detail =>
-          detail.id === event.data.orderDetailId ? { ...detail, MarkedPrinted: event.data } : detail
-        );
-        if (updatedOrderDetails.some(detail => detail.id === event.data.orderDetailId)) {
-          updatedOrder = { ...updatedOrder, OrderDetails: updatedOrderDetails, animate: true };
-        }
-      } else if (statusType === 'Pay') {
-        if (order.id === event.data.orderId) {
-          updatedOrder = { ...updatedOrder, MarkedPay: event.data, animate: true };
-        }
-      } else if (statusType === 'Taken') {
-        if (order.id === event.data.orderId) {
-          updatedOrder = { ...updatedOrder, MarkedTaken: event.data, animate: true };
-        }
-      }
-
-      return updatedOrder.animate ? updatedOrder : order;
-    }));
-
-    setTimeout(() => {
-      setInitialOrders(prevOrders => prevOrders.map(order =>
-        order.animate ? { ...order, animate: false } : order
-      ));
-    }, 700);
-  };
 
   const table = useMemo(() => {
     if (isLoading) {
@@ -111,7 +75,7 @@ export default function ListOrderPage() {
     } else {
       return (
         <OrderTable
-          order={orders}
+          order={initialOrders}
           onEditHandler={(id) => router.push(`${pathName}/${id}`)}
           onDetailHandler={(id) => router.push(`${pathName}/detail/${id}`)}
           onRemoveHandler={(id) => {

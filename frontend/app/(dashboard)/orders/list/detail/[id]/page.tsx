@@ -15,6 +15,7 @@ import localDate from "@/lib/getLocalDate";
 import { showToast } from "@/helpers";
 import { useApiClient } from "@/lib/apiClient";
 import { useLoading } from "@/context/LoadingContext";
+import { useOrderStatusWebSocket } from "@/lib/useOrderStatusWebSocket";
 
 type EventType = {
   urlMarked: string;
@@ -27,12 +28,13 @@ type EventType = {
 
 export default function DetailPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
-  const [order, setOrder] = useState<Order | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const { setLoading: setModalLoading } = useLoading();
   const fetchedRef = useRef(false);
   const { request } = useApiClient();
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+  const [initialOrder, setInitialOrder] = useState<Order>();
+  const order = useOrderStatusWebSocket(initialOrder);
 
   const fetchOrder = useCallback(async () => {
     if (!session?.accessToken) {
@@ -41,7 +43,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     setLoading(true);
     try {
       const result = await request(`/orders/${params.id}`);
-      setOrder(result);
+      setInitialOrder(result);
     } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
@@ -104,8 +106,9 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       const od = order.OrderDetails.at(index)!;
       od.MarkedPrinted = { ...od.MarkedPrinted, ...markedPrint };
       const updatedOd = order.OrderDetails.toSpliced(index, 1, od);
-      setOrder(prevState => {
-        const updatedState = prevState;
+
+      setInitialOrder(prevOrder => {
+        const updatedState = prevOrder;
         updatedState!.OrderDetails = [...updatedOd];
         return updatedState;
       });
@@ -119,8 +122,8 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   const handleCheckboxPayClick = (e: any) => {
     const isChecked = e.target.checked;
     const updateState = (result: any) => {
-      setOrder(prevState => {
-        let updatedState = { ...prevState! };
+      setInitialOrder(prevOrder => {
+        let updatedState = { ...prevOrder! };
         updatedState.MarkedPay = { ...result };
         return updatedState;
       });
@@ -147,8 +150,8 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   const handleCheckboxTakenClick = (e: any) => {
     const isChecked = e.target.checked;
     const updateState = (result: any) => {
-      setOrder(prevState => {
-        let updatedState = { ...prevState! };
+      setInitialOrder(prevOrder => {
+        let updatedState = { ...prevOrder! };
         updatedState.MarkedTaken = { ...result };
         return updatedState;
       });
