@@ -43,12 +43,16 @@ export default function FilterModal({ isOpen, onClose, onApplyFilter }: FilterMo
           <div>
             <Datepicker
               onChange={(date) => handleFilterChange('startDate', date.toString())}
+              language='id'
+              labelTodayButton='Hari ini'
             />
           </div>
           <div>
             <Datepicker
               onChange={(date) => handleFilterChange('endDate', date.toString())}
               maxDate={new Date()}
+              language='id'
+              labelTodayButton='Hari ini'
             />
           </div>
           <div>
