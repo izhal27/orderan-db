@@ -20,7 +20,6 @@ export default function ListOrderPage() {
   const router = useRouter();
   const pathName = usePathname();
   const { request } = useApiClient();
-  // const [orders, setOrders] = useState<Order[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(true);
