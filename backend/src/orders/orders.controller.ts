@@ -50,8 +50,9 @@ export class OrdersController {
   filterOrders(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('orderNumber') orderNumber?: string,
     @Query('customer') customer?: string,
-    @Query('userId') userId?: number,
+    @Query('user') user?: string,
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
     @Query('page') page?: number,
@@ -59,8 +60,9 @@ export class OrdersController {
     return this.ordersService.filter({
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined,
+      orderNumber: orderNumber ? orderNumber : undefined,
       customer: customer ? customer : undefined,
-      userId: userId ? Number(userId) : undefined,
+      user: user ? user : undefined,
       sortBy,
       sortOrder,
       page: page ? Number(page) : undefined,

@@ -142,8 +142,9 @@ export class OrdersService {
   async filter(params: {
     startDate?: Date;
     endDate?: Date;
+    orderNumber?: string;
     customer?: string;
-    userId?: number;
+    user?: string;
     sortBy?: string;
     sortOrder?: Prisma.SortOrder;
     page?: number;
@@ -152,8 +153,9 @@ export class OrdersService {
     const {
       startDate,
       endDate,
+      orderNumber,
       customer,
-      userId,
+      user,
       sortBy = 'updatedAt', // Default sorting by 'createdAt'
       sortOrder = 'desc', // Default sorting order 'desc'
       page,
@@ -169,12 +171,27 @@ export class OrdersService {
       };
     }
 
-    if (customer) {
-      where.customer = customer;
+    if (orderNumber) {
+      where.number = {
+        contains: orderNumber,
+      };
     }
 
-    if (userId) {
-      where.userId = userId;
+    if (customer) {
+      where.customer = {
+        contains: customer,
+      };
+    }
+
+    if (user) {
+      where.user = {
+        username: {
+          contains: user,
+        },
+        name: {
+          contains: user,
+        },
+      };
     }
 
     let skip: number | undefined;
@@ -448,7 +465,7 @@ export class OrdersService {
   async markPrint(orderDetailId: string, markPrintedDto: MarkPrintedDto, printedById: number) {
     const { status, description, printAt } = markPrintedDto;
     try {
-      const result = await  this.prismaService.printedStatus.upsert({
+      const result = await this.prismaService.printedStatus.upsert({
         where: { orderDetailId },
         update: {
           status,
