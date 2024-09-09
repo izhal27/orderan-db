@@ -57,6 +57,7 @@ export const userSchema = z.object({
     .min(3, "Nama minimal 3 karakter")
     .max(50, "Nama maksimal 50 karakter"),
   roleId: z.number().optional().or(z.literal("")),
+  image: z.string().optional().or(z.literal("")),
   // blocked: z.boolean()
   //   .optional()
   //   .or(z.literal('')),

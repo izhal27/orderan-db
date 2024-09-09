@@ -53,6 +53,15 @@ export default function UsersAddEdit({ user }: props) {
     }
   }, [user]);
 
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const onSubmit = async (data: UserFormData) => {
     if (!roleId || roleId === 0) {
       setError("roleId", {
@@ -61,10 +70,11 @@ export default function UsersAddEdit({ user }: props) {
       });
       return;
     }
+
     return !isEditMode ? addHandler(data) : editHandler(user!.id, data);
   };
 
-  const appendData = (data: UserFormData) => {
+  const appendData = async (data: UserFormData) => {
     const formData = new FormData();
     formData.append("username", data.username);
     formData.append("password", data.password ? data.password : "");
@@ -72,7 +82,10 @@ export default function UsersAddEdit({ user }: props) {
     formData.append("name", data.name ? data.name : "");
     formData.append("blocked", JSON.stringify(blocked));
     roleId && formData.append("roleId", roleId.toString());
-    selectedImage && formData.append("image", selectedImage);
+    if (selectedImage) {
+      const base64Image = await convertToBase64(selectedImage);
+      data.image = base64Image;
+    }
     return formData;
   };
 
@@ -85,7 +98,7 @@ export default function UsersAddEdit({ user }: props) {
       });
       return;
     }
-    const formData = appendData(data);
+    const formData = await appendData(data);
     const res = await fetch("http://localhost:3002/api/users", {
       method: "POST",
       headers: {
@@ -105,7 +118,7 @@ export default function UsersAddEdit({ user }: props) {
     ) {
       showToast("error", "Admin user harus memiliki role admin.");
     } else {
-      const formData = appendData(data);
+      const formData = await appendData(data);
       const res = await fetch(`http://localhost:3002/api/users/${id}`, {
         method: "PATCH",
         headers: {
