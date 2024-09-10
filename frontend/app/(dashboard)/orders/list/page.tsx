@@ -67,7 +67,7 @@ export default function ListOrderPage() {
   const calculateUserDesignCounts = () => {
     const counts: { [key: string]: number } = {};
 
-    initialOrders.forEach((order) => {
+    orders.forEach((order) => {
       const user = order.user.name;
       const designCount = order.OrderDetails.reduce((sum, od) => sum + od.design, 0);
 
@@ -91,7 +91,7 @@ export default function ListOrderPage() {
     } else {
       return (
         <OrderTable
-          order={initialOrders}
+          order={orders}
           onEditHandler={(id) => router.push(`${pathName}/${id}`)}
           onDetailHandler={(id) => router.push(`${pathName}/detail/${id}`)}
           onRemoveHandler={(id) => {
