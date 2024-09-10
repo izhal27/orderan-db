@@ -12,7 +12,7 @@ import SkeletonTable from "@/components/SkeletonTable";
 import getLocalDate from "@/lib/getLocalDate";
 import { useApiClient } from "@/lib/apiClient";
 import { useOrderWebSocket } from "@/lib/useOrderWebSocket";
-import { Button } from "flowbite-react";
+import { Button, Modal } from "flowbite-react";
 import { HiCheckCircle, HiClipboardList, HiClock, HiInformationCircle } from "react-icons/hi";
 
 export default function ListOrderPage() {
@@ -26,7 +26,7 @@ export default function ListOrderPage() {
   const fetchedRef = useRef(false);
   const [initialOrders, setInitialOrders] = useState<Order[]>([]);
   const orders = useOrderWebSocket(initialOrders, session?.user.id);
-
+  const [showDesignModal, setShowDesignModal] = useState(false);
   const fetchOrders = useCallback(async () => {
     if (!session?.accessToken) {
       return;
@@ -66,8 +66,11 @@ export default function ListOrderPage() {
 
   const calculateUserDesignCounts = () => {
     const counts: { [key: string]: number } = {};
-
     orders.forEach((order) => {
+      // jangan masukkan ke dalam perhitungan jika belum di bayar 
+      if(!order.MarkedPay?.status) {
+        return;
+      }
       const user = order.user.name;
       const designCount = order.OrderDetails.reduce((sum, od) => sum + od.design, 0);
 
@@ -77,7 +80,6 @@ export default function ListOrderPage() {
         counts[user] = designCount;
       }
     });
-
     return Object.entries(counts).map(([user, totalDesign]) => ({ user, totalDesign }));
   };
 
@@ -170,10 +172,17 @@ export default function ListOrderPage() {
       <div className="flex justify-between">
         <div className="max-w-40">
           {
-            isAdministrator &&
-            <Button gradientMonochrome="info" size={'sm'} onClick={() => alert(JSON.stringify(calculateUserDesignCounts(), null, 2))}><HiInformationCircle className="mr-2 size-5" />
-              Total Design
-            </Button>}
+            isAdministrator && (
+              <Button
+                gradientMonochrome="info"
+                size={'sm'}
+                onClick={() => setShowDesignModal(true)}
+              >
+                <HiInformationCircle className="mr-2 size-5" />
+                Total Design
+              </Button>
+            )
+            }
         </div>
         <div className="max-w-40">
           <AddButton text="Buat Pesanan" />
@@ -186,6 +195,24 @@ export default function ListOrderPage() {
         onCloseHandler={() => setOpenModal(false)}
         onYesHandler={() => onRemoveHandler()}
       />
+      <Modal show={showDesignModal} onClose={() => setShowDesignModal(false)}>
+        <Modal.Header>Total Design per User</Modal.Header>
+        <Modal.Body>
+          <div className="space-y-2 mt-6">
+            {calculateUserDesignCounts().map(({ user, totalDesign }) => (
+              <div key={user} className="flex items-center gap-4 dark:text-white">
+                <span className="font-medium">{user} :</span>
+                <span>
+                  {totalDesign}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => setShowDesignModal(false)}>Close</Button>
+        </Modal.Footer>
+      </Modal>
     </main>
   );
 }
