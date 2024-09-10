@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import OrderTable from "./_components/OrderTable";
-import { Order } from "@/constants";
-import { COMMON_ERROR_MESSAGE, getStartAndEndOfDay, showToast } from "@/helpers";
+import { Order, Roles } from "@/constants";
+import { COMMON_ERROR_MESSAGE, getStartAndEndOfDay, isContain, showToast } from "@/helpers";
 import AddButton from "@/components/buttons/AddButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import SkeletonTable from "@/components/SkeletonTable";
@@ -81,6 +81,11 @@ export default function ListOrderPage() {
     return Object.entries(counts).map(([user, totalDesign]) => ({ user, totalDesign }));
   };
 
+  const isAdministrator = useMemo(() => {
+    const userRole = session?.user?.role!;
+    return isContain(userRole, Roles.ADMIN) || isContain(userRole, Roles.ADMINISTRASI);
+  }, [session?.user.role]);
+
   const table = useMemo(() => {
     if (isLoading) {
       return (
@@ -116,7 +121,11 @@ export default function ListOrderPage() {
       </div>
       <div className="flex justify-between">
         <div className="max-w-40">
-          <Button gradientMonochrome="info" size={'sm'} onClick={() => alert(JSON.stringify(calculateUserDesignCounts(), null, 2))}><HiInformationCircle className="mr-2 size-5" /> Total Design</Button>
+          {
+            isAdministrator &&
+            <Button gradientMonochrome="info" size={'sm'} onClick={() => alert(JSON.stringify(calculateUserDesignCounts(), null, 2))}><HiInformationCircle className="mr-2 size-5" />
+              Total Design
+            </Button>}
         </div>
         <div className="max-w-40">
           <AddButton text="Buat Pesanan" />
