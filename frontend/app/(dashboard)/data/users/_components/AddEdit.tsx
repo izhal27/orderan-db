@@ -53,15 +53,6 @@ export default function UsersAddEdit({ user }: props) {
     }
   }, [user]);
 
-  const convertToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-  };
-
   const onSubmit = async (data: UserFormData) => {
     if (!roleId || roleId === 0) {
       setError("roleId", {
@@ -82,10 +73,7 @@ export default function UsersAddEdit({ user }: props) {
     formData.append("name", data.name ? data.name : "");
     formData.append("blocked", JSON.stringify(blocked));
     roleId && formData.append("roleId", roleId.toString());
-    if (selectedImage) {
-      const base64Image = await convertToBase64(selectedImage);
-      data.image = base64Image;
-    }
+    selectedImage && formData.append("image", selectedImage);
     return formData;
   };
 
