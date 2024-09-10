@@ -53,6 +53,7 @@ export default function ListOrderPage() {
   const onRemoveHandler = useCallback(async () => {
     try {
       const deletedObject = await request(`/orders/${deleteId}`, { method: 'DELETE' });
+      setInitialOrders(prevOrders => prevOrders.filter(order => order.id !== deletedObject.id));
       showToast(
         "success",
         `Pesanan "${deletedObject.customer}" berhasil dihapus.`,

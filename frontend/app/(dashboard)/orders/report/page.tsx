@@ -88,6 +88,7 @@ export default function ReportPage() {
   const onRemoveHandler = useCallback(async () => {
     try {
       const deletedObject = await request(`/orders/${deleteId}`, { method: 'DELETE' });
+      setOrders(prevOrders => prevOrders.filter(order => order.id !== deletedObject.id));
       showToast(
         "success",
         `Pesanan "${deletedObject.customer}" berhasil dihapus.`,
