@@ -13,7 +13,7 @@ import getLocalDate from "@/lib/getLocalDate";
 import { useApiClient } from "@/lib/apiClient";
 import { useOrderWebSocket } from "@/lib/useOrderWebSocket";
 import { Button } from "flowbite-react";
-import { HiInformationCircle } from "react-icons/hi";
+import { HiCheckCircle, HiClipboardList, HiClock, HiInformationCircle } from "react-icons/hi";
 
 export default function ListOrderPage() {
   const { data: session } = useSession();
@@ -86,6 +86,13 @@ export default function ListOrderPage() {
     return isContain(userRole, Roles.ADMIN) || isContain(userRole, Roles.ADMINISTRASI);
   }, [session?.user.role]);
 
+  const calculateOrderStatus = useMemo(() => {
+    const total = orders.length;
+    const done = orders.filter(order => order.MarkedPay?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status) && order.MarkedTaken?.status).length;
+    const onProses = orders.filter(order => order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken?.status).length - done;
+    return {total, done, onProses};
+  }, [orders]);
+
   const table = useMemo(() => {
     if (isLoading) {
       return (
@@ -118,6 +125,47 @@ export default function ListOrderPage() {
         <p className="text-sm font-light text-gray-500 dark:text-gray-400">
           Menampilkan daftar pesanan, <span className="font-semibold">{getLocalDate(Date.now(), 'full')}</span>
         </p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+          <div className="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full dark:text-orange-100 dark:bg-orange-500">
+            <HiClipboardList className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+              Total Pesanan
+            </p>
+            <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+              {calculateOrderStatus.total}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+          <div className="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500">
+            <HiClock className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+              On Proses
+            </p>
+            <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+              {calculateOrderStatus.onProses}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+          <div className="p-3 mr-4 text-green-500 bg-green-100 rounded-full dark:text-green-100 dark:bg-green-500">
+            <HiCheckCircle className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+              Selesai
+            </p>
+            <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+              {calculateOrderStatus.done}
+            </p>
+          </div>
+        </div>
       </div>
       <div className="flex justify-between">
         <div className="max-w-40">
