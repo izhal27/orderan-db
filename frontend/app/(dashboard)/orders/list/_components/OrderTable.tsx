@@ -6,6 +6,7 @@ import { Order, Roles, User } from "@/constants";
 import localDate from "@/lib/getLocalDate";
 import UserAvatar from "@/components/UserAvatar";
 import { twMerge } from "tailwind-merge";
+import { isContain } from "@/helpers";
 
 interface props {
   order: Order[];
@@ -50,7 +51,8 @@ export default function OrderTable({
   const canEditOrder = (item: Order) => {
     if (!session) return false;
     const isCreator = session?.user?.id === item.user.id;
-    const isAdminOrAdministrasi = session?.user?.role?.includes(Roles.ADMIN) || session?.user?.role?.includes(Roles.ADMINISTRASI);
+    const userRole = session?.user?.role;
+    const isAdminOrAdministrasi = isContain(userRole, Roles.ADMIN) || isContain(userRole, Roles.ADMINISTRASI);
     return isCreator || isAdminOrAdministrasi;
   };
 
@@ -58,7 +60,8 @@ export default function OrderTable({
   // maka sembunyikan button edit dan hapus
   const isOrderInProcess = (item: Order) => {
     if (!session) return;
-    const isAdminOrAdministrasi = session?.user?.role?.includes(Roles.ADMIN) || session?.user?.role?.includes(Roles.ADMINISTRASI);
+    const userRole = session?.user?.role;
+    const isAdminOrAdministrasi = isContain(userRole, Roles.ADMIN) || isContain(userRole, Roles.ADMINISTRASI);
     return !isAdminOrAdministrasi && (item.MarkedPay?.status || item.MarkedTaken?.status || item.OrderDetails.some(od => od.MarkedPrinted?.status));
   };
 
