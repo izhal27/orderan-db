@@ -1,24 +1,24 @@
 'use client';
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { HiFilter } from 'react-icons/hi';
 import { Button } from 'flowbite-react';
-import FilterModal from '../list/_components/FilterModal';
+import FilterModal, { FilterState } from '../list/_components/FilterModal';
 import OrderTable from '../list/_components/OrderTable';
 import SkeletonTable from '@/components/SkeletonTable';
 import SelectInput from '@/components/SelectInput';
 import { useApiClient } from '@/lib/apiClient';
 import { Order } from '@/constants';
-import { COMMON_ERROR_MESSAGE, showToast } from '@/helpers';
+import { COMMON_ERROR_MESSAGE, formatToEndDateToUTC, formatToStartDateToUTC, getStartAndEndOfDay, showToast } from '@/helpers';
 import ConfirmModal from '@/components/ConfirmModal';
+import PaginationTable from '@/components/Pagination';
 
 export default function ReportPage() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
-  const [appliedFilters, setAppliedFilters] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const pathName = usePathname();
   const { request } = useApiClient();
@@ -28,13 +28,62 @@ export default function ReportPage() {
   const [limit, setLimit] = useState(25);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalData, setTotalData] = useState(0);
-  const [search, setSearch] = useState("");
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const fetchedRef = useRef(false);
+  const [savedFilters, setSavedFilters] = useState<FilterState>();
 
-  const handleApplyFilter = (filters: any) => {
-    setAppliedFilters(filters);
-    // Di sini Anda dapat menerapkan filter ke data atau melakukan permintaan API
-    console.log('Filter diterapkan:', filters);
-  };
+  const handleApplyFilter = useCallback(async (filters: FilterState) => {
+    setSavedFilters(filters);
+    if (!session?.accessToken) {
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const queryParams = new URLSearchParams({
+        page: currentPage.toString(),
+        pageSize: limit.toString(),
+        ...filters,
+        startDate: formatToStartDateToUTC(filters!.startDate!),
+        endDate: formatToEndDateToUTC(filters!.endDate!)
+      });
+      const url = `/orders/filter?${queryParams.toString()}`;
+      const { data, meta: { total, page, pageSize, totalPages } } = await request(url);
+      setOrders(data);
+      setTotalData(total);
+      setTotalPages(totalPages);
+    } catch (error) {
+      showToast("error", COMMON_ERROR_MESSAGE);
+    }
+    setIsLoading(false);
+  }, [session?.accessToken, currentPage, limit]);
+
+  const fetchOrdersCurrentDate = useCallback(async () => {
+    if (!session?.accessToken) {
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { start, end } = getStartAndEndOfDay();
+      const url = `/orders/filter?startDate=${start.format()}&endDate=${end.format()}`;
+      const { data } = await request(url);
+      setTotalData(data.length)
+      setOrders(data);
+    } catch (error) {
+      showToast("error", COMMON_ERROR_MESSAGE);
+    }
+    setIsLoading(false);
+  }, [session?.accessToken]);
+
+  useEffect(() => {
+    if (session && session.accessToken && !fetchedRef.current) {
+      fetchOrdersCurrentDate();
+      fetchedRef.current = true;
+    }
+  }, [session?.accessToken]);
+
+  useEffect(() => {
+    savedFilters && handleApplyFilter(savedFilters);
+  }, [currentPage, limit]);
 
   const onRemoveHandler = useCallback(async () => {
     try {
@@ -60,13 +109,14 @@ export default function ReportPage() {
       return (
         <OrderTable
           order={orders}
-          onEditHandler={(id) => router.push(`${pathName}/${id}`)}
-          onDetailHandler={(id) => router.push(`${pathName}/detail/${id}`)}
+          onEditHandler={(id) => router.push(`/orders/list/${id}`)}
+          onDetailHandler={(id) => router.push(`/orders/list/detail/${id}`)}
           onRemoveHandler={(id) => {
             setDeleteId(id);
             setOpenModal(true);
           }}
           session={session}
+          reportMode={true}
         />
       );
     }
@@ -95,7 +145,7 @@ export default function ReportPage() {
             className="max-w-fit"
           />
           <span className="text-gray-900 dark:text-white">
-            {`${currentPage * limit - limit + 1} - ${currentPage * limit > totalData ? totalData : currentPage * limit}  of ${totalData} items`}
+            {`${currentPage * limit - limit + 1} - ${currentPage * limit > totalData ? totalData : currentPage * limit} of ${totalData} items`}
           </span>
         </div>
         <div className="max-w-32">
@@ -106,6 +156,11 @@ export default function ReportPage() {
         </div>
       </div>
       {table}
+      <PaginationTable
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChangeHandler={(page: number) => setCurrentPage(page)}
+      />
       <FilterModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

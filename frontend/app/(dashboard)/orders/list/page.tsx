@@ -3,16 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import moment from 'moment-timezone'
 import OrderTable from "./_components/OrderTable";
-import { Order, WebSocketEvent } from "@/constants";
-import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers";
+import { Order } from "@/constants";
+import { COMMON_ERROR_MESSAGE, getStartAndEndOfDay, showToast } from "@/helpers";
 import AddButton from "@/components/buttons/AddButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import SkeletonTable from "@/components/SkeletonTable";
 import getLocalDate from "@/lib/getLocalDate";
 import { useApiClient } from "@/lib/apiClient";
-import useWebSocket from "@/lib/useWebSocket";
 import { useOrderWebSocket } from "@/lib/useOrderWebSocket";
 
 export default function ListOrderPage() {
@@ -33,9 +31,7 @@ export default function ListOrderPage() {
     }
     setIsLoading(true);
     try {
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      var start = moment.tz(timezone).startOf('day').utc();
-      var end = moment.tz(timezone).endOf('day').utc();
+      const { start, end } = getStartAndEndOfDay();
       const url = `/orders/filter?startDate=${start.format()}&endDate=${end.format()}`;
       const { data } = await request(url);
       setInitialOrders(data);

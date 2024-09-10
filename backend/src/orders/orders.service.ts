@@ -174,12 +174,14 @@ export class OrdersService {
     if (orderNumber) {
       where.number = {
         contains: orderNumber,
+        mode: 'insensitive'
       };
     }
 
     if (customer) {
       where.customer = {
         contains: customer,
+        mode: 'insensitive'
       };
     }
 
@@ -187,9 +189,11 @@ export class OrdersService {
       where.user = {
         username: {
           contains: user,
+          mode: 'insensitive'
         },
         name: {
           contains: user,
+          mode: 'insensitive'
         },
       };
     }
@@ -205,7 +209,7 @@ export class OrdersService {
     const orders = await this.prismaService.order.findMany({
       where,
       orderBy: {
-        [sortBy]: sortOrder,
+        updatedAt: sortOrder,
       },
       skip,
       take,

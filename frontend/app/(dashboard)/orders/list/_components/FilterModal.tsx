@@ -7,26 +7,26 @@ interface FilterModalProps {
   onApplyFilter: (filters: FilterState) => void;
 }
 
-interface FilterState {
-  startDate: string;
-  endDate: string;
+export interface FilterState {
+  startDate: Date | undefined;
+  endDate: Date | undefined;
   orderNumber: string;
   customer: string;
   user: string;
-  sortType: string;
+  sortOrder: string;
 }
 
 export default function FilterModal({ isOpen, onClose, onApplyFilter }: FilterModalProps) {
   const [filters, setFilters] = useState<FilterState>({
-    startDate: '',
-    endDate: '',
+    startDate: new Date(),
+    endDate: new Date(),
     orderNumber: '',
     customer: '',
     user: '',
-    sortType: ''
+    sortOrder: 'desc'
   });
 
-  const handleFilterChange = (name: keyof FilterState, value: string) => {
+  const handleFilterChange = (name: keyof FilterState, value: any) => {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
@@ -42,14 +42,14 @@ export default function FilterModal({ isOpen, onClose, onApplyFilter }: FilterMo
         <div className="grid grid-cols-2 gap-4 mt-6">
           <div>
             <Datepicker
-              onChange={(date) => handleFilterChange('startDate', date.toString())}
+              onSelectedDateChanged={(date) => handleFilterChange('startDate', date)}
               language='id'
               labelTodayButton='Hari ini'
             />
           </div>
           <div>
             <Datepicker
-              onChange={(date) => handleFilterChange('endDate', date.toString())}
+              onSelectedDateChanged={(date) => handleFilterChange('endDate', date)}
               maxDate={new Date()}
               language='id'
               labelTodayButton='Hari ini'
@@ -93,16 +93,16 @@ export default function FilterModal({ isOpen, onClose, onApplyFilter }: FilterMo
           </div>
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="sortType" value="Jenis Pengurutan" />
+              <Label htmlFor="sortBy" value="Jenis Pengurutan" />
             </div>
             <Select
               id="sortType"
-              value={filters.sortType}
-              onChange={(e) => handleFilterChange('sortType', e.target.value)}
+              value={filters.sortOrder}
+              onChange={(e) => handleFilterChange('sortOrder', e.target.value)}
             >
               <option value="">Pilih Jenis Pengurutan</option>
-              <option value="date_asc">Tanggal (Terlama)</option>
-              <option value="date_desc">Tanggal (Terbaru)</option>
+              <option value="asc">Tanggal (Terlama)</option>
+              <option value="desc">Tanggal (Terbaru)</option>
             </Select>
           </div>
         </div>

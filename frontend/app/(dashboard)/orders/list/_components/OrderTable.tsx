@@ -13,6 +13,7 @@ interface props {
   onDetailHandler(id: string): void;
   onRemoveHandler(id: string): void;
   session: any | undefined;
+  reportMode?: boolean;
 }
 
 function userImage(user: User) {
@@ -43,19 +44,20 @@ export default function OrderTable({
   onDetailHandler,
   onRemoveHandler,
   session,
+  reportMode = false
 }: props) {
   // hanya user yang membuat order atau admin, administrasi yang bisa edit dan hapus order
-   const canEditOrder = (item: Order) => {
-    if (!session) return false;    
+  const canEditOrder = (item: Order) => {
+    if (!session) return false;
     const isCreator = session?.user?.id === item.user.id;
-    const isAdminOrAdministrasi = session?.user?.role?.includes(Roles.ADMIN) || session?.user?.role?.includes(Roles.ADMINISTRASI);    
+    const isAdminOrAdministrasi = session?.user?.role?.includes(Roles.ADMIN) || session?.user?.role?.includes(Roles.ADMINISTRASI);
     return isCreator || isAdminOrAdministrasi;
   };
 
   // jika role user saat ini designer atau operator dan status sudah on proses
   // maka sembunyikan button edit dan hapus
   const isOrderInProcess = (item: Order) => {
-    if (!session) return;    
+    if (!session) return;
     const isAdminOrAdministrasi = session?.user?.role?.includes(Roles.ADMIN) || session?.user?.role?.includes(Roles.ADMINISTRASI);
     return !isAdminOrAdministrasi && (item.MarkedPay?.status || item.MarkedTaken?.status || item.OrderDetails.some(od => od.MarkedPrinted?.status));
   };
@@ -68,7 +70,7 @@ export default function OrderTable({
           <Table.HeadCell className="text-center">Nomor</Table.HeadCell>
           <Table.HeadCell className="text-center">Waktu</Table.HeadCell>
           <Table.HeadCell className="text-center">Pelanggan</Table.HeadCell>
-          <Table.HeadCell className="text-center">Keterangan</Table.HeadCell>
+          {!reportMode && <Table.HeadCell className="text-center">Keterangan</Table.HeadCell>}
           <Table.HeadCell className="text-center">Status</Table.HeadCell>
           <Table.HeadCell className="text-center">Aksi</Table.HeadCell>
         </Table.Head>
@@ -81,9 +83,9 @@ export default function OrderTable({
               >
                 <Table.Cell className="flex">{userImage(item.user)}</Table.Cell>
                 <Table.Cell>{item.number}</Table.Cell>
-                <Table.Cell>{localDate(item.updatedAt, 'long', false, true).substring(0, 5)}</Table.Cell>
+                <Table.Cell>{localDate(item.updatedAt, !reportMode ? 'long' : 'medium', reportMode, true)}</Table.Cell>
                 <Table.Cell>{item.customer}</Table.Cell>
-                <Table.Cell>{item.description}</Table.Cell>
+                {!reportMode && <Table.Cell>{item.description}</Table.Cell>}
                 <Table.Cell>{getStatus(item)}</Table.Cell>
                 <Table.Cell>
                   <div className="flex gap-2 justify-center">

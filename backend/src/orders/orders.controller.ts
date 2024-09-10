@@ -7,7 +7,6 @@ import {
   Patch,
   Param,
   Delete,
-  ForbiddenException,
   HttpCode,
   Query,
 } from '@nestjs/common';
