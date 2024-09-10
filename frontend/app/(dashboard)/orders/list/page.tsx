@@ -12,6 +12,8 @@ import SkeletonTable from "@/components/SkeletonTable";
 import getLocalDate from "@/lib/getLocalDate";
 import { useApiClient } from "@/lib/apiClient";
 import { useOrderWebSocket } from "@/lib/useOrderWebSocket";
+import { Button } from "flowbite-react";
+import { HiInformationCircle } from "react-icons/hi";
 
 export default function ListOrderPage() {
   const { data: session } = useSession();
@@ -61,6 +63,23 @@ export default function ListOrderPage() {
     setOpenModal(false);
   }, [session?.accessToken, deleteId]);
 
+  const calculateUserDesignCounts = () => {
+    const counts: { [key: string]: number } = {};
+
+    initialOrders.forEach((order) => {
+      const user = order.user.name;
+      const designCount = order.OrderDetails.reduce((sum, od) => sum + od.design, 0);
+
+      if (counts[user]) {
+        counts[user] += designCount;
+      } else {
+        counts[user] = designCount;
+      }
+    });
+
+    return Object.entries(counts).map(([user, totalDesign]) => ({ user, totalDesign }));
+  };
+
   const table = useMemo(() => {
     if (isLoading) {
       return (
@@ -94,7 +113,10 @@ export default function ListOrderPage() {
           Menampilkan daftar pesanan, <span className="font-semibold">{getLocalDate(Date.now(), 'full')}</span>
         </p>
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-between">
+        <div className="max-w-40">
+          <Button gradientMonochrome="info" size={'sm'} onClick={() => alert(JSON.stringify(calculateUserDesignCounts(), null, 2))}><HiInformationCircle className="mr-2 size-5" /> Total Design</Button>
+        </div>
         <div className="max-w-40">
           <AddButton text="Buat Pesanan" />
         </div>
