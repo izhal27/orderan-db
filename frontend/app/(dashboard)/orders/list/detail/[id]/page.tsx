@@ -16,6 +16,7 @@ import { useApiClient } from "@/lib/apiClient";
 import { useLoading } from "@/context/LoadingContext";
 import { useOrderStatusWebSocket } from "@/lib/useOrderStatusWebSocket";
 import { useMoment } from "@/lib/useMoment";
+import LabelStatus from "../../_components/LabelStatus";
 
 type EventType = {
   urlMarked: string;
@@ -176,16 +177,9 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     });
   };
 
-  const getStatusLabel = useCallback((order: Order) => {
-    let status: any = null;
-    if ((order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken?.status)) {
-      status = <span className="px-4 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-base font-semibold inline-flex items-center justify-center w-fit gap-2"><HiClock className="inline-block" /> ON PROSES</span>
-    }
-    if (order.MarkedPay?.status && order?.MarkedTaken?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status)) {
-      status = <span className="px-4 py-1 bg-green-500 dark:bg-green-400 rounded-full text-white dark:text-gray-700 text-base font-semibold inline-flex items-center justify-center w-fit gap-2"><HiCheck className="inline-block" /> SELESAI</span>
-    }
-    return status;
-  }, [order]);
+  const getStatusLabel = (order: Order) => {
+    return LabelStatus({ order });
+  }
 
   const table = useMemo(() => {
     if (loading) {

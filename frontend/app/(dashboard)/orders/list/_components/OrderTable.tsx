@@ -1,12 +1,13 @@
 "use client";
 
 import { Table } from "flowbite-react";
-import { HiCheck, HiClock, HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
+import { HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
 import { Order, Roles, User } from "@/constants";
-import localDate from "@/lib/getLocalDate";
 import UserAvatar from "@/components/UserAvatar";
 import { twMerge } from "tailwind-merge";
 import { isContain } from "@/helpers";
+import LabelStatus from "./LabelStatus";
+import { useMoment } from "@/lib/useMoment";
 
 interface props {
   order: Order[];
@@ -29,14 +30,7 @@ function userImage(user: User) {
 }
 
 const getStatus = (order: Order) => {
-  let status: any = '-';
-  if ((order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken?.status)) {
-    status = <span className="px-3 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold inline-flex items-center justify-center w-fit gap-2"><HiClock className="inline-block" />  ON PROSES</span>
-  }
-  if (order.MarkedPay?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status) && order.MarkedTaken?.status) {
-    status = <span className="px-3 py-1 bg-green-500 dark:bg-green-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold inline-flex items-center justify-center w-fit gap-2"><HiCheck className="inline-block" /> SELESAI</span>
-  }
-  return status;
+  return LabelStatus({ order, classNameOnProses: "px-3 text-xs", classNameDone: "px-3 text-xs" });
 }
 
 export default function OrderTable({
@@ -47,6 +41,8 @@ export default function OrderTable({
   session,
   reportMode = false
 }: props) {
+  const { moment } = useMoment();
+
   // hanya user yang membuat order atau admin, administrasi yang bisa edit dan hapus order
   const canEditOrder = (item: Order) => {
     if (!session) return false;
@@ -86,7 +82,7 @@ export default function OrderTable({
               >
                 <Table.Cell className="flex">{userImage(item.user)}</Table.Cell>
                 <Table.Cell>{item.number}</Table.Cell>
-                <Table.Cell>{localDate(item.updatedAt, !reportMode ? 'long' : 'medium', reportMode, true)}</Table.Cell>
+                <Table.Cell>{moment(item.updatedAt).format("LT")}</Table.Cell>
                 <Table.Cell>{item.customer}</Table.Cell>
                 {!reportMode && <Table.Cell>{item.description}</Table.Cell>}
                 <Table.Cell>{getStatus(item)}</Table.Cell>
