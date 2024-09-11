@@ -55,8 +55,8 @@ export default function ShowDetailOrderTable({
                       !role?.includes(Roles.ADMINISTRASI) && !role?.includes(Roles.DESIGNER) ?
                         <Checkbox
                           id="marked-printed"
-                          onChange={(e) => onCheckBoxPrintedClickHandler(e, item.id)}
-                          checked={item.MarkedPrinted?.status}
+                          onClick={(e) => onCheckBoxPrintedClickHandler(e, item.id)}
+                          defaultChecked={item.MarkedPrinted?.status}
                           disabled={order?.MarkedTaken?.status}
                           className="disabled:text-gray-500 disabled:cursor-not-allowed"
                         /> :

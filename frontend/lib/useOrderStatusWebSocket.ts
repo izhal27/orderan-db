@@ -1,15 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Order, WebSocketEvent } from "@/constants";
 import useWebSocket from "@/lib/useWebSocket";
+import { useSession } from 'next-auth/react';
 
 export function useOrderStatusWebSocket(initialOrder: Order | undefined) {
   const [order, setOrder] = useState<Order | undefined>(initialOrder);
+  const { data: session } = useSession();
 
   useEffect(() => {
     setOrder(initialOrder);
   }, [initialOrder]);
 
   const handleOrderStatusChange = useCallback((event: WebSocketEvent, statusType: 'Print' | 'Pay' | 'Taken') => {
+    if (session?.user.id === event.userId) {
+      return;
+    }
     setOrder(prevOrder => {
       if (!prevOrder) return prevOrder;
 
