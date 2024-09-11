@@ -8,15 +8,21 @@ services:
       args:
         - NODE_ENV=${ENVIRONMENT}
     restart: unless-stopped
-    networks:
-      - internal
+    env_file:
+      - ./.env
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_WEBSOCKET_URL: ${NEXT_PUBLIC_WEBSOCKET_URL}
+      AUTH_SECRET: ${AUTH_SECRET}
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
       - ./logs/frontend:/root/.npm/_logs
-    env_file:
-      - ./.env
+    networks:
+      - internal
+    ports:
+      - "2703:3000"
     depends_on:
       - backend
 
@@ -28,7 +34,8 @@ services:
       args:
         - NODE_ENV=${ENVIRONMENT}
     restart: unless-stopped
-    env_file: .env
+    env_file:
+      - ./.env
     environment:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES: ${JWT_EXPIRES}
