@@ -22,10 +22,12 @@ const useWebSocket = (events: EventMap) => {
         Object.keys(events).forEach((event) => {
           socketRef.current?.off(event);
         });
-        socketRef.current.disconnect();
+        if (socketRef.current.connected) {
+          socketRef.current.disconnect();
+        }
       }
     };
-  }, [events]);
+  }, []);
 
   return socketRef.current;
 };
