@@ -11,11 +11,11 @@ import UserAvatar from "@/components/UserAvatar";
 import BackButton from "@/components/buttons/BackButton";
 import SkeletonTable from "@/components/SkeletonTable";
 import ShowDetailOrderTable from "../../_components/ShowDetailOrderTable";
-import localDate from "@/lib/getLocalDate";
 import { isContain, showToast } from "@/helpers";
 import { useApiClient } from "@/lib/apiClient";
 import { useLoading } from "@/context/LoadingContext";
 import { useOrderStatusWebSocket } from "@/lib/useOrderStatusWebSocket";
+import { useMoment } from "@/lib/useMoment";
 
 type EventType = {
   urlMarked: string;
@@ -35,6 +35,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [initialOrder, setInitialOrder] = useState<Order>();
   const order = useOrderStatusWebSocket(initialOrder);
+  const { moment } = useMoment();
 
   const fetchOrder = useCallback(async () => {
     if (!session?.accessToken) {
@@ -210,7 +211,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     <div className="flex flex-col gap-4 p-4">
       <BackButton />
       <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-        Detail Pesanan : <span className="font-normal text-gray-500 dark:text-gray-400">{order?.user?.name}</span> <span className="text-sm font-light text-gray-500 dark:text-gray-400">@{order?.user?.username}</span>
+        Detail Pesanan : <span className="font-normal text-gray-500 dark:text-gray-400">{order?.user?.name}</span><span className="text-sm font-light text-gray-500 dark:text-gray-400">@{order?.user?.username}</span>
       </h3>
       <div className="grid grid-cols-[auto,1fr] gap-x-24">
         <div className="flex gap-x-4">
@@ -226,7 +227,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           </div>
           <div className="flex gap-x-6">
             <div className="grid grid-cols-[auto,auto,1fr] text-sm gap-x-4 text-gray-500 dark:text-gray-400">
-              <p>Tanggal</p><span>:</span><p>{localDate(Date.now(), 'medium')}</p>
+              <p>Tanggal</p><span>:</span><p>{`${moment(Date.now()).format('dddd')}, ${moment(Date.now()).format('LL')}`}</p>
               <p>Pelanggan</p><span>:</span><p>{order?.customer}</p>
               <p>Keterangan</p><span>:</span><p>{order?.description}</p>
             </div>
@@ -247,13 +248,21 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                 <p className={twMerge("font-medium", order?.MarkedPay?.status ? 'text-green-400' : 'text-red-400')}>
                   {order?.MarkedPay?.status ? 'Selesai' : 'Belum'}
                 </p>
-                {order?.MarkedPay && <span className="text-xs col-span-3 font-light">{order?.MarkedPay?.status ? 'Ditandai' : 'Dibatalkan'} oleh {`${order?.MarkedPay.MarkedBy?.name} @${order?.MarkedPay.MarkedBy?.username} ${localDate(order?.MarkedPay?.updatedAt, 'short', true, true)}`}</span>}
+                {order?.MarkedPay &&
+                  <span
+                    className="text-xs col-span-3 font-light">
+                    {order?.MarkedPay?.status ? 'Ditandai' : 'Dibatalkan'} oleh {`${order?.MarkedPay.MarkedBy?.name} @${order?.MarkedPay.MarkedBy?.username} ${moment(order?.MarkedPay?.updatedAt).format('LLLL')}`}
+                  </span>}
                 <p>Diambil</p>
                 <span>:</span>
                 <p className={twMerge("font-medium", order?.MarkedTaken?.status ? 'text-green-400' : 'text-red-400')}>
                   {order?.MarkedTaken?.status ? 'Selesai' : 'Belum'}
                 </p>
-                {order?.MarkedTaken && <span className="text-xs col-span-3 font-light">{order?.MarkedTaken?.status ? 'Ditandai' : 'Dibatalkan'} oleh {`${order?.MarkedTaken.MarkedBy?.name} @${order?.MarkedTaken.MarkedBy?.username} ${localDate(order?.MarkedTaken?.updatedAt, 'short', true, true)}`}</span>}
+                {order?.MarkedTaken &&
+                  <span className="text-xs col-span-3 font-light">
+                    {order?.MarkedTaken?.status ? 'Ditandai' : 'Dibatalkan'} oleh {`${order?.MarkedTaken.MarkedBy?.name} @${order?.MarkedTaken.MarkedBy?.username} ${moment(order?.MarkedTaken?.updatedAt).format('LLLL')}`}
+                  </span>
+                }
               </div>
             </div>
           </div>

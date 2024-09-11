@@ -9,11 +9,11 @@ import { OrderDetail, Order, Customer } from "@/constants/interfaces";
 import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
 import BackButton from "@/components/buttons/BackButton";
 import ConfirmModal from "@/components/ConfirmModal";
-import localDate from "@/lib/getLocalDate";
 import OrderDetailTable from "./OrderDetailTable";
 import ModalInput from "./ModalInput";
 import AutoCompleteTextInput from '@/components/AutoCompleteTextInput';
 import { useApiClient } from "@/lib/apiClient";
+import { useMoment } from "@/lib/useMoment";
 
 interface props {
   order?: Order;
@@ -35,7 +35,8 @@ export default function OrderAddEdit({ order }: props) {
   const [customer, setCustomer] = useState<string | undefined>('');
   const [description, setDescription] = useState<string | undefined>('');
   const [someEmpty, setSomeEmpty] = useState(true);
-  const {request} = useApiClient();
+  const { request } = useApiClient();
+  const { moment } = useMoment();
 
   useEffect(() => {
     if (order) {
@@ -54,18 +55,18 @@ export default function OrderAddEdit({ order }: props) {
 
   const addHandler = async () => {
     try {
-    const res = await request("/orders", {
-      method: "POST",
-      body: JSON.stringify({ date: new Date().toISOString(), customer, description, orderDetails }),
-    });
-    showInfo(res);      
-    } catch (error) {      
+      const res = await request("/orders", {
+        method: "POST",
+        body: JSON.stringify({ date: new Date().toISOString(), customer, description, orderDetails }),
+      });
+      showInfo(res);
+    } catch (error) {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
   };
 
   const editHandler = async () => {
-    try {      
+    try {
       const res = await request(`/orders/${order?.id}`, {
         method: "PATCH",
         body: JSON.stringify({ description, orderDetails: [...orderDetails, ...deletedOrderDetails] }),
@@ -120,7 +121,7 @@ export default function OrderAddEdit({ order }: props) {
               />
             </div>
             <div>
-              <p className="font-medium text-gray-500 dark:text-gray-400">{localDate(Date.now(), 'long')}</p>
+              <p className="font-medium text-gray-500 dark:text-gray-400">{`${moment(Date.now()).format('dddd')}, ${moment(Date.now()).format('LL')}`}</p>
             </div>
           </div>
           <div className="flex items-center">

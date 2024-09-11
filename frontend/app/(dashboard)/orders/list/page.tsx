@@ -9,9 +9,9 @@ import { COMMON_ERROR_MESSAGE, getStartAndEndOfDay, isContain, showToast } from 
 import AddButton from "@/components/buttons/AddButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import SkeletonTable from "@/components/SkeletonTable";
-import getLocalDate from "@/lib/getLocalDate";
 import { useApiClient } from "@/lib/apiClient";
 import { useOrderWebSocket } from "@/lib/useOrderWebSocket";
+import { useMoment } from "@/lib/useMoment";
 import { Button, Modal } from "flowbite-react";
 import { HiCheckCircle, HiClipboardList, HiClock, HiInformationCircle } from "react-icons/hi";
 
@@ -27,6 +27,8 @@ export default function ListOrderPage() {
   const [initialOrders, setInitialOrders] = useState<Order[]>([]);
   const orders = useOrderWebSocket(initialOrders, session?.user.id);
   const [showDesignModal, setShowDesignModal] = useState(false);
+  const { moment } = useMoment();
+
   const fetchOrders = useCallback(async () => {
     if (!session?.accessToken) {
       return;
@@ -68,7 +70,7 @@ export default function ListOrderPage() {
     const counts: { [key: string]: number } = {};
     orders.forEach((order) => {
       // jangan masukkan ke dalam perhitungan jika belum di bayar 
-      if(!order.MarkedPay?.status) {
+      if (!order.MarkedPay?.status) {
         return;
       }
       const user = order.user.name;
@@ -92,7 +94,7 @@ export default function ListOrderPage() {
     const total = orders.length;
     const done = orders.filter(order => order.MarkedPay?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status) && order.MarkedTaken?.status).length;
     const onProses = orders.filter(order => order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken?.status).length - done;
-    return {total, done, onProses};
+    return { total, done, onProses };
   }, [orders]);
 
   const table = useMemo(() => {
@@ -125,7 +127,7 @@ export default function ListOrderPage() {
           Daftar Pesanan
         </h1>
         <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-          Menampilkan daftar pesanan, <span className="font-semibold">{getLocalDate(Date.now(), 'full')}</span>
+          Menampilkan daftar pesanan <span className="font-semibold">{`${moment(Date.now()).format('dddd')}, ${moment(Date.now()).format('LL')}`}</span>
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -182,7 +184,7 @@ export default function ListOrderPage() {
                 Total Design
               </Button>
             )
-            }
+          }
         </div>
         <div className="max-w-40">
           <AddButton text="Buat Pesanan" />

@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { Checkbox, Table } from "flowbite-react";
 import { HiChevronDown, HiChevronRight } from "react-icons/hi";
 import { Order, OrderDetail, Roles } from "@/constants";
-import localDate from "@/lib/getLocalDate";
+import { useMoment } from "@/lib/useMoment";
 
 interface props {
   order?: Order;
@@ -19,6 +19,8 @@ export default function ShowDetailOrderTable({
   onCheckBoxPrintedClickHandler,
   role }: props
 ) {
+  const { moment } = useMoment();
+
   return (
     <Table>
       <Table.Head>
@@ -86,10 +88,10 @@ export default function ShowDetailOrderTable({
                             {
                               item.MarkedPrinted.status ?
                                 <span className="text-sm font-light">
-                                  {`Ditandai dicetak oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${localDate(item.MarkedPrinted?.updatedAt, 'long', true, true)}`}
+                                  {`Ditandai dicetak oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${`${moment(Date.now()).format('LLLL')}`}`}
                                 </span> :
                                 <span className="text-sm font-light">
-                                  {`Dibatalkan oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${localDate(item.MarkedPrinted?.updatedAt, 'long', true, true)}`}
+                                  {`Dibatalkan oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${`${moment(Date.now()).format('LLLL')}`}`}
                                 </span>
                             }
                           </div>
