@@ -272,7 +272,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                         onChange={handleCheckboxPayClick}
                         checked={order?.MarkedPay?.status}
                         // disable jika status sudah diambil
-                        disabled={order?.MarkedTaken?.status}
+                        // disabled={order?.MarkedTaken?.status}
                         className="disabled:text-gray-500 disabled:cursor-not-allowed"
                       />
                       Dibayar
