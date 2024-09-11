@@ -111,7 +111,7 @@ export class UsersController {
       this.removeImage(currentUser?.image!);
       updateUserDto.image = file.filename;
     }
-    return this.usersService.update({ where: { id }, data: updateUserDto });
+    return this.usersService.updateProfile({ where: { id }, data: updateUserDto });
   }
 
   @Delete(':id')

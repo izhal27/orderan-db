@@ -74,6 +74,30 @@ export class UsersService {
     const user = await this.prismaService.user.update({
       where,
       data,
+      include: {
+        role: true,
+      },
+    });
+    return this.sanitizeUser(user);
+  }
+
+  async updateProfile(params: {
+    where: Prisma.UserWhereUniqueInput;
+    data: Prisma.UserUpdateInput;
+  }): Promise<User> {
+    const { where, data } = params;
+    if (data.password) {
+      data.password = await hashValue(data.password.toString());
+    } else {
+      // hapus value undefined, string empty atau null dari client
+      delete data.password;
+    }
+    const user = await this.prismaService.user.update({
+      where,
+      data,
+      include: {
+        role: true,
+      },
     });
     return this.sanitizeUser(user);
   }

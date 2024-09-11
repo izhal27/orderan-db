@@ -1,4 +1,5 @@
-import NextAuth, { User } from "next-auth";
+import NextAuth, { Session, User } from "next-auth";
+import { JWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -37,17 +38,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async jwt({ token, user, trigger, session }) {
       if (user) {
-        token.user = user.user;
-        token.accessToken = user.accessToken;
+        token.user = (user as any).user;
+        token.accessToken = (user as any).accessToken;
+        console.log(JSON.stringify(token.user, null, 4));
       }
       if (trigger === "update" && session?.user) {
-        token.user = session.user;
+        token.user = session.user
       }
       return token;
     },
-    session({ session, token }) {
-      session.user = token.user;
-      session.accessToken = token.accessToken;
+    session({ session, token }: { session: Session; token: JWT }) {
+      session.user = token.user as any;
+      session.accessToken = token.accessToken as any;
       return session;
     },
   },

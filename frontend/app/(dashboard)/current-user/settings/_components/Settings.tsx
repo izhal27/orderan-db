@@ -76,6 +76,18 @@ export default function SettingsPage() {
         hideProgressBar: true,
       });
     if (res.ok) {
+      const user = await res.json();
+      // update data session current user
+      update({
+        user: {
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          role: user.role.name
+        }
+      });
       infoToast("success", "Perubahan berhasil disimpan");
       router.push('/');
     } else if (res.status == 409) {
@@ -86,9 +98,6 @@ export default function SettingsPage() {
     } else {
       infoToast("error", "Terjadi kesalahan, coba lagi nanti.");
     }
-    const user = await res.json();
-    // update data session current user
-    session?.user.id === user.id && update({ user });
   };
 
   return (

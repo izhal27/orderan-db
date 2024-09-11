@@ -12,7 +12,7 @@ import BackButton from "@/components/buttons/BackButton";
 import SkeletonTable from "@/components/SkeletonTable";
 import ShowDetailOrderTable from "../../_components/ShowDetailOrderTable";
 import localDate from "@/lib/getLocalDate";
-import { showToast } from "@/helpers";
+import { isContain, showToast } from "@/helpers";
 import { useApiClient } from "@/lib/apiClient";
 import { useLoading } from "@/context/LoadingContext";
 import { useOrderStatusWebSocket } from "@/lib/useOrderStatusWebSocket";
@@ -204,7 +204,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
         />
       );
     }
-  }, [loading, session?.user?.role, order, expandedRowId]);
+  }, [loading, session, order, expandedRowId]);
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -264,7 +264,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
               {
                 // hanya user yang bertipe role admin atau administrasi yang bisa menandai terbayar dan diambil
-                session?.user?.role?.includes(Roles.ADMIN) || session?.user?.role?.includes(Roles.ADMINISTRASI) ?
+                isContain(session?.user?.role || '', Roles.ADMIN) || isContain(session?.user?.role || '', Roles.ADMINISTRASI) ?
                   <>
                     <Label htmlFor="marked-pay" className="flex gap-2 items-center text-gray-500 dark:text-gray-400">
                       <Checkbox
@@ -281,9 +281,9 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                       <Checkbox
                         id="marked-taken"
                         onChange={handleCheckboxTakenClick}
-                        checked={order?.MarkedPay?.status && order?.MarkedTaken?.status}
+                        checked={order?.MarkedTaken?.status}
                         // disable jika belum ada pembayaran atau semua belum ditandai dicetak
-                        disabled={!order?.MarkedPay?.status || !order?.OrderDetails?.every(od => od.MarkedPrinted?.status)}
+                        disabled={!order?.OrderDetails?.every(od => od.MarkedPrinted?.status)}
                         className="disabled:text-gray-500 disabled:cursor-not-allowed"
                       />
                       Diambil
