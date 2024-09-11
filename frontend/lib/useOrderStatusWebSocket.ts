@@ -17,9 +17,7 @@ export function useOrderStatusWebSocket(initialOrder: Order | undefined) {
     }
     setOrder(prevOrder => {
       if (!prevOrder) return prevOrder;
-
       let updatedOrder = { ...prevOrder };
-
       if (statusType === 'Print') {
         const updatedOrderDetails = updatedOrder.OrderDetails.map(detail =>
           detail.id === event.data.orderDetailId ? { ...detail, MarkedPrinted: event.data } : detail
@@ -36,7 +34,6 @@ export function useOrderStatusWebSocket(initialOrder: Order | undefined) {
           updatedOrder = { ...updatedOrder, MarkedTaken: event.data, animate: true };
         }
       }
-
       return updatedOrder;
     });
   }, []);
@@ -50,5 +47,5 @@ export function useOrderStatusWebSocket(initialOrder: Order | undefined) {
     "order:cancelTaken": (event: WebSocketEvent) => handleOrderStatusChange(event, 'Taken'),
   });
 
-  return order;
+  return { order, setOrder };
 }

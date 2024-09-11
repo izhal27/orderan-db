@@ -5,18 +5,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Label, Checkbox } from "flowbite-react";
 import debounce from "lodash.debounce";
 import { twMerge } from "tailwind-merge";
-import { HiCheck, HiClock } from "react-icons/hi";
 import { MarkedPrinted, Order, Roles } from "@/constants";
 import UserAvatar from "@/components/UserAvatar";
 import BackButton from "@/components/buttons/BackButton";
 import SkeletonTable from "@/components/SkeletonTable";
 import ShowDetailOrderTable from "../../_components/ShowDetailOrderTable";
+import LabelStatus from "../../_components/LabelStatus";
 import { isContain, showToast } from "@/helpers";
 import { useApiClient } from "@/lib/apiClient";
 import { useLoading } from "@/context/LoadingContext";
 import { useOrderStatusWebSocket } from "@/lib/useOrderStatusWebSocket";
 import { useMoment } from "@/lib/useMoment";
-import LabelStatus from "../../_components/LabelStatus";
 
 type EventType = {
   urlMarked: string;
@@ -34,8 +33,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   const fetchedRef = useRef(false);
   const { request } = useApiClient();
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
-  const [initialOrder, setInitialOrder] = useState<Order>();
-  const order = useOrderStatusWebSocket(initialOrder);
+  const { order, setOrder } = useOrderStatusWebSocket(undefined);
   const { moment } = useMoment();
 
   const fetchOrder = useCallback(async () => {
@@ -45,7 +43,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     setLoading(true);
     try {
       const result = await request(`/orders/${params.id}`);
-      setInitialOrder(result);
+      setOrder(result);
     } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
@@ -81,7 +79,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     setModalLoading(false);
   }, 500), [session?.accessToken, order]);
 
-  const handleCheckboxPrintedClick = (e: any, id: string) => {
+  const handleCheckboxPrintedClick = useCallback((e: any, id: string) => {
     const isChecked = e.target.checked;
     sendPostMarked({
       urlMarked: `/orders/detail/${id}/print`,
@@ -100,7 +98,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
         showToast('warning', 'Berhasil menghapus tanda sudah dicetak');
       },
     });
-  };
+  }, [sendPostMarked, order]);
 
   const updatePrintedStatus = useCallback((orderDetailId: string, markedPrint: MarkedPrinted) => {
     const index = order?.OrderDetails?.findIndex(od => od.id === orderDetailId);
@@ -109,7 +107,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       od.MarkedPrinted = { ...od.MarkedPrinted, ...markedPrint };
       const updatedOd = order.OrderDetails.toSpliced(index, 1, od);
 
-      setInitialOrder(prevOrder => {
+      setOrder(prevOrder => {
         const updatedState = prevOrder;
         updatedState!.OrderDetails = [...updatedOd];
         return updatedState;
@@ -124,7 +122,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   const handleCheckboxPayClick = (e: any) => {
     const isChecked = e.target.checked;
     const updateState = (result: any) => {
-      setInitialOrder(prevOrder => {
+      setOrder(prevOrder => {
         let updatedState = { ...prevOrder! };
         updatedState.MarkedPay = { ...result };
         return updatedState;
@@ -152,7 +150,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   const handleCheckboxTakenClick = (e: any) => {
     const isChecked = e.target.checked;
     const updateState = (result: any) => {
-      setInitialOrder(prevOrder => {
+      setOrder(prevOrder => {
         let updatedState = { ...prevOrder! };
         updatedState.MarkedTaken = { ...result };
         return updatedState;
@@ -205,7 +203,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     <div className="flex flex-col gap-4 p-4">
       <BackButton />
       <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-        Detail Pesanan : <span className="font-normal text-gray-500 dark:text-gray-400">{order?.user?.name}</span><span className="text-sm font-light text-gray-500 dark:text-gray-400">@{order?.user?.username}</span>
+        Detail Pesanan : <span className="font-normal text-gray-500 dark:text-gray-400">{order?.user?.name}</span> <span className="text-sm font-light text-gray-500 dark:text-gray-400">@{order?.user?.username}</span>
       </h3>
       <div className="grid grid-cols-[auto,1fr] gap-x-24">
         <div className="flex gap-x-4">
@@ -273,7 +271,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                       <Checkbox
                         id="marked-pay"
                         onChange={handleCheckboxPayClick}
-                        checked={order?.MarkedPay?.status}
+                        checked={order?.MarkedPay?.status || false}
                         // disable jika status sudah diambil
                         // disabled={order?.MarkedTaken?.status}
                         className="disabled:text-gray-500 disabled:cursor-not-allowed"
@@ -284,7 +282,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                       <Checkbox
                         id="marked-taken"
                         onChange={handleCheckboxTakenClick}
-                        checked={order?.MarkedTaken?.status}
+                        checked={order?.MarkedTaken?.status || false}
                         // disable jika belum ada pembayaran atau semua belum ditandai dicetak
                         disabled={!order?.OrderDetails?.every(od => od.MarkedPrinted?.status)}
                         className="disabled:text-gray-500 disabled:cursor-not-allowed"
