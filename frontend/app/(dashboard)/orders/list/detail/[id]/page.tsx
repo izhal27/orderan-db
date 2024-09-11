@@ -270,7 +270,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                       <Checkbox
                         id="marked-pay"
                         onChange={handleCheckboxPayClick}
-                        checked={order?.MarkedPay?.status ? true : false}
+                        checked={order?.MarkedPay?.status}
                         // disable jika status sudah diambil
                         disabled={order?.MarkedTaken?.status}
                         className="disabled:text-gray-500 disabled:cursor-not-allowed"
@@ -281,7 +281,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                       <Checkbox
                         id="marked-taken"
                         onChange={handleCheckboxTakenClick}
-                        checked={order?.MarkedPay?.status && order?.MarkedTaken?.status ? true : false}
+                        checked={order?.MarkedPay?.status && order?.MarkedTaken?.status}
                         // disable jika belum ada pembayaran atau semua belum ditandai dicetak
                         disabled={!order?.MarkedPay?.status || !order?.OrderDetails?.every(od => od.MarkedPrinted?.status)}
                         className="disabled:text-gray-500 disabled:cursor-not-allowed"
