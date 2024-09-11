@@ -3,6 +3,7 @@ import { Checkbox, Table } from "flowbite-react";
 import { HiChevronDown, HiChevronRight } from "react-icons/hi";
 import { Order, OrderDetail, Roles } from "@/constants";
 import { useMoment } from "@/lib/useMoment";
+import { isContain } from "@/helpers";
 
 interface props {
   order?: Order;
@@ -54,7 +55,7 @@ export default function ShowDetailOrderTable({
                     {
                       // jika user bertipe admin atau operator
                       // maka tampilkan checkbox marked printed
-                      !role?.includes(Roles.ADMINISTRASI) && !role?.includes(Roles.DESIGNER) ?
+                      isContain(role || '', Roles.ADMIN) || isContain(role || '', Roles.OPERATOR) ?
                         <Checkbox
                           id="marked-printed"
                           onChange={(e) => onCheckBoxPrintedClickHandler(e, item.id)}

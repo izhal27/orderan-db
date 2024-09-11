@@ -101,18 +101,13 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   }, [sendPostMarked, order]);
 
   const updatePrintedStatus = useCallback((orderDetailId: string, markedPrint: MarkedPrinted) => {
-    const index = order?.OrderDetails?.findIndex(od => od.id === orderDetailId);
-    if (index !== undefined && order) {
-      const od = order.OrderDetails.at(index)!;
-      od.MarkedPrinted = { ...od.MarkedPrinted, ...markedPrint };
-      const updatedOd = order.OrderDetails.toSpliced(index, 1, od);
-
-      setOrder(prevOrder => {
-        const updatedState = prevOrder;
-        updatedState!.OrderDetails = [...updatedOd];
-        return updatedState;
-      });
-    }
+    setOrder(prevOrder => {
+      const updatedOrderDetails = prevOrder!.OrderDetails.map(detail =>
+        detail.id === orderDetailId ? { ...detail, MarkedPrinted: markedPrint } : detail
+      );
+      prevOrder!.OrderDetails = [...updatedOrderDetails];
+      return prevOrder;
+    });
   }, [order]);
 
   const toggleRowExpanded = (id: string) => {
@@ -197,7 +192,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
         />
       );
     }
-  }, [loading, session, order, expandedRowId]);
+  }, [loading, session, order, order?.OrderDetails, expandedRowId]);
 
   return (
     <div className="flex flex-col gap-4 p-4">
