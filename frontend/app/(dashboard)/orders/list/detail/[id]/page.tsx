@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Label, Checkbox } from "flowbite-react";
 import debounce from "lodash.debounce";
 import { twMerge } from "tailwind-merge";
-import { HiCheck } from "react-icons/hi";
+import { HiCheck, HiClock } from "react-icons/hi";
 import { MarkedPrinted, Order, Roles } from "@/constants";
 import UserAvatar from "@/components/UserAvatar";
 import BackButton from "@/components/buttons/BackButton";
@@ -176,10 +176,10 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     });
   };
 
-  const getStatus = useCallback((order: Order) => {
+  const getStatusLabel = useCallback((order: Order) => {
     let status: any = null;
     if ((order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken?.status)) {
-      status = <span className="px-4 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-base font-semibold">ON PROSES</span>
+      status = <span className="px-4 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-base font-semibold inline-flex items-center justify-center w-fit gap-2"><HiClock className="inline-block" /> ON PROSES</span>
     }
     if (order.MarkedPay?.status && order?.MarkedTaken?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status)) {
       status = <span className="px-4 py-1 bg-green-500 dark:bg-green-400 rounded-full text-white dark:text-gray-700 text-base font-semibold inline-flex items-center justify-center w-fit gap-2"><HiCheck className="inline-block" /> SELESAI</span>
@@ -269,7 +269,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
         </div>
         <div className="flex justify-end">
           <div className="flex flex-col justify-between items-end">
-            <div>{order && getStatus(order)}</div>
+            <div>{order && getStatusLabel(order)}</div>
             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
               {
                 // hanya user yang bertipe role admin atau administrasi yang bisa menandai terbayar dan diambil

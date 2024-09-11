@@ -1,7 +1,7 @@
 "use client";
 
 import { Table } from "flowbite-react";
-import { HiCheck, HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
+import { HiCheck, HiClock, HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
 import { Order, Roles, User } from "@/constants";
 import localDate from "@/lib/getLocalDate";
 import UserAvatar from "@/components/UserAvatar";
@@ -31,7 +31,7 @@ function userImage(user: User) {
 const getStatus = (order: Order) => {
   let status: any = '-';
   if ((order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken?.status)) {
-    status = <span className="px-3 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold">ON PROSES</span>
+    status = <span className="px-3 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold inline-flex items-center justify-center w-fit gap-2"><HiClock className="inline-block" />  ON PROSES</span>
   }
   if (order.MarkedPay?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status) && order.MarkedTaken?.status) {
     status = <span className="px-3 py-1 bg-green-500 dark:bg-green-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold inline-flex items-center justify-center w-fit gap-2"><HiCheck className="inline-block" /> SELESAI</span>
