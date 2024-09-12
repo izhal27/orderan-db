@@ -40,7 +40,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.user = (user as any).user;
         token.accessToken = (user as any).accessToken;
-        console.log(JSON.stringify(token.user, null, 4));
       }
       if (trigger === "update" && session?.user) {
         token.user = session.user;
