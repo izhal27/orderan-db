@@ -68,7 +68,8 @@ export default function ReportPage() {
       }
       setIsLoading(false);
     },
-    [session?.accessToken, currentPage, limit, request],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [session?.accessToken, currentPage, limit],
   );
 
   const fetchOrdersCurrentDate = useCallback(async () => {
@@ -93,11 +94,13 @@ export default function ReportPage() {
       fetchOrdersCurrentDate();
       fetchedRef.current = true;
     }
-  }, [session, fetchOrdersCurrentDate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   useEffect(() => {
     savedFilters && handleApplyFilter(savedFilters);
-  }, [currentPage, limit, savedFilters, handleApplyFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, limit, savedFilters]);
 
   const onRemoveHandler = useCallback(async () => {
     try {
@@ -115,7 +118,8 @@ export default function ReportPage() {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
     setOpenModal(false);
-  }, [deleteId, request]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deleteId]);
 
   const table = useMemo(() => {
     if (isLoading) {

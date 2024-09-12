@@ -10,7 +10,7 @@ import { useMoment } from "@/lib/useMoment";
 import { Button, Label, TextInput } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HiDocumentAdd, HiSave, HiXCircle } from "react-icons/hi";
 import ModalInput from "./ModalInput";
 import OrderDetailTable from "./OrderDetailTable";
@@ -36,7 +36,6 @@ export default function OrderAddEdit({ order }: props) {
   }>(null);
   const [customer, setCustomer] = useState<string | undefined>("");
   const [description, setDescription] = useState<string | undefined>("");
-  const [someEmpty, setSomeEmpty] = useState(true);
   const { request } = useApiClient();
   const { moment } = useMoment();
 
@@ -46,16 +45,26 @@ export default function OrderAddEdit({ order }: props) {
       setDescription(order?.description);
       setOrderDetails([...order.OrderDetails]);
     }
-  }, [order]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode]);
 
-  const onSubmit = async () => {
-    if (!session || someEmpty) {
+  const isValid = useMemo(() => {
+    return (
+      (customer?.trim().length ?? 0) >= 3 &&
+      orderDetails.length > 0 &&
+      orderDetails.every((item) => item.name?.trim().length)
+    );
+  }, [customer, orderDetails]);
+
+  const onSubmit = useCallback(async () => {
+    if (!session || !isValid) {
       return;
     }
-    return !isEditMode ? addHandler() : editHandler();
-  };
+    return isEditMode ? editHandler() : addHandler();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode, isValid, session, orderDetails]);
 
-  const addHandler = async () => {
+  const addHandler = useCallback(async () => {
     try {
       await request("/orders", {
         method: "POST",
@@ -66,15 +75,16 @@ export default function OrderAddEdit({ order }: props) {
           orderDetails,
         }),
       });
-
       showToast(
         "success",
         `Pesanan "${customer?.toUpperCase()}" berhasil ditambahkan"`,
       );
+      router.back();
     } catch (error) {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customer, description, orderDetails]);
 
   const editHandler = async () => {
     try {
@@ -89,34 +99,28 @@ export default function OrderAddEdit({ order }: props) {
         "success",
         `Pesanan "${customer?.toUpperCase()}" berhasil disimpan"`,
       );
+      router.back();
     } catch (error) {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
   };
 
-  const updateItemAtIndex = (
-    index: number,
-    newItem: Partial<OrderDetail>,
-  ): OrderDetail[] => {
-    const updatedData = [
-      ...orderDetails.map((item, i) =>
-        i === index ? { ...item, ...newItem } : item,
-      ),
-    ];
-    return updatedData;
-  };
+  // update item in array by index
+  const updateItemAtIndex = useCallback(
+    (index: number, newItem: Partial<OrderDetail>): OrderDetail[] => {
+      const updatedData = [
+        ...orderDetails.map((item, i) =>
+          i === index ? { ...item, ...newItem } : item,
+        ),
+      ];
+      return updatedData;
+    },
+    [orderDetails],
+  );
 
-  const handleSelectCustomer = (data: Customer | string) => {
+  const handleSelectCustomer = useCallback((data: Customer | string) => {
     setCustomer(typeof data === "string" ? data : data.name);
-  };
-
-  useEffect(() => {
-    if (customer?.trim().length && orderDetails.some((item) => item.name)) {
-      setSomeEmpty(false);
-    } else {
-      setSomeEmpty(true);
-    }
-  }, [customer, orderDetails]);
+  }, []);
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -148,11 +152,11 @@ export default function OrderAddEdit({ order }: props) {
             </div>
             <div className="grow">
               <AutoCompleteTextInput<Customer>
-                fetchUrl="http://localhost:3002/api/customers/filter"
+                fetchUrl="/customers/filter"
                 getDisplayValue={(customer: Customer) => customer.name}
                 getKeyValue={(customer: Customer) => customer.id}
                 onSelect={handleSelectCustomer}
-                onEmptyQueryHandler={() => setSomeEmpty(true)}
+                onEmptyQueryHandler={() => setCustomer("")}
                 value={isEditMode ? customer : ""}
                 onChange={(newValue) => setCustomer(newValue)}
               />
@@ -202,7 +206,7 @@ export default function OrderAddEdit({ order }: props) {
             <Button
               size={"sm"}
               color={"green"}
-              disabled={someEmpty}
+              disabled={!isValid}
               onClick={() => setShowConfirmSaveModal(true)}
             >
               <HiSave className="mr-2 size-5" />

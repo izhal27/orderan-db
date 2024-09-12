@@ -31,7 +31,8 @@ const useWebSocket = (events: EventMap) => {
         }
       }
     };
-  }, [events]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return socketRef.current;
 };
