@@ -1,13 +1,12 @@
 "use client";
 
 import BackButton from "@/components/buttons/BackButton";
-import type { OrderTypeFormData } from "@/constants/formTypes";
-import type { OrderType } from "@/constants/interfaces";
-import { showToast } from "@/helpers/toast";
+import type { OrderType, OrderTypeFormData } from "@/constants";
+import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
+import { useApiClient } from "@/lib/apiClient";
 import { orderTypeSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Label, Spinner, TextInput } from "flowbite-react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -19,7 +18,6 @@ interface props {
 export default function OrderTypeAddEdit({ orderType }: props) {
   const isEditMode = !!orderType;
   const router = useRouter();
-  const { data: session } = useSession();
   const {
     register,
     handleSubmit,
@@ -29,6 +27,7 @@ export default function OrderTypeAddEdit({ orderType }: props) {
   } = useForm<OrderTypeFormData>({
     resolver: zodResolver(orderTypeSchema),
   });
+  const { request } = useApiClient();
 
   useEffect(() => {
     setFocus("name");
@@ -36,49 +35,51 @@ export default function OrderTypeAddEdit({ orderType }: props) {
       setValue("name", orderType.name);
       setValue("description", orderType.description);
     }
-  }, [orderType]);
+  }, [orderType, isEditMode, setValue, setFocus]);
 
   const onSubmit = async (data: OrderTypeFormData) => {
-    return !isEditMode ? addHandler(data) : editHandler(orderType!.id, data);
+    return isEditMode ? editHandler(orderType.id, data) : addHandler(data);
   };
 
   const addHandler = async (data: OrderTypeFormData) => {
-    const res = await fetch("http://localhost:3002/api/order-types", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    showInfo(res, await res.json());
+    try {
+      const orderType = await request("/order-types", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      showToast(
+        "success",
+        `Jenis Pesanan "${orderType.name}" berhasil ditambahkan"}.`,
+      );
+      router.back();
+    } catch (error) {
+      if (error instanceof Error && "status" in error && error.status === 409) {
+        showToast("error", "Nama sudah digunakan, coba dengan nama yang lain");
+      } else {
+        showToast("error", COMMON_ERROR_MESSAGE);
+      }
+    }
   };
 
   const editHandler = async (id: number, data: OrderTypeFormData) => {
-    const res = await fetch(`http://localhost:3002/api/order-types/${id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    showInfo(res, await res.json());
-  };
-
-  function showInfo(res: Response, orderType: any) {
-    if (res.ok) {
+    try {
+      const orderType = await request(`/order-types/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
       showToast(
         "success",
-        `Jenis Pesanan "${orderType.name}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
+        `Jenis Pesanan "${orderType.name}" berhasil disimpan.`,
       );
       router.back();
-    } else if (res.status == 409) {
-      showToast("error", "Nama sudah digunakan, coba dengan nama yang lain.");
-    } else {
-      showToast("error", "Terjadi kesalahan, coba lagi nanti.");
+    } catch (error) {
+      if (error instanceof Error && "status" in error && error.status === 409) {
+        showToast("error", "Nama sudah digunakan, coba dengan nama yang lain");
+      } else {
+        showToast("error", COMMON_ERROR_MESSAGE);
+      }
     }
-  }
+  };
 
   return (
     <div className="flex flex-col gap-4 p-4">

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Socket } from "socket.io-client";
 import io from "socket.io-client";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventHandler<T = any> = (data: T) => void;
 type EventMap = Record<string, EventHandler>;
 
@@ -30,7 +31,7 @@ const useWebSocket = (events: EventMap) => {
         }
       }
     };
-  }, []);
+  }, [events]);
 
   return socketRef.current;
 };

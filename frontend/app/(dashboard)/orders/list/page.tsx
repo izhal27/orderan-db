@@ -54,14 +54,14 @@ export default function ListOrderPage() {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
     setIsLoading(false);
-  }, [session?.accessToken]);
+  }, [session?.accessToken, request]);
 
   useEffect(() => {
     if (session && session.accessToken && !fetchedRef.current) {
       fetchOrders();
       fetchedRef.current = true;
     }
-  }, [session]);
+  }, [session, fetchOrders]);
 
   const onRemoveHandler = useCallback(async () => {
     try {
@@ -79,7 +79,7 @@ export default function ListOrderPage() {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
     setOpenModal(false);
-  }, [session?.accessToken, deleteId]);
+  }, [deleteId, request]);
 
   const calculateUserDesignCounts = () => {
     const counts: { [key: string]: number } = {};
@@ -107,7 +107,8 @@ export default function ListOrderPage() {
   };
 
   const isAdministrator = useMemo(() => {
-    const userRole = session?.user?.role!;
+    if (!session?.user?.role) return false;
+    const userRole = session?.user?.role;
     return (
       isContain(userRole, Roles.ADMIN) ||
       isContain(userRole, Roles.ADMINISTRASI)
@@ -161,7 +162,7 @@ export default function ListOrderPage() {
         />
       );
     }
-  }, [isLoading, orders, pathName, router]);
+  }, [isLoading, orders, pathName, router, session]);
 
   return (
     <main className="flex flex-col gap-4 p-4">
@@ -175,7 +176,7 @@ export default function ListOrderPage() {
         </p>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="shadow-xs flex items-center rounded-lg bg-white p-4 dark:bg-gray-800">
+        <div className="flex items-center rounded-lg bg-white p-4 shadow dark:bg-gray-800">
           <div className="mr-4 rounded-full bg-orange-100 p-3 text-orange-500 dark:bg-orange-500 dark:text-orange-100">
             <HiClipboardList className="size-5" />
           </div>
@@ -188,7 +189,7 @@ export default function ListOrderPage() {
             </p>
           </div>
         </div>
-        <div className="shadow-xs flex items-center rounded-lg bg-white p-4 dark:bg-gray-800">
+        <div className="flex items-center rounded-lg bg-white p-4 shadow dark:bg-gray-800">
           <div className="mr-4 rounded-full bg-blue-100 p-3 text-blue-500 dark:bg-blue-500 dark:text-blue-100">
             <HiClock className="size-5" />
           </div>
@@ -201,7 +202,7 @@ export default function ListOrderPage() {
             </p>
           </div>
         </div>
-        <div className="shadow-xs flex items-center rounded-lg bg-white p-4 dark:bg-gray-800">
+        <div className="flex items-center rounded-lg bg-white p-4 shadow dark:bg-gray-800">
           <div className="mr-4 rounded-full bg-green-100 p-3 text-green-500 dark:bg-green-500 dark:text-green-100">
             <HiCheckCircle className="size-5" />
           </div>

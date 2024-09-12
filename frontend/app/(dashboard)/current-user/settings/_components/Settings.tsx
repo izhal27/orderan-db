@@ -3,6 +3,7 @@
 import AvatarWithEditButton from "@/components/AvatarWithEditButton";
 import type { UserFormData } from "@/constants/formTypes";
 import type { User } from "@/constants/interfaces";
+import type { ToastType } from "@/helpers/toast";
 import { showToast } from "@/helpers/toast";
 import { baseUrl, useApiClient } from "@/lib/apiClient";
 import { userSchema } from "@/schemas/schemas";
@@ -12,6 +13,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import type { ToastContent } from "react-toastify";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -26,7 +28,7 @@ export default function SettingsPage() {
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
   });
-  const { request } = useApiClient()
+  const { request } = useApiClient();
 
   useEffect(() => {
     if (session?.user) {
@@ -40,7 +42,7 @@ export default function SettingsPage() {
       };
       fetchData();
     }
-  }, [session?.user, setValue, setCurrentUser]);
+  }, [session?.user, request, setValue, setCurrentUser]);
 
   const appendData = (data: UserFormData) => {
     const formData = new FormData();
@@ -53,17 +55,14 @@ export default function SettingsPage() {
 
   const onSubmit = async (data: UserFormData) => {
     const formData = appendData(data);
-    const res = await fetch(
-      `${baseUrl}/${currentUser?.id}/profile`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-        body: formData,
+    const res = await fetch(`${baseUrl}/${currentUser?.id}/profile`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
       },
-    );
-    const infoToast = (type: any, content: any) =>
+      body: formData,
+    });
+    const infoToast = (type: ToastType, content: ToastContent) =>
       showToast(type, content, {
         position: "top-center",
         hideProgressBar: true,

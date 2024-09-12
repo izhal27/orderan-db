@@ -11,7 +11,6 @@ interface props {
 
 export default function OrderDetailTable({
   data,
-  detailMode = false,
   onEditHandler,
   onRemoveHandler,
 }: props) {

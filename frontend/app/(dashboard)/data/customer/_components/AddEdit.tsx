@@ -1,13 +1,12 @@
 "use client";
 
 import BackButton from "@/components/buttons/BackButton";
-import type { CustomerFormData } from "@/constants/formTypes";
-import type { Customer } from "@/constants/interfaces";
-import { showToast } from "@/helpers/toast";
+import type { Customer, CustomerFormData } from "@/constants";
+import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
+import { useApiClient } from "@/lib/apiClient";
 import { customerSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Label, Spinner, TextInput } from "flowbite-react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -19,7 +18,6 @@ interface props {
 export default function CustomerAddEdit({ customer }: props) {
   const isEditMode = !!customer;
   const router = useRouter();
-  const { data: session } = useSession();
   const {
     register,
     handleSubmit,
@@ -29,6 +27,7 @@ export default function CustomerAddEdit({ customer }: props) {
   } = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
   });
+  const { request } = useApiClient();
 
   useEffect(() => {
     setFocus("name");
@@ -39,49 +38,48 @@ export default function CustomerAddEdit({ customer }: props) {
       setValue("email", customer.email);
       setValue("description", customer.description);
     }
-  }, [customer]);
+  }, [customer, isEditMode, setValue, setFocus]);
 
   const onSubmit = async (data: CustomerFormData) => {
-    return !isEditMode ? addHandler(data) : editHandler(customer!.id, data);
+    return isEditMode ? editHandler(customer.id, data) : addHandler(data);
   };
 
   const addHandler = async (data: CustomerFormData) => {
-    const res = await fetch("http://localhost:3002/api/customers", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    showInfo(res, await res.json());
+    try {
+      const customer = await request("/customers", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      showToast(
+        "success",
+        `Pelanggan "${customer.name}" berhasil ditambahkan"`,
+      );
+      router.back();
+    } catch (error) {
+      if (error instanceof Error && "status" in error && error.status === 409) {
+        showToast("error", "Nama sudah digunakan, coba dengan nama yang lain.");
+      } else {
+        showToast("error", COMMON_ERROR_MESSAGE);
+      }
+    }
   };
 
   const editHandler = async (id: string, data: CustomerFormData) => {
-    const res = await fetch(`http://localhost:3002/api/customers/${id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    showInfo(res, await res.json());
-  };
-
-  function showInfo(res: Response, customer: any) {
-    if (res.ok) {
-      showToast(
-        "success",
-        `Pelanggan "${customer.name}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
-      );
+    try {
+      const customer = await request(`/customers/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
+      showToast("success", `Pelanggan "${customer.name}" berhasil disimpan"`);
       router.back();
-    } else if (res.status == 409) {
-      showToast("error", "Nama sudah digunakan, coba dengan nama yang lain.");
-    } else {
-      showToast("error", "Terjadi kesalahan, coba lagi nanti.");
+    } catch (error) {
+      if (error instanceof Error && "status" in error && error.status === 409) {
+        showToast("error", "Nama sudah digunakan, coba dengan nama yang lain.");
+      } else {
+        showToast("error", COMMON_ERROR_MESSAGE);
+      }
     }
-  }
+  };
 
   return (
     <div className="flex flex-col gap-4 p-4">

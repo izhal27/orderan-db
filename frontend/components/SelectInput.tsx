@@ -27,12 +27,17 @@ export default function SelectInput<T>({
     <div className={twMerge("max-w-md", className)}>
       <Select
         id="select"
-        value={value as any}
-        onChange={(e) => onChange(e.target.value as any)}
+        value={value as unknown as string}
+        onChange={(e) => {
+          const selectedOption = options.find(
+            (opt) => String(opt.value) === e.target.value,
+          );
+          if (selectedOption) onChange(selectedOption.value);
+        }}
       >
         {placeholder && <option value="">{placeholder}</option>}
         {options.map((option, index) => (
-          <option key={index} value={option.value as any}>
+          <option key={index} value={String(option.value)}>
             {option.label}
           </option>
         ))}

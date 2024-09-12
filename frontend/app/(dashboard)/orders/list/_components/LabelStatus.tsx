@@ -13,7 +13,7 @@ export default function LabelStatus({
   classNameOnProses,
   classNameDone,
 }: props) {
-  let status: any = null;
+  let status: React.ReactElement | null = null;
   if (
     order.MarkedPay?.status ||
     order.OrderDetails.some((od) => od.MarkedPrinted?.status) ||

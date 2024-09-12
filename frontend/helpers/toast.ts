@@ -10,7 +10,7 @@ export const defaultToastOptions: ToastOptions = {
   transition: Slide,
 };
 
-type ToastType = "success" | "error" | "info" | "warning" | "default";
+export type ToastType = "success" | "error" | "info" | "warning" | "default";
 
 /**
  * Display toast

@@ -37,7 +37,10 @@ export default function FilterModal({
     sortOrder: "desc",
   });
 
-  const handleFilterChange = (name: keyof FilterState, value: any) => {
+  const handleFilterChange = (
+    name: keyof FilterState,
+    value: Date | string,
+  ) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 

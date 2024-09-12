@@ -1,11 +1,11 @@
 export default function localDate(
-  d: any,
+  d: Date,
   style: "medium" | "full" | "long" | "short" | undefined,
   includeDate: boolean = true,
   includeTime: boolean = false,
 ) {
   const date = new Date(d);
-  const options: any = {
+  const options: Intl.DateTimeFormatOptions = {
     timeZone: "Asia/Makassar",
   };
   if (includeDate) options.dateStyle = style;

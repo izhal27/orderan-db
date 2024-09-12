@@ -1,3 +1,5 @@
+import { showToast } from "@/helpers";
+import { useApiClient } from "@/lib/apiClient";
 import { Spinner, TextInput } from "flowbite-react";
 import debounce from "lodash.debounce";
 import React, { useCallback, useEffect, useState } from "react";
@@ -8,7 +10,6 @@ interface props<T> {
   getKeyValue: (item: T) => string | number;
   onSelect: (item: T | string) => void;
   minLength?: number;
-  accessToken?: string;
   onEmptyQueryHandler?(): void;
   value?: string; // New prop to control the input value
   onChange?: (value: string) => void; // New prop to handle input changes
@@ -20,7 +21,6 @@ export default function AutoCompleteTextInput<T>({
   getKeyValue,
   onSelect,
   minLength = 3,
-  accessToken,
   onEmptyQueryHandler,
   value = "", // Default to empty string
   onChange,
@@ -30,26 +30,24 @@ export default function AutoCompleteTextInput<T>({
   const [loading, setLoading] = useState<boolean>(false);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
   const [showItems, setShowItems] = useState<boolean>(true);
+  const { request } = useApiClient();
 
-  const fetchSuggestions = async (searchQuery: string) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${fetchUrl}?query=${searchQuery}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        cache: "no-store",
-      });
-      const data = await response.json();
-      setItems(data);
-    } catch (error) {
-      console.error("Error fetching suggestions:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchSuggestions = useCallback(
+    async (searchQuery: string) => {
+      setLoading(true);
+      try {
+        const data = await request(`${fetchUrl}?query=${searchQuery}`);
+        setItems(data);
+      } catch (error) {
+        showToast("error", "Error fetching suggestions");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchUrl, request],
+  );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetchSuggestions = useCallback(
     debounce((searchQuery: string) => {
       if (searchQuery.length >= minLength) {
@@ -58,7 +56,7 @@ export default function AutoCompleteTextInput<T>({
         setItems([]);
       }
     }, 500), // 500ms debounce delay
-    [fetchUrl, minLength],
+    [fetchSuggestions, minLength],
   );
 
   useEffect(() => {
@@ -74,7 +72,15 @@ export default function AutoCompleteTextInput<T>({
     return () => {
       debouncedFetchSuggestions.cancel();
     };
-  }, [internalQuery, debouncedFetchSuggestions]);
+  }, [
+    internalQuery,
+    debouncedFetchSuggestions,
+    value,
+    activeIndex,
+    items.length,
+    onEmptyQueryHandler,
+    onSelect,
+  ]);
 
   useEffect(() => {
     setInternalQuery(value);
@@ -141,6 +147,13 @@ export default function AutoCompleteTextInput<T>({
               }`}
               onClick={() => handleSuggestionClick(item)}
               onMouseEnter={() => setActiveIndex(index)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  handleSuggestionClick(item);
+                }
+              }}
+              role="option"
+              aria-selected={index === activeIndex}
             >
               {getDisplayValue(item)}
             </li>

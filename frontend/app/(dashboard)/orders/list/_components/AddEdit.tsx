@@ -57,7 +57,7 @@ export default function OrderAddEdit({ order }: props) {
 
   const addHandler = async () => {
     try {
-      const res = await request("/orders", {
+      await request("/orders", {
         method: "POST",
         body: JSON.stringify({
           date: new Date().toISOString(),
@@ -66,7 +66,11 @@ export default function OrderAddEdit({ order }: props) {
           orderDetails,
         }),
       });
-      showInfo(res);
+
+      showToast(
+        "success",
+        `Pesanan "${customer?.toUpperCase()}" berhasil ditambahkan"`,
+      );
     } catch (error) {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
@@ -74,26 +78,21 @@ export default function OrderAddEdit({ order }: props) {
 
   const editHandler = async () => {
     try {
-      const res = await request(`/orders/${order?.id}`, {
+      await request(`/orders/${order?.id}`, {
         method: "PATCH",
         body: JSON.stringify({
           description,
           orderDetails: [...orderDetails, ...deletedOrderDetails],
         }),
       });
-      showInfo(res);
+      showToast(
+        "success",
+        `Pesanan "${customer?.toUpperCase()}" berhasil disimpan"`,
+      );
     } catch (error) {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
   };
-
-  function showInfo(res: Response) {
-    showToast(
-      "success",
-      `Pesanan "${customer?.toUpperCase()}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
-    );
-    router.back();
-  }
 
   const updateItemAtIndex = (
     index: number,
@@ -107,8 +106,8 @@ export default function OrderAddEdit({ order }: props) {
     return updatedData;
   };
 
-  const handleSelectCustomer = (data: any) => {
-    setCustomer(data);
+  const handleSelectCustomer = (data: Customer | string) => {
+    setCustomer(typeof data === "string" ? data : data.name);
   };
 
   useEffect(() => {
@@ -153,7 +152,6 @@ export default function OrderAddEdit({ order }: props) {
                 getDisplayValue={(customer: Customer) => customer.name}
                 getKeyValue={(customer: Customer) => customer.id}
                 onSelect={handleSelectCustomer}
-                accessToken={session?.accessToken}
                 onEmptyQueryHandler={() => setSomeEmpty(true)}
                 value={isEditMode ? customer : ""}
                 onChange={(newValue) => setCustomer(newValue)}
@@ -247,8 +245,8 @@ export default function OrderAddEdit({ order }: props) {
           openModal={showConfirmDeleteModal}
           onCloseHandler={() => setShowConfirmDeleteModal(false)}
           onYesHandler={() => {
-            if (isEditMode && deletedIndex !== -1) {
-              const deletedOd = orderDetails[deletedIndex!];
+            if (isEditMode && deletedIndex !== null) {
+              const deletedOd = orderDetails[deletedIndex];
               deletedOd.deleted = true;
               setDeletedOrderDetails((prevState) => [...prevState, deletedOd]);
             }

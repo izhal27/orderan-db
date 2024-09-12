@@ -34,21 +34,19 @@ export default function JenisPesananPage() {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
-  }, [session?.accessToken]);
+  }, [session?.accessToken, request]);
 
   useEffect(() => {
     if (session && session.accessToken && !fetchedRef.current) {
       fetchOrderTypes();
       fetchedRef.current = true;
     }
-  }, [session]);
+  }, [session, fetchOrderTypes]);
 
   const onRemoveHandler = useCallback(async () => {
     try {
-      const url = `/order-types/${deleteId}`;
-      const deletedObject = await request(`${url}`, {
+      const deletedObject = await request(`/order-types/${deleteId}`, {
         method: "DELETE",
-        body: "",
       });
       setOrderTypes((prevState) =>
         prevState.filter((item) => item.id !== deletedObject.id),
@@ -61,7 +59,7 @@ export default function JenisPesananPage() {
       showToast("error", "Gagal menghapus data, coba lagi nanti.");
     }
     setOpenModal(false);
-  }, [session?.accessToken, deleteId]);
+  }, [request, deleteId]);
 
   const table = useMemo(() => {
     if (loading) {

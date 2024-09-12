@@ -52,18 +52,18 @@ export default function PelangganPage() {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
-  }, [session?.accessToken, currentPage, limit, search]);
+  }, [session?.accessToken, request, currentPage, limit, search]);
 
   useEffect(() => {
     if (session && session.accessToken && !fetchedRef.current) {
       fetchCustomers();
       fetchedRef.current = true;
     }
-  }, [session]);
+  }, [session, fetchCustomers]);
 
   useEffect(() => {
     fetchCustomers();
-  }, [currentPage, limit, search]);
+  }, [fetchCustomers, currentPage, limit, search]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -85,7 +85,7 @@ export default function PelangganPage() {
       showToast("error", "Gagal menghapus data, coba lagi nanti.");
     }
     setOpenModal(false);
-  }, [session?.accessToken, deleteId]);
+  }, [request, deleteId, fetchCustomers]);
 
   const table = useMemo(() => {
     if (loading) {

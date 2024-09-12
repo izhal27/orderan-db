@@ -1,20 +1,26 @@
-import type { Order, OrderDetail } from "@/constants";
+import type { OrderDetail } from "@/constants";
 import { Roles } from "@/constants";
 import { isContain } from "@/helpers";
 import { useMoment } from "@/lib/useMoment";
+import { Checkbox, Table } from "flowbite-react";
 import { Fragment } from "react";
 import { HiChevronDown, HiChevronRight } from "react-icons/hi";
 
 interface props {
-  order?: Order;
+  markedTaken?: boolean;
+  orderDetails: OrderDetail[];
   expandedRowId: string | null;
   onExpandedRowToggleHandler(id: string): void;
-  onCheckBoxPrintedClickHandler(e: any, orderDetailId: string): void;
+  onCheckBoxPrintedClickHandler(
+    e: React.ChangeEvent<HTMLInputElement>,
+    orderDetailId: string,
+  ): void;
   role: string | undefined;
 }
 
 export default function ShowDetailOrderTable({
-  order,
+  markedTaken,
+  orderDetails,
   expandedRowId,
   onExpandedRowToggleHandler,
   onCheckBoxPrintedClickHandler,
@@ -36,7 +42,7 @@ export default function ShowDetailOrderTable({
         <Table.HeadCell className="text-center">Dicetak</Table.HeadCell>
       </Table.Head>
       <Table.Body className="divide-y">
-        {order?.OrderDetails?.map((item: OrderDetail, index) => {
+        {orderDetails?.map((item: OrderDetail, index) => {
           return (
             <Fragment key={index}>
               <Table.Row className="bg-white text-center dark:border-gray-700 dark:bg-gray-800">
@@ -61,7 +67,7 @@ export default function ShowDetailOrderTable({
                             onCheckBoxPrintedClickHandler(e, item.id)
                           }
                           checked={item.MarkedPrinted?.status || false}
-                          disabled={order?.MarkedTaken?.status}
+                          disabled={markedTaken}
                           className="disabled:cursor-not-allowed disabled:text-gray-500"
                         />
                       ) : (
@@ -71,7 +77,7 @@ export default function ShowDetailOrderTable({
                       )
                     }
                     {item.MarkedPrinted && (
-                      <span
+                      <button
                         onClick={() => onExpandedRowToggleHandler(item.id)}
                         color="gray"
                         className="cursor-pointer"
@@ -81,7 +87,7 @@ export default function ShowDetailOrderTable({
                         ) : (
                           <HiChevronRight className="size-5" />
                         )}
-                      </span>
+                      </button>
                     )}
                   </div>
                 </Table.Cell>

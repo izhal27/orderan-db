@@ -4,7 +4,8 @@ import AvatarWithEditButton from "@/components/AvatarWithEditButton";
 import BackButton from "@/components/buttons/BackButton";
 import type { UserFormData } from "@/constants/formTypes";
 import type { User } from "@/constants/interfaces";
-import { showToast } from "@/helpers/toast";
+import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
+import { useApiClient } from "@/lib/apiClient";
 import { userSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -51,7 +52,7 @@ export default function UsersAddEdit({ user }: props) {
       setRoleId(user.roleId);
       setBlocked(user.blocked);
     }
-  }, [user]);
+  }, [user, setValue, setFocus, isEditMode]);
 
   const onSubmit = async (data: UserFormData) => {
     if (!roleId || roleId === 0) {
@@ -62,7 +63,7 @@ export default function UsersAddEdit({ user }: props) {
       return;
     }
 
-    return !isEditMode ? addHandler(data) : editHandler(user!.id, data);
+    return isEditMode ? editHandler(user.id, data) : addHandler(data);
   };
 
   const appendData = async (data: UserFormData) => {
@@ -76,6 +77,7 @@ export default function UsersAddEdit({ user }: props) {
     selectedImage && formData.append("image", selectedImage);
     return formData;
   };
+  const { request } = useApiClient();
 
   const addHandler = async (data: UserFormData) => {
     // password harus ada, jika tidak ada tampilkan error
@@ -86,57 +88,53 @@ export default function UsersAddEdit({ user }: props) {
       });
       return;
     }
-    const formData = await appendData(data);
-    const res = await fetch("http://localhost:3002/api/users", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      body: formData,
-    });
-    showInfo(res, await res.json());
+
+    try {
+      const formData = await appendData(data);
+      const res = await request("/users", {
+        method: "POST",
+        body: formData,
+      });
+      showToast("success", `User "${res.username}" berhasil ditambahkan"`);
+    } catch (error) {
+      showToast("error", COMMON_ERROR_MESSAGE);
+    }
   };
 
   const editHandler = async (id: string, data: UserFormData) => {
-    // jika user admin diganti role selain admin, tampilkan error
-    if (
-      (user?.id === "1" ||
-        (user?.username === "admin" && user?.role.name === "admin")) &&
-      roleId !== 1
-    ) {
-      showToast("error", "Admin user harus memiliki role admin.");
-    } else {
-      const formData = await appendData(data);
-      const res = await fetch(`http://localhost:3002/api/users/${id}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-        body: formData,
-      });
-      const user = await res.json();
-      // update data session current user
-      session?.user.id === user.id && update({ user });
-      showInfo(res, user);
+    try {
+      // jika user admin diganti role selain admin, tampilkan error
+      if (
+        (user?.id === "1" ||
+          (user?.username === "admin" && user?.role.name === "admin")) &&
+        roleId !== 1
+      ) {
+        showToast("error", "Admin user harus memiliki role admin");
+      } else {
+        const formData = await appendData(data);
+        const res = await request(`/users/${id}`, {
+          method: "PATCH",
+          body: formData,
+        });
+        // update data session current user
+        session?.user.id === res.id &&
+          update({
+            user: {
+              id: res.id,
+              username: res.username,
+              name: res.name,
+              email: res.email,
+              image: res.image,
+              role: res.role.name,
+            },
+          });
+        showToast("success", `User "${res.username}" berhasil disimpan"`);
+      }
+      router.back();
+    } catch (error) {
+      showToast("error", COMMON_ERROR_MESSAGE);
     }
   };
-
-  function showInfo(res: Response, user: User) {
-    if (res.ok) {
-      showToast(
-        "success",
-        `User "${user.username}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
-      );
-      router.back();
-    } else if (res.status == 409) {
-      showToast(
-        "error",
-        "Username sudah digunakan, coba dengan nama yang lain.",
-      );
-    } else {
-      showToast("error", "Terjadi kesalahan, coba lagi nanti.");
-    }
-  }
 
   return (
     <div className="flex flex-col gap-4 p-4">

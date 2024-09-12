@@ -1,7 +1,7 @@
 import SelectInput from "@/components/SelectInput";
 import type { OrderType } from "@/constants";
 import { useApiClient } from "@/lib/apiClient";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface props {
   onSelectValueHandler: (value: string) => void;
@@ -16,17 +16,18 @@ export default function OrderTypeSelectInput({
   const [selectedValue, setSelectedValue] = useState<string>("");
   const { request } = useApiClient();
 
-  const fetchOrderTypes = async () => {
+  const fetchOrderTypes = useCallback(async () => {
     try {
       const response = await request("/order-types");
       setOptions(response);
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [request]);
+
   useEffect(() => {
     fetchOrderTypes();
-  }, []);
+  }, [fetchOrderTypes]);
 
   useEffect(() => {
     if (value) {

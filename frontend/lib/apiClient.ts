@@ -19,6 +19,7 @@ export const useApiClient = () => {
       method?: string;
       body?: BodyInit | null;
       headers?: Record<string, string>;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [key: string]: any;
     } = {},
   ) => {

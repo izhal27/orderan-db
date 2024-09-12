@@ -4,7 +4,6 @@ import type { OrderDetail, OrderDetailFormData } from "@/constants";
 import { orderDetailSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Checkbox, Label, Modal, TextInput } from "flowbite-react";
-import { useSession } from "next-auth/react";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { useForm } from "react-hook-form";
 import OrderTypeSelectInput from "./OrderTypeSelectInput";
@@ -18,12 +17,10 @@ interface props {
 
 const ModalInput = forwardRef(
   ({ show, onAddHandler, onEditHandler, onCloseHandler }: props, ref) => {
-    const { data: session } = useSession();
     const {
       register,
       handleSubmit,
       setValue,
-      setFocus,
       reset,
       formState: { errors },
     } = useForm<OrderDetailFormData>({
@@ -187,5 +184,7 @@ const ModalInput = forwardRef(
     );
   },
 );
+
+ModalInput.displayName = "ModalInput";
 
 export default ModalInput;

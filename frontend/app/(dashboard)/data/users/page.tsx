@@ -34,14 +34,14 @@ export default function UsersPage() {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
-  }, [session?.accessToken]);
+  }, [session?.accessToken, request]);
 
   useEffect(() => {
     if (session && session.accessToken && !fetchedRef.current) {
       fetchUsers();
       fetchedRef.current = true;
     }
-  }, [session]);
+  }, [session, fetchUsers]);
 
   const onRemoveHandler = useCallback(async () => {
     // periksa jika user yang mempunyai role admin masih ada setelah user dihapus
@@ -55,8 +55,7 @@ export default function UsersPage() {
       setOpenModal(false);
     } else {
       try {
-        const url = `/users/${deleteId}`;
-        const deletedObject = await request(`${url}`, {
+        const deletedObject = await request(`/users/${deleteId}`, {
           method: "DELETE",
           body: "",
         });
@@ -72,7 +71,7 @@ export default function UsersPage() {
       }
       setOpenModal(false);
     }
-  }, [session?.accessToken, deleteId]);
+  }, [request, deleteId, users]);
 
   const table = useMemo(() => {
     if (loading) {

@@ -6,6 +6,7 @@ import { Roles } from "@/constants";
 import { isContain } from "@/helpers";
 import { useMoment } from "@/lib/useMoment";
 import { Table } from "flowbite-react";
+import type { Session } from "next-auth";
 import { HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
 import { twMerge } from "tailwind-merge";
 import LabelStatus from "./LabelStatus";
@@ -15,7 +16,7 @@ interface props {
   onEditHandler(id: string): void;
   onDetailHandler(id: string): void;
   onRemoveHandler(id: string): void;
-  session: any | undefined;
+  session: Session | null;
   reportMode?: boolean;
 }
 

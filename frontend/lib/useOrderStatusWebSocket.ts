@@ -56,7 +56,7 @@ export function useOrderStatusWebSocket(initialOrder: Order | undefined) {
         return updatedOrder;
       });
     },
-    [],
+    [session?.user.id],
   );
 
   useWebSocket({

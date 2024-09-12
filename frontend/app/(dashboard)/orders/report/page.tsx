@@ -15,7 +15,7 @@ import {
 import { useApiClient } from "@/lib/apiClient";
 import { Button } from "flowbite-react";
 import { useSession } from "next-auth/react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HiFilter } from "react-icons/hi";
 import type { FilterState } from "../list/_components/FilterModal";
@@ -27,7 +27,6 @@ export default function ReportPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const pathName = usePathname();
   const { request } = useApiClient();
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | undefined>();
@@ -51,13 +50,15 @@ export default function ReportPage() {
           page: currentPage.toString(),
           pageSize: limit.toString(),
           ...filters,
-          startDate: formatToStartDateToUTC(filters!.startDate!),
-          endDate: formatToEndDateToUTC(filters!.endDate!),
+          startDate: filters.startDate
+            ? formatToStartDateToUTC(filters.startDate)
+            : "",
+          endDate: filters.endDate ? formatToEndDateToUTC(filters.endDate) : "",
         });
         const url = `/orders/filter?${queryParams.toString()}`;
         const {
           data,
-          meta: { total, page, pageSize, totalPages },
+          meta: { total, totalPages },
         } = await request(url);
         setOrders(data);
         setTotalData(total);
@@ -67,7 +68,7 @@ export default function ReportPage() {
       }
       setIsLoading(false);
     },
-    [session?.accessToken, currentPage, limit],
+    [session?.accessToken, currentPage, limit, request],
   );
 
   const fetchOrdersCurrentDate = useCallback(async () => {
@@ -85,18 +86,18 @@ export default function ReportPage() {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
     setIsLoading(false);
-  }, [session?.accessToken]);
+  }, [session?.accessToken, request]);
 
   useEffect(() => {
     if (session && session.accessToken && !fetchedRef.current) {
       fetchOrdersCurrentDate();
       fetchedRef.current = true;
     }
-  }, [session?.accessToken]);
+  }, [session, fetchOrdersCurrentDate]);
 
   useEffect(() => {
     savedFilters && handleApplyFilter(savedFilters);
-  }, [currentPage, limit]);
+  }, [currentPage, limit, savedFilters, handleApplyFilter]);
 
   const onRemoveHandler = useCallback(async () => {
     try {
@@ -114,7 +115,7 @@ export default function ReportPage() {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
     setOpenModal(false);
-  }, [session?.accessToken, deleteId]);
+  }, [deleteId, request]);
 
   const table = useMemo(() => {
     if (isLoading) {
@@ -146,7 +147,7 @@ export default function ReportPage() {
         />
       );
     }
-  }, [isLoading, orders, pathName, router]);
+  }, [isLoading, orders, router, session]);
 
   return (
     <main className="flex flex-col gap-4 p-4">
