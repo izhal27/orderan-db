@@ -1,10 +1,10 @@
 import moment from "moment";
-import 'moment/locale/id';
+import "moment/locale/id";
 
 export const useMoment = () => {
-  moment.locale('id');
+  moment.locale("id");
 
   return {
-    moment
-  }
-}
+    moment,
+  };
+};

@@ -39,7 +39,7 @@ export default function CustomerTable({
                 <Table.Cell>{item.email}</Table.Cell>
                 <Table.Cell>{item.description}</Table.Cell>
                 <Table.Cell>
-                  <div className="flex gap-1 justify-center">
+                  <div className="flex justify-center gap-1">
                     <HiPencil
                       className="cursor-pointer text-blue-500"
                       onClick={() => onEditHandler(item.id)}

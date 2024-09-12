@@ -1,13 +1,14 @@
 "use client";
 
+import UserAvatar from "@/components/UserAvatar";
+import type { Order, User } from "@/constants";
+import { Roles } from "@/constants";
+import { isContain } from "@/helpers";
+import { useMoment } from "@/lib/useMoment";
 import { Table } from "flowbite-react";
 import { HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
-import { Order, Roles, User } from "@/constants";
-import UserAvatar from "@/components/UserAvatar";
 import { twMerge } from "tailwind-merge";
-import { isContain } from "@/helpers";
 import LabelStatus from "./LabelStatus";
-import { useMoment } from "@/lib/useMoment";
 
 interface props {
   order: Order[];
@@ -21,17 +22,25 @@ interface props {
 function userImage(user: User) {
   return (
     <UserAvatar rounded userImage={user?.image} size="sm">
-      <div className="flex flex-col gap-1 items-start font-medium dark:text-white">
-        <div className="text-sm font-bold text-gray-500 dark:text-gray-400">{user?.name}</div>
-        <span className="text-xs font-extralight text-gray-500 dark:text-gray-400">@{user?.username}</span>
+      <div className="flex flex-col items-start gap-1 font-medium dark:text-white">
+        <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
+          {user?.name}
+        </div>
+        <span className="text-xs font-extralight text-gray-500 dark:text-gray-400">
+          @{user?.username}
+        </span>
       </div>
-    </UserAvatar >
+    </UserAvatar>
   );
 }
 
 const getStatus = (order: Order) => {
-  return LabelStatus({ order, classNameOnProses: "px-3 text-xs", classNameDone: "px-3 text-xs" });
-}
+  return LabelStatus({
+    order,
+    classNameOnProses: "px-3 text-xs",
+    classNameDone: "px-3 text-xs",
+  });
+};
 
 export default function OrderTable({
   order,
@@ -39,7 +48,7 @@ export default function OrderTable({
   onDetailHandler,
   onRemoveHandler,
   session,
-  reportMode = false
+  reportMode = false,
 }: props) {
   const { moment } = useMoment();
 
@@ -48,7 +57,9 @@ export default function OrderTable({
     if (!session) return false;
     const isCreator = session?.user?.id === item.user.id;
     const userRole = session?.user?.role;
-    const isAdminOrAdministrasi = isContain(userRole, Roles.ADMIN) || isContain(userRole, Roles.ADMINISTRASI);
+    const isAdminOrAdministrasi =
+      isContain(userRole, Roles.ADMIN) ||
+      isContain(userRole, Roles.ADMINISTRASI);
     return isCreator || isAdminOrAdministrasi;
   };
 
@@ -57,8 +68,15 @@ export default function OrderTable({
   const isOrderInProcess = (item: Order) => {
     if (!session) return;
     const userRole = session?.user?.role;
-    const isAdminOrAdministrasi = isContain(userRole, Roles.ADMIN) || isContain(userRole, Roles.ADMINISTRASI);
-    return !isAdminOrAdministrasi && (item.MarkedPay?.status || item.MarkedTaken?.status || item.OrderDetails.some(od => od.MarkedPrinted?.status));
+    const isAdminOrAdministrasi =
+      isContain(userRole, Roles.ADMIN) ||
+      isContain(userRole, Roles.ADMINISTRASI);
+    return (
+      !isAdminOrAdministrasi &&
+      (item.MarkedPay?.status ||
+        item.MarkedTaken?.status ||
+        item.OrderDetails.some((od) => od.MarkedPrinted?.status))
+    );
   };
 
   return (
@@ -69,7 +87,9 @@ export default function OrderTable({
           <Table.HeadCell className="text-center">Nomor</Table.HeadCell>
           <Table.HeadCell className="text-center">Waktu</Table.HeadCell>
           <Table.HeadCell className="text-center">Pelanggan</Table.HeadCell>
-          {!reportMode && <Table.HeadCell className="text-center">Keterangan</Table.HeadCell>}
+          {!reportMode && (
+            <Table.HeadCell className="text-center">Keterangan</Table.HeadCell>
+          )}
           <Table.HeadCell className="text-center">Status</Table.HeadCell>
           <Table.HeadCell className="text-center">Aksi</Table.HeadCell>
         </Table.Head>
@@ -78,7 +98,10 @@ export default function OrderTable({
             return (
               <Table.Row
                 key={item.id}
-                className={twMerge("bg-white dark:border-gray-700 dark:bg-gray-800 text-center", item.animate ? "animate-splash dark:animate-splashDark" : "")}
+                className={twMerge(
+                  "bg-white text-center dark:border-gray-700 dark:bg-gray-800",
+                  item.animate ? "animate-splash dark:animate-splashDark" : "",
+                )}
               >
                 <Table.Cell className="flex">{userImage(item.user)}</Table.Cell>
                 <Table.Cell>{item.number}</Table.Cell>
@@ -87,25 +110,23 @@ export default function OrderTable({
                 {!reportMode && <Table.Cell>{item.description}</Table.Cell>}
                 <Table.Cell>{getStatus(item)}</Table.Cell>
                 <Table.Cell>
-                  <div className="flex gap-2 justify-center">
+                  <div className="flex justify-center gap-2">
                     <HiDocumentSearch
                       className="cursor-pointer text-blue-500"
                       onClick={() => onDetailHandler(item.id)}
                     />
-                    {
-                      canEditOrder(item) && !isOrderInProcess(item) && (
-                        <>
-                          <HiPencil
-                            className="cursor-pointer text-blue-500"
-                            onClick={() => onEditHandler(item.id)}
-                          />
-                          <HiTrash
-                            className="cursor-pointer text-red-500"
-                            onClick={() => onRemoveHandler(item.id)}
-                          />
-                        </>
-                      )
-                    }
+                    {canEditOrder(item) && !isOrderInProcess(item) && (
+                      <>
+                        <HiPencil
+                          className="cursor-pointer text-blue-500"
+                          onClick={() => onEditHandler(item.id)}
+                        />
+                        <HiTrash
+                          className="cursor-pointer text-red-500"
+                          onClick={() => onRemoveHandler(item.id)}
+                        />
+                      </>
+                    )}
                   </div>
                 </Table.Cell>
               </Table.Row>
@@ -113,6 +134,6 @@ export default function OrderTable({
           })}
         </Table.Body>
       </Table>
-    </div >
+    </div>
   );
 }

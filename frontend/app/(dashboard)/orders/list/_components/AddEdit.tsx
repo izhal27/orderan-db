@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { Button, Label, TextInput } from "flowbite-react";
-import { HiDocumentAdd, HiSave, HiXCircle } from "react-icons/hi";
-import { OrderDetail, Order, Customer } from "@/constants/interfaces";
-import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
+import AutoCompleteTextInput from "@/components/AutoCompleteTextInput";
 import BackButton from "@/components/buttons/BackButton";
 import ConfirmModal from "@/components/ConfirmModal";
-import OrderDetailTable from "./OrderDetailTable";
-import ModalInput from "./ModalInput";
-import AutoCompleteTextInput from '@/components/AutoCompleteTextInput';
+import type { Customer, Order, OrderDetail } from "@/constants/interfaces";
+import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
 import { useApiClient } from "@/lib/apiClient";
 import { useMoment } from "@/lib/useMoment";
+import { Button, Label, TextInput } from "flowbite-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { HiDocumentAdd, HiSave, HiXCircle } from "react-icons/hi";
+import ModalInput from "./ModalInput";
+import OrderDetailTable from "./OrderDetailTable";
 
 interface props {
   order?: Order;
@@ -28,12 +28,14 @@ export default function OrderAddEdit({ order }: props) {
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [showConfirmSaveModal, setShowConfirmSaveModal] = useState(false);
   const [deletedIndex, setDeletedIndex] = useState<number | null>(null);
-  const [deletedOrderDetails, setDeletedOrderDetails] = useState<OrderDetail[]>([]);
+  const [deletedOrderDetails, setDeletedOrderDetails] = useState<OrderDetail[]>(
+    [],
+  );
   const modalRef = useRef<{
-    setOrderdetailForm: (index: number, data: OrderDetail) => void
+    setOrderdetailForm: (index: number, data: OrderDetail) => void;
   }>(null);
-  const [customer, setCustomer] = useState<string | undefined>('');
-  const [description, setDescription] = useState<string | undefined>('');
+  const [customer, setCustomer] = useState<string | undefined>("");
+  const [description, setDescription] = useState<string | undefined>("");
   const [someEmpty, setSomeEmpty] = useState(true);
   const { request } = useApiClient();
   const { moment } = useMoment();
@@ -57,7 +59,12 @@ export default function OrderAddEdit({ order }: props) {
     try {
       const res = await request("/orders", {
         method: "POST",
-        body: JSON.stringify({ date: new Date().toISOString(), customer, description, orderDetails }),
+        body: JSON.stringify({
+          date: new Date().toISOString(),
+          customer,
+          description,
+          orderDetails,
+        }),
       });
       showInfo(res);
     } catch (error) {
@@ -69,7 +76,10 @@ export default function OrderAddEdit({ order }: props) {
     try {
       const res = await request(`/orders/${order?.id}`, {
         method: "PATCH",
-        body: JSON.stringify({ description, orderDetails: [...orderDetails, ...deletedOrderDetails] }),
+        body: JSON.stringify({
+          description,
+          orderDetails: [...orderDetails, ...deletedOrderDetails],
+        }),
       });
       showInfo(res);
     } catch (error) {
@@ -85,24 +95,29 @@ export default function OrderAddEdit({ order }: props) {
     router.back();
   }
 
-  const updateItemAtIndex = (index: number, newItem: Partial<OrderDetail>): OrderDetail[] => {
-    const updatedData = [...orderDetails.map((item, i) =>
-      i === index ? { ...item, ...newItem } : item
-    )];
+  const updateItemAtIndex = (
+    index: number,
+    newItem: Partial<OrderDetail>,
+  ): OrderDetail[] => {
+    const updatedData = [
+      ...orderDetails.map((item, i) =>
+        i === index ? { ...item, ...newItem } : item,
+      ),
+    ];
     return updatedData;
   };
 
   const handleSelectCustomer = (data: any) => {
-    setCustomer(data)
+    setCustomer(data);
   };
 
   useEffect(() => {
-    if (customer?.trim().length && orderDetails.some(item => item.name)) {
+    if (customer?.trim().length && orderDetails.some((item) => item.name)) {
       setSomeEmpty(false);
     } else {
       setSomeEmpty(true);
     }
-  }, [customer, orderDetails])
+  }, [customer, orderDetails]);
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -121,7 +136,7 @@ export default function OrderAddEdit({ order }: props) {
               />
             </div>
             <div>
-              <p className="font-medium text-gray-500 dark:text-gray-400">{`${moment(Date.now()).format('dddd')}, ${moment(Date.now()).format('LL')}`}</p>
+              <p className="font-medium text-gray-500 dark:text-gray-400">{`${moment(Date.now()).format("dddd")}, ${moment(Date.now()).format("LL")}`}</p>
             </div>
           </div>
           <div className="flex items-center">
@@ -140,7 +155,7 @@ export default function OrderAddEdit({ order }: props) {
                 onSelect={handleSelectCustomer}
                 accessToken={session?.accessToken}
                 onEmptyQueryHandler={() => setSomeEmpty(true)}
-                value={isEditMode ? customer : ''}
+                value={isEditMode ? customer : ""}
                 onChange={(newValue) => setCustomer(newValue)}
               />
             </div>
@@ -155,8 +170,8 @@ export default function OrderAddEdit({ order }: props) {
             </div>
             <div className="grow">
               <TextInput
-                type='text'
-                id='keterangan'
+                type="text"
+                id="keterangan"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
@@ -166,9 +181,13 @@ export default function OrderAddEdit({ order }: props) {
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex justify-between">
-          <div className="flex gap-4 items-center text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400">
             <div>
-              <Button size={"sm"} color={"blue"} onClick={() => setShowModal(true)}>
+              <Button
+                size={"sm"}
+                color={"blue"}
+                onClick={() => setShowModal(true)}
+              >
                 <HiDocumentAdd className="mr-2 size-5" />
                 Tambah item
               </Button>
@@ -176,11 +195,18 @@ export default function OrderAddEdit({ order }: props) {
             <div className="flex gap-4">
               <p>Items : {orderDetails.length}</p>
               <p>|</p>
-              <p>Total Qty : {orderDetails.reduce((acc, od) => acc + od.qty, 0)}</p>
+              <p>
+                Total Qty : {orderDetails.reduce((acc, od) => acc + od.qty, 0)}
+              </p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button size={"sm"} color={"green"} disabled={someEmpty} onClick={() => setShowConfirmSaveModal(true)}>
+            <Button
+              size={"sm"}
+              color={"green"}
+              disabled={someEmpty}
+              onClick={() => setShowConfirmSaveModal(true)}
+            >
               <HiSave className="mr-2 size-5" />
               Simpan
             </Button>
@@ -192,7 +218,7 @@ export default function OrderAddEdit({ order }: props) {
         </div>
         <OrderDetailTable
           data={orderDetails}
-          onEditHandler={index => {
+          onEditHandler={(index) => {
             if (modalRef.current) {
               modalRef.current.setOrderdetailForm(index, orderDetails[index]);
             }
@@ -206,7 +232,7 @@ export default function OrderAddEdit({ order }: props) {
         <ModalInput
           show={showModal}
           onAddHandler={(item) => {
-            setOrderDetails(prevState => [...prevState, item]);
+            setOrderDetails((prevState) => [...prevState, item]);
             setShowModal(false);
           }}
           onEditHandler={(index, data) => {
@@ -224,9 +250,11 @@ export default function OrderAddEdit({ order }: props) {
             if (isEditMode && deletedIndex !== -1) {
               const deletedOd = orderDetails[deletedIndex!];
               deletedOd.deleted = true;
-              setDeletedOrderDetails(prevState => [...prevState, deletedOd]);
+              setDeletedOrderDetails((prevState) => [...prevState, deletedOd]);
             }
-            const updatedData = orderDetails.filter((_, i) => i !== deletedIndex);
+            const updatedData = orderDetails.filter(
+              (_, i) => i !== deletedIndex,
+            );
             setOrderDetails([...updatedData]);
             setShowConfirmDeleteModal(false);
           }}

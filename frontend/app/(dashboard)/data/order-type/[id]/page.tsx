@@ -1,9 +1,9 @@
 "use client";
 
+import type { OrderType } from "@/constants";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import OrderTypeAddEdit from "../_components/AddEdit";
-import { OrderType } from "@/constants";
 
 export default function EditPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();

@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
-import io, { Socket } from 'socket.io-client';
+import { useEffect, useRef } from "react";
+import type { Socket } from "socket.io-client";
+import io from "socket.io-client";
 
 type EventHandler<T = any> = (data: T) => void;
 type EventMap = Record<string, EventHandler>;
@@ -9,8 +10,10 @@ const useWebSocket = (events: EventMap) => {
 
   useEffect(() => {
     // Initialize socket connection
-    socketRef.current = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3002');
-    
+    socketRef.current = io(
+      process.env.NEXT_PUBLIC_WEBSOCKET_URL || "http://localhost:3002",
+    );
+
     // Subscribe to all events
     Object.entries(events).forEach(([event, handler]) => {
       socketRef.current?.on(event, handler);

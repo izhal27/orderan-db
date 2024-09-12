@@ -72,17 +72,17 @@ const config: Config = {
       },
       keyframes: {
         splash: {
-          '0%, 100%': { backgroundColor: 'inherit' },
-          '50%': { backgroundColor: '#94a3b8' },
+          "0%, 100%": { backgroundColor: "inherit" },
+          "50%": { backgroundColor: "#94a3b8" },
         },
         splashDark: {
-          '0%, 100%': { backgroundColor: 'inherit' },
-          '50%': { backgroundColor: '#cbd5e1' },
-        }
+          "0%, 100%": { backgroundColor: "inherit" },
+          "50%": { backgroundColor: "#cbd5e1" },
+        },
       },
       animation: {
-        splash: 'splash 0.6s ease-in-out',
-        splashDark: 'splashDark 0.6s ease-in-out',  
+        splash: "splash 0.6s ease-in-out",
+        splashDark: "splashDark 0.6s ease-in-out",
       },
     },
   },

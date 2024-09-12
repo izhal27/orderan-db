@@ -1,9 +1,9 @@
 "use client";
 
+import type { Customer } from "@/constants";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import CustomerAddEdit from "../_components/AddEdit";
-import { Customer } from "@/constants";
 
 export default function EditPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();

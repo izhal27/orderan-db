@@ -1,4 +1,4 @@
-import { OrderDetail } from "@/constants";
+import type { OrderDetail } from "@/constants";
 import { Table } from "flowbite-react";
 import { HiPencil, HiTrash } from "react-icons/hi";
 
@@ -9,7 +9,12 @@ interface props {
   onRemoveHandler(index: number): void;
 }
 
-export default function OrderDetailTable({ data, detailMode = false, onEditHandler, onRemoveHandler }: props) {
+export default function OrderDetailTable({
+  data,
+  detailMode = false,
+  onEditHandler,
+  onRemoveHandler,
+}: props) {
   return (
     <Table hoverable>
       <Table.Head>
@@ -28,18 +33,18 @@ export default function OrderDetailTable({ data, detailMode = false, onEditHandl
           return (
             <Table.Row
               key={index}
-              className="bg-white dark:border-gray-700 dark:bg-gray-800 text-center"
+              className="bg-white text-center dark:border-gray-700 dark:bg-gray-800"
             >
               <Table.Cell>{item.name}</Table.Cell>
               <Table.Cell>{item.width}</Table.Cell>
               <Table.Cell>{item.height}</Table.Cell>
               <Table.Cell>{item.qty}</Table.Cell>
               <Table.Cell>{item.design}</Table.Cell>
-              <Table.Cell>{item.eyelets ? 'Ya' : 'Tidak'}</Table.Cell>
-              <Table.Cell>{item.shiming ? 'Ya' : 'Tidak'}</Table.Cell>
+              <Table.Cell>{item.eyelets ? "Ya" : "Tidak"}</Table.Cell>
+              <Table.Cell>{item.shiming ? "Ya" : "Tidak"}</Table.Cell>
               <Table.Cell>{item.description}</Table.Cell>
               <Table.Cell>
-                <div className="flex gap-2 justify-center">
+                <div className="flex justify-center gap-2">
                   <HiPencil
                     className="cursor-pointer text-blue-500"
                     onClick={() => onEditHandler(index)}

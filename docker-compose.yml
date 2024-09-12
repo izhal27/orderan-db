@@ -13,7 +13,6 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NEXT_PUBLIC_WEBSOCKET_URL: ${NEXT_PUBLIC_WEBSOCKET_URL}
-      AUTH_SECRET: ${AUTH_SECRET}
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -68,6 +67,7 @@ services:
 
 volumes:
   postgres-data:
+
 
 networks:
   internal:

@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import AddButton from "@/components/buttons/AddButton";
+import ConfirmModal from "@/components/ConfirmModal";
+import SkeletonTable from "@/components/SkeletonTable";
+import type { User } from "@/constants/interfaces";
+import { showToast } from "@/helpers";
+import { useApiClient } from "@/lib/apiClient";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { User } from "@/constants/interfaces";
-import AddButton from "@/components/buttons/AddButton";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { UsersTable } from "./_components/Table";
-import SkeletonTable from "@/components/SkeletonTable";
-import { showToast } from "@/helpers";
-import ConfirmModal from "@/components/ConfirmModal";
-import { useApiClient } from "@/lib/apiClient";
 
 export default function UsersPage() {
   const { data: session } = useSession();
@@ -28,7 +28,7 @@ export default function UsersPage() {
     }
     setLoading(true);
     try {
-      const data = await request('/users');
+      const data = await request("/users");
       setUsers(data);
     } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
@@ -56,11 +56,16 @@ export default function UsersPage() {
     } else {
       try {
         const url = `/users/${deleteId}`;
-        const deletedObject = await request(`${url}`, { method: "DELETE", body: "" });
-        setUsers(prevState => prevState.filter(
-          (item) => item.id !== deletedObject.id,
-        ));
-        showToast("success", `User "${deletedObject.username}" berhasil dihapus.`,
+        const deletedObject = await request(`${url}`, {
+          method: "DELETE",
+          body: "",
+        });
+        setUsers((prevState) =>
+          prevState.filter((item) => item.id !== deletedObject.id),
+        );
+        showToast(
+          "success",
+          `User "${deletedObject.username}" berhasil dihapus.`,
         );
       } catch (error) {
         showToast("error", "Gagal menghapus data, coba lagi nanti.");

@@ -83,7 +83,7 @@ export const DashboardSidebar: NextPage = function () {
                 bordered
                 rounded
               />
-              <div className="font-semibold text-center truncate w-full dark:text-white">
+              <div className="w-full truncate text-center font-semibold dark:text-white">
                 <div>{session?.user.name}</div>
                 <div className="text-sm font-light text-gray-500 dark:text-gray-400">
                   @{session?.user.username}

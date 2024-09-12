@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
-import { Modal, Button, TextInput, Datepicker, Select, Label } from 'flowbite-react';
+import {
+  Button,
+  Datepicker,
+  Label,
+  Modal,
+  Select,
+  TextInput,
+} from "flowbite-react";
+import { useState } from "react";
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -16,18 +23,22 @@ export interface FilterState {
   sortOrder: string;
 }
 
-export default function FilterModal({ isOpen, onClose, onApplyFilter }: FilterModalProps) {
+export default function FilterModal({
+  isOpen,
+  onClose,
+  onApplyFilter,
+}: FilterModalProps) {
   const [filters, setFilters] = useState<FilterState>({
     startDate: new Date(),
     endDate: new Date(),
-    orderNumber: '',
-    customer: '',
-    user: '',
-    sortOrder: 'desc'
+    orderNumber: "",
+    customer: "",
+    user: "",
+    sortOrder: "desc",
   });
 
   const handleFilterChange = (name: keyof FilterState, value: any) => {
-    setFilters(prev => ({ ...prev, [name]: value }));
+    setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleApplyFilter = () => {
@@ -39,20 +50,24 @@ export default function FilterModal({ isOpen, onClose, onApplyFilter }: FilterMo
     <Modal show={isOpen} onClose={onClose}>
       <Modal.Header>Filter Pesanan</Modal.Header>
       <Modal.Body>
-        <div className="grid grid-cols-2 gap-4 mt-6">
+        <div className="mt-6 grid grid-cols-2 gap-4">
           <div>
             <Datepicker
-              onSelectedDateChanged={(date) => handleFilterChange('startDate', date)}
-              language='id'
-              labelTodayButton='Hari ini'
+              onSelectedDateChanged={(date) =>
+                handleFilterChange("startDate", date)
+              }
+              language="id"
+              labelTodayButton="Hari ini"
             />
           </div>
           <div>
             <Datepicker
-              onSelectedDateChanged={(date) => handleFilterChange('endDate', date)}
+              onSelectedDateChanged={(date) =>
+                handleFilterChange("endDate", date)
+              }
               maxDate={new Date()}
-              language='id'
-              labelTodayButton='Hari ini'
+              language="id"
+              labelTodayButton="Hari ini"
             />
           </div>
           <div>
@@ -64,7 +79,9 @@ export default function FilterModal({ isOpen, onClose, onApplyFilter }: FilterMo
               type="text"
               placeholder="Nomor"
               value={filters.orderNumber}
-              onChange={(e) => handleFilterChange('orderNumber', e.target.value)}
+              onChange={(e) =>
+                handleFilterChange("orderNumber", e.target.value)
+              }
             />
           </div>
           <div>
@@ -76,7 +93,7 @@ export default function FilterModal({ isOpen, onClose, onApplyFilter }: FilterMo
               type="text"
               placeholder="Pelanggan"
               value={filters.customer}
-              onChange={(e) => handleFilterChange('customer', e.target.value)}
+              onChange={(e) => handleFilterChange("customer", e.target.value)}
             />
           </div>
           <div>
@@ -88,7 +105,7 @@ export default function FilterModal({ isOpen, onClose, onApplyFilter }: FilterMo
               type="text"
               placeholder="User"
               value={filters.user}
-              onChange={(e) => handleFilterChange('user', e.target.value)}
+              onChange={(e) => handleFilterChange("user", e.target.value)}
             />
           </div>
           <div>
@@ -98,7 +115,7 @@ export default function FilterModal({ isOpen, onClose, onApplyFilter }: FilterMo
             <Select
               id="sortType"
               value={filters.sortOrder}
-              onChange={(e) => handleFilterChange('sortOrder', e.target.value)}
+              onChange={(e) => handleFilterChange("sortOrder", e.target.value)}
             >
               <option value="">Pilih Jenis Pengurutan</option>
               <option value="asc">Tanggal (Terlama)</option>
@@ -108,8 +125,10 @@ export default function FilterModal({ isOpen, onClose, onApplyFilter }: FilterMo
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button size='sm' onClick={handleApplyFilter}>Terapkan Filter</Button>
-        <Button size='sm' color="gray" onClick={onClose}>
+        <Button size="sm" onClick={handleApplyFilter}>
+          Terapkan Filter
+        </Button>
+        <Button size="sm" color="gray" onClick={onClose}>
           Batal
         </Button>
       </Modal.Footer>

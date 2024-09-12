@@ -43,7 +43,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         console.log(JSON.stringify(token.user, null, 4));
       }
       if (trigger === "update" && session?.user) {
-        token.user = session.user
+        token.user = session.user;
       }
       return token;
     },

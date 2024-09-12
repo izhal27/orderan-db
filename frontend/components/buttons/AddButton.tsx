@@ -9,7 +9,7 @@ interface props {
   text?: string;
 }
 
-export default function AddButton({ text = 'Tambah' }: props) {
+export default function AddButton({ text = "Tambah" }: props) {
   const currentPath = usePathname();
 
   return (

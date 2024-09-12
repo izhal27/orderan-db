@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
 import { Spinner, TextInput } from "flowbite-react";
-import debounce from 'lodash.debounce';
-import React from "react";
+import debounce from "lodash.debounce";
+import React, { useCallback, useEffect, useState } from "react";
 
 interface props<T> {
   fetchUrl: string;
@@ -23,7 +22,7 @@ export default function AutoCompleteTextInput<T>({
   minLength = 3,
   accessToken,
   onEmptyQueryHandler,
-  value = '', // Default to empty string
+  value = "", // Default to empty string
   onChange,
 }: props<T>) {
   const [internalQuery, setInternalQuery] = useState<string>(value);
@@ -38,14 +37,14 @@ export default function AutoCompleteTextInput<T>({
       const response = await fetch(`${fetchUrl}?query=${searchQuery}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        cache: 'no-store',
+        cache: "no-store",
       });
       const data = await response.json();
       setItems(data);
     } catch (error) {
-      console.error('Error fetching suggestions:', error);
+      console.error("Error fetching suggestions:", error);
     } finally {
       setLoading(false);
     }
@@ -59,7 +58,7 @@ export default function AutoCompleteTextInput<T>({
         setItems([]);
       }
     }, 500), // 500ms debounce delay
-    [fetchUrl, minLength]
+    [fetchUrl, minLength],
   );
 
   useEffect(() => {
@@ -97,13 +96,14 @@ export default function AutoCompleteTextInput<T>({
     }
   };
 
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'ArrowDown') {
-      setActiveIndex((prevIndex) => (prevIndex < items.length - 1 ? prevIndex + 1 : prevIndex));
-    } else if (e.key === 'ArrowUp') {
+    if (e.key === "ArrowDown") {
+      setActiveIndex((prevIndex) =>
+        prevIndex < items.length - 1 ? prevIndex + 1 : prevIndex,
+      );
+    } else if (e.key === "ArrowUp") {
       setActiveIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : 0));
-    } else if (e.key === 'Enter') {
+    } else if (e.key === "Enter") {
       if (activeIndex >= 0 && activeIndex < items.length) {
         handleSuggestionClick(items[activeIndex]);
       } else {
@@ -130,12 +130,15 @@ export default function AutoCompleteTextInput<T>({
         </div>
       )}
       {showItems && items.length > 0 && (
-        <ul className="absolute bg-white border rounded mt-2 w-full z-10">
+        <ul className="absolute z-10 mt-2 w-full rounded border bg-white">
           {items.map((item, index) => (
             <li
               key={getKeyValue(item)}
-              className={`p-2 cursor-pointer ${index === activeIndex ? 'bg-blue-500 text-white' : 'bg-white text-black'
-                }`}
+              className={`cursor-pointer p-2 ${
+                index === activeIndex
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-black"
+              }`}
               onClick={() => handleSuggestionClick(item)}
               onMouseEnter={() => setActiveIndex(index)}
             >

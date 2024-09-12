@@ -33,10 +33,12 @@ export function UsersTable({ data, onEditHandler, onRemoveHandler }: props) {
               </Table.Cell>
               <Table.Cell>{item.email}</Table.Cell>
               <Table.Cell>{item.name}</Table.Cell>
-              <Table.Cell className="text-center">{item.blocked ? "Ya" : "Tidak"}</Table.Cell>
+              <Table.Cell className="text-center">
+                {item.blocked ? "Ya" : "Tidak"}
+              </Table.Cell>
               <Table.Cell>{item.role && item.role.name}</Table.Cell>
               <Table.Cell>
-                <div className="flex gap-1 justify-center">
+                <div className="flex justify-center gap-1">
                   <HiPencil
                     className="cursor-pointer text-blue-500"
                     onClick={() => onEditHandler(item.id)}

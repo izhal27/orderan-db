@@ -1,19 +1,26 @@
-'use client';
+"use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { HiFilter } from 'react-icons/hi';
-import { Button } from 'flowbite-react';
-import FilterModal, { FilterState } from '../list/_components/FilterModal';
-import OrderTable from '../list/_components/OrderTable';
-import SkeletonTable from '@/components/SkeletonTable';
-import SelectInput from '@/components/SelectInput';
-import { useApiClient } from '@/lib/apiClient';
-import { Order } from '@/constants';
-import { COMMON_ERROR_MESSAGE, formatToEndDateToUTC, formatToStartDateToUTC, getStartAndEndOfDay, showToast } from '@/helpers';
-import ConfirmModal from '@/components/ConfirmModal';
-import PaginationTable from '@/components/Pagination';
+import ConfirmModal from "@/components/ConfirmModal";
+import PaginationTable from "@/components/Pagination";
+import SelectInput from "@/components/SelectInput";
+import SkeletonTable from "@/components/SkeletonTable";
+import type { Order } from "@/constants";
+import {
+  COMMON_ERROR_MESSAGE,
+  formatToEndDateToUTC,
+  formatToStartDateToUTC,
+  getStartAndEndOfDay,
+  showToast,
+} from "@/helpers";
+import { useApiClient } from "@/lib/apiClient";
+import { Button } from "flowbite-react";
+import { useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { HiFilter } from "react-icons/hi";
+import type { FilterState } from "../list/_components/FilterModal";
+import FilterModal from "../list/_components/FilterModal";
+import OrderTable from "../list/_components/OrderTable";
 
 export default function ReportPage() {
   const { data: session } = useSession();
@@ -32,30 +39,36 @@ export default function ReportPage() {
   const fetchedRef = useRef(false);
   const [savedFilters, setSavedFilters] = useState<FilterState>();
 
-  const handleApplyFilter = useCallback(async (filters: FilterState) => {
-    setSavedFilters(filters);
-    if (!session?.accessToken) {
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const queryParams = new URLSearchParams({
-        page: currentPage.toString(),
-        pageSize: limit.toString(),
-        ...filters,
-        startDate: formatToStartDateToUTC(filters!.startDate!),
-        endDate: formatToEndDateToUTC(filters!.endDate!)
-      });
-      const url = `/orders/filter?${queryParams.toString()}`;
-      const { data, meta: { total, page, pageSize, totalPages } } = await request(url);
-      setOrders(data);
-      setTotalData(total);
-      setTotalPages(totalPages);
-    } catch (error) {
-      showToast("error", COMMON_ERROR_MESSAGE);
-    }
-    setIsLoading(false);
-  }, [session?.accessToken, currentPage, limit]);
+  const handleApplyFilter = useCallback(
+    async (filters: FilterState) => {
+      setSavedFilters(filters);
+      if (!session?.accessToken) {
+        return;
+      }
+      setIsLoading(true);
+      try {
+        const queryParams = new URLSearchParams({
+          page: currentPage.toString(),
+          pageSize: limit.toString(),
+          ...filters,
+          startDate: formatToStartDateToUTC(filters!.startDate!),
+          endDate: formatToEndDateToUTC(filters!.endDate!),
+        });
+        const url = `/orders/filter?${queryParams.toString()}`;
+        const {
+          data,
+          meta: { total, page, pageSize, totalPages },
+        } = await request(url);
+        setOrders(data);
+        setTotalData(total);
+        setTotalPages(totalPages);
+      } catch (error) {
+        showToast("error", COMMON_ERROR_MESSAGE);
+      }
+      setIsLoading(false);
+    },
+    [session?.accessToken, currentPage, limit],
+  );
 
   const fetchOrdersCurrentDate = useCallback(async () => {
     if (!session?.accessToken) {
@@ -66,7 +79,7 @@ export default function ReportPage() {
       const { start, end } = getStartAndEndOfDay();
       const url = `/orders/filter?startDate=${start.format()}&endDate=${end.format()}`;
       const { data } = await request(url);
-      setTotalData(data.length)
+      setTotalData(data.length);
       setOrders(data);
     } catch (error) {
       showToast("error", COMMON_ERROR_MESSAGE);
@@ -87,8 +100,12 @@ export default function ReportPage() {
 
   const onRemoveHandler = useCallback(async () => {
     try {
-      const deletedObject = await request(`/orders/${deleteId}`, { method: 'DELETE' });
-      setOrders(prevOrders => prevOrders.filter(order => order.id !== deletedObject.id));
+      const deletedObject = await request(`/orders/${deleteId}`, {
+        method: "DELETE",
+      });
+      setOrders((prevOrders) =>
+        prevOrders.filter((order) => order.id !== deletedObject.id),
+      );
       showToast(
         "success",
         `Pesanan "${deletedObject.customer}" berhasil dihapus.`,
@@ -103,7 +120,15 @@ export default function ReportPage() {
     if (isLoading) {
       return (
         <SkeletonTable
-          columnsName={["User", "Nomor", "Tanggal", "Pelanggan", "Keterangan", "Status", ""]}
+          columnsName={[
+            "User",
+            "Nomor",
+            "Tanggal",
+            "Pelanggan",
+            "Keterangan",
+            "Status",
+            "",
+          ]}
         />
       );
     } else {
@@ -124,14 +149,15 @@ export default function ReportPage() {
   }, [isLoading, orders, pathName, router]);
 
   return (
-    <main className="flex flex-col gap-4 p-4"><div>
-      <h1 className="text-2xl font-bold text-gray-500 dark:text-gray-400">
-        Laporan Pesanan
-      </h1>
-      <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-        Menampilkan pesanan sesuai filter yang diterapkan
-      </p>
-    </div>
+    <main className="flex flex-col gap-4 p-4">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-500 dark:text-gray-400">
+          Laporan Pesanan
+        </h1>
+        <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+          Menampilkan pesanan sesuai filter yang diterapkan
+        </p>
+      </div>
       <div className="flex justify-between">
         <div className="flex items-center gap-4">
           <span className="text-gray-900 dark:text-white">Items per page</span>

@@ -75,20 +75,15 @@ export const orderDetailSchema = z.object({
     .number()
     .min(0, "Heigth minimal 0")
     .max(100000, "Width maksimal 100000"),
-  qty: z
-    .number()
-    .min(1, "Qty minimal 1")
-    .max(10000, "Qty maksimal 10000"),
+  qty: z.number().min(1, "Qty minimal 1").max(10000, "Qty maksimal 10000"),
   design: z
     .number()
     .min(0, "Design minimal 0")
     .max(1000, "Design maksimal 1000")
     .optional()
     .or(z.literal(0)),
-  eyelets: z
-    .boolean(),
-  shiming: z
-    .boolean(),
+  eyelets: z.boolean(),
+  shiming: z.boolean(),
   description: z
     .string()
     .max(300, "Keterangan maksimal 300 karakter")

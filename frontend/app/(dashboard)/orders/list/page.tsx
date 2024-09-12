@@ -1,19 +1,30 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
-import { usePathname, useRouter } from "next/navigation";
-import OrderTable from "./_components/OrderTable";
-import { Order, Roles } from "@/constants";
-import { COMMON_ERROR_MESSAGE, getStartAndEndOfDay, isContain, showToast } from "@/helpers";
 import AddButton from "@/components/buttons/AddButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import SkeletonTable from "@/components/SkeletonTable";
+import type { Order } from "@/constants";
+import { Roles } from "@/constants";
+import {
+  COMMON_ERROR_MESSAGE,
+  getStartAndEndOfDay,
+  isContain,
+  showToast,
+} from "@/helpers";
 import { useApiClient } from "@/lib/apiClient";
-import { useOrderWebSocket } from "@/lib/useOrderWebSocket";
 import { useMoment } from "@/lib/useMoment";
+import { useOrderWebSocket } from "@/lib/useOrderWebSocket";
 import { Button, Modal } from "flowbite-react";
-import { HiCheckCircle, HiClipboardList, HiClock, HiInformationCircle } from "react-icons/hi";
+import { useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  HiCheckCircle,
+  HiClipboardList,
+  HiClock,
+  HiInformationCircle,
+} from "react-icons/hi";
+import OrderTable from "./_components/OrderTable";
 
 export default function ListOrderPage() {
   const { data: session } = useSession();
@@ -54,8 +65,12 @@ export default function ListOrderPage() {
 
   const onRemoveHandler = useCallback(async () => {
     try {
-      const deletedObject = await request(`/orders/${deleteId}`, { method: 'DELETE' });
-      setInitialOrders(prevOrders => prevOrders.filter(order => order.id !== deletedObject.id));
+      const deletedObject = await request(`/orders/${deleteId}`, {
+        method: "DELETE",
+      });
+      setInitialOrders((prevOrders) =>
+        prevOrders.filter((order) => order.id !== deletedObject.id),
+      );
       showToast(
         "success",
         `Pesanan "${deletedObject.customer}" berhasil dihapus.`,
@@ -69,12 +84,15 @@ export default function ListOrderPage() {
   const calculateUserDesignCounts = () => {
     const counts: { [key: string]: number } = {};
     orders.forEach((order) => {
-      // jangan masukkan ke dalam perhitungan jika belum di bayar 
+      // jangan masukkan ke dalam perhitungan jika belum di bayar
       if (!order.MarkedPay?.status) {
         return;
       }
       const user = order.user.name;
-      const designCount = order.OrderDetails.reduce((sum, od) => sum + od.design, 0);
+      const designCount = order.OrderDetails.reduce(
+        (sum, od) => sum + od.design,
+        0,
+      );
 
       if (counts[user]) {
         counts[user] += designCount;
@@ -82,18 +100,35 @@ export default function ListOrderPage() {
         counts[user] = designCount;
       }
     });
-    return Object.entries(counts).map(([user, totalDesign]) => ({ user, totalDesign }));
+    return Object.entries(counts).map(([user, totalDesign]) => ({
+      user,
+      totalDesign,
+    }));
   };
 
   const isAdministrator = useMemo(() => {
     const userRole = session?.user?.role!;
-    return isContain(userRole, Roles.ADMIN) || isContain(userRole, Roles.ADMINISTRASI);
+    return (
+      isContain(userRole, Roles.ADMIN) ||
+      isContain(userRole, Roles.ADMINISTRASI)
+    );
   }, [session?.user.role]);
 
   const calculateOrderStatus = useMemo(() => {
     const total = orders.length;
-    const done = orders.filter(order => order.MarkedPay?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status) && order.MarkedTaken?.status).length;
-    const onProses = orders.filter(order => order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken?.status).length - done;
+    const done = orders.filter(
+      (order) =>
+        order.MarkedPay?.status &&
+        order.OrderDetails.every((od) => od.MarkedPrinted?.status) &&
+        order.MarkedTaken?.status,
+    ).length;
+    const onProses =
+      orders.filter(
+        (order) =>
+          order.MarkedPay?.status ||
+          (order.OrderDetails.some((od) => od.MarkedPrinted?.status) &&
+            !order.MarkedTaken?.status),
+      ).length - done;
     return { total, done, onProses };
   }, [orders]);
 
@@ -101,7 +136,15 @@ export default function ListOrderPage() {
     if (isLoading) {
       return (
         <SkeletonTable
-          columnsName={["User", "Nomor", "Tanggal", "Pelanggan", "Keterangan", "Status", ""]}
+          columnsName={[
+            "User",
+            "Nomor",
+            "Tanggal",
+            "Pelanggan",
+            "Keterangan",
+            "Status",
+            "",
+          ]}
         />
       );
     } else {
@@ -127,13 +170,14 @@ export default function ListOrderPage() {
           Daftar Pesanan
         </h1>
         <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-          Menampilkan daftar pesanan <span className="font-semibold">{`${moment(Date.now()).format('dddd')}, ${moment(Date.now()).format('LL')}`}</span>
+          Menampilkan daftar pesanan{" "}
+          <span className="font-semibold">{`${moment(Date.now()).format("dddd")}, ${moment(Date.now()).format("LL")}`}</span>
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-          <div className="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full dark:text-orange-100 dark:bg-orange-500">
-            <HiClipboardList className="w-5 h-5" />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="shadow-xs flex items-center rounded-lg bg-white p-4 dark:bg-gray-800">
+          <div className="mr-4 rounded-full bg-orange-100 p-3 text-orange-500 dark:bg-orange-500 dark:text-orange-100">
+            <HiClipboardList className="size-5" />
           </div>
           <div>
             <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -144,9 +188,9 @@ export default function ListOrderPage() {
             </p>
           </div>
         </div>
-        <div className="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-          <div className="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500">
-            <HiClock className="w-5 h-5" />
+        <div className="shadow-xs flex items-center rounded-lg bg-white p-4 dark:bg-gray-800">
+          <div className="mr-4 rounded-full bg-blue-100 p-3 text-blue-500 dark:bg-blue-500 dark:text-blue-100">
+            <HiClock className="size-5" />
           </div>
           <div>
             <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -157,9 +201,9 @@ export default function ListOrderPage() {
             </p>
           </div>
         </div>
-        <div className="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-          <div className="p-3 mr-4 text-green-500 bg-green-100 rounded-full dark:text-green-100 dark:bg-green-500">
-            <HiCheckCircle className="w-5 h-5" />
+        <div className="shadow-xs flex items-center rounded-lg bg-white p-4 dark:bg-gray-800">
+          <div className="mr-4 rounded-full bg-green-100 p-3 text-green-500 dark:bg-green-500 dark:text-green-100">
+            <HiCheckCircle className="size-5" />
           </div>
           <div>
             <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -173,18 +217,16 @@ export default function ListOrderPage() {
       </div>
       <div className="flex justify-between">
         <div className="max-w-40">
-          {
-            isAdministrator && (
-              <Button
-                gradientMonochrome="info"
-                size={'sm'}
-                onClick={() => setShowDesignModal(true)}
-              >
-                <HiInformationCircle className="mr-2 size-5" />
-                Total Design
-              </Button>
-            )
-          }
+          {isAdministrator && (
+            <Button
+              gradientMonochrome="info"
+              size={"sm"}
+              onClick={() => setShowDesignModal(true)}
+            >
+              <HiInformationCircle className="mr-2 size-5" />
+              Total Design
+            </Button>
+          )}
         </div>
         <div className="max-w-40">
           <AddButton text="Buat Pesanan" />
@@ -200,13 +242,14 @@ export default function ListOrderPage() {
       <Modal show={showDesignModal} onClose={() => setShowDesignModal(false)}>
         <Modal.Header>Total Design per User</Modal.Header>
         <Modal.Body>
-          <div className="space-y-2 mt-6">
+          <div className="mt-6 space-y-2">
             {calculateUserDesignCounts().map(({ user, totalDesign }) => (
-              <div key={user} className="flex items-center gap-4 dark:text-white">
+              <div
+                key={user}
+                className="flex items-center gap-4 dark:text-white"
+              >
                 <span className="font-medium">{user} :</span>
-                <span>
-                  {totalDesign}
-                </span>
+                <span>{totalDesign}</span>
               </div>
             ))}
           </div>

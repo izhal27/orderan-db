@@ -8,6 +8,7 @@ WORKDIR /app
 COPY ./frontend/package*.json ./
 COPY ./frontend/yarn.lock ./
 RUN yarn install
+RUN yarn add sharp
 
 # Copy the rest of the application code
 COPY ./frontend .
