@@ -5,7 +5,7 @@
 yarn prisma migrate deploy
 
 # Run Prisma seed
-yarn prisma db seed
+npx ts-node prisma/seed.ts
 
 # Run NestJS application
-exec pm2-runtime start dist/main.js
+exec pm2-runtime start dist/main --name "backend"

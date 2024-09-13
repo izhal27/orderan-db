@@ -20,8 +20,8 @@ COPY ./backend .
 RUN yarn prisma generate
 
 # Copy the entrypoint script
-COPY ./backend/.entrypoint.sh .
-RUN chmod +x /app/.entrypoint.sh
+COPY ./backend/entrypoint.sh .
+RUN chmod +x /app/entrypoint.sh
 
 # Set the environment variable for production
 ENV NODE_ENV=production
@@ -33,4 +33,4 @@ RUN yarn build
 EXPOSE 3002
 
 # Use the entrypoint script
-CMD ["/bin/sh","/app/.entrypoint.sh"]
+CMD ["sh","/app/entrypoint.sh"]

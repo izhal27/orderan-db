@@ -1,7 +1,6 @@
 import NextAuth, { Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
-import { baseUrl } from "./lib/apiClient";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -11,8 +10,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: {},
       },
       authorize: async (credentials) => {
+        const baseUrl = process.env.AUTH_API_URL || "http://localhost:3002/api";
+        const url = `${baseUrl}/auth/local/signin`;
         // logic to verify if the user exists
-        const res = await fetch(`${baseUrl}/auth/local/signin`, {
+        const res = await fetch(url, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -33,6 +34,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: "/auth/signin",
   },
+  secret: process.env.AUTH_SECRET,
   callbacks: {
     authorized: async ({ auth }) => {
       return !!auth;
