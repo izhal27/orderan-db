@@ -8,7 +8,7 @@ import { orderTypeSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 interface props {
@@ -31,55 +31,76 @@ export default function OrderTypeAddEdit({ orderType }: props) {
 
   useEffect(() => {
     setFocus("name");
-    if (isEditMode && orderType) {
+    if (orderType) {
       setValue("name", orderType.name);
       setValue("description", orderType.description);
     }
-  }, [orderType, isEditMode, setValue, setFocus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode]);
 
   const onSubmit = async (data: OrderTypeFormData) => {
     return isEditMode ? editHandler(orderType.id, data) : addHandler(data);
   };
 
-  const addHandler = async (data: OrderTypeFormData) => {
-    try {
-      const orderType = await request("/order-types", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
-      showToast(
-        "success",
-        `Jenis Pesanan "${orderType.name}" berhasil ditambahkan"}.`,
-      );
-      router.back();
-    } catch (error) {
-      if (error instanceof Error && "status" in error && error.status === 409) {
-        showToast("error", "Nama sudah digunakan, coba dengan nama yang lain");
-      } else {
-        showToast("error", COMMON_ERROR_MESSAGE);
+  const addHandler = useCallback(
+    async (data: OrderTypeFormData) => {
+      try {
+        const orderType = await request("/order-types", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+        showToast(
+          "success",
+          `Jenis Pesanan "${orderType.name}" berhasil ditambahkan"}.`,
+        );
+        router.back();
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          "status" in error &&
+          error.status === 409
+        ) {
+          showToast(
+            "error",
+            "Nama sudah digunakan, coba dengan nama yang lain",
+          );
+        } else {
+          showToast("error", COMMON_ERROR_MESSAGE);
+        }
       }
-    }
-  };
+    },
+    [request, router],
+  );
 
-  const editHandler = async (id: number, data: OrderTypeFormData) => {
-    try {
-      const orderType = await request(`/order-types/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      });
-      showToast(
-        "success",
-        `Jenis Pesanan "${orderType.name}" berhasil disimpan.`,
-      );
-      router.back();
-    } catch (error) {
-      if (error instanceof Error && "status" in error && error.status === 409) {
-        showToast("error", "Nama sudah digunakan, coba dengan nama yang lain");
-      } else {
-        showToast("error", COMMON_ERROR_MESSAGE);
+  const editHandler = useCallback(
+    async (id: number, data: OrderTypeFormData) => {
+      try {
+        const orderType = await request(`/order-types/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
+        showToast(
+          "success",
+          `Jenis Pesanan "${orderType.name}" berhasil disimpan.`,
+        );
+        router.back();
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          "status" in error &&
+          error.status === 409
+        ) {
+          showToast(
+            "error",
+            "Nama sudah digunakan, coba dengan nama yang lain",
+          );
+        } else {
+          showToast("error", COMMON_ERROR_MESSAGE);
+        }
       }
-    }
-  };
+    },
+    [request, router],
+  );
 
   return (
     <div className="flex flex-col gap-4 p-4">
