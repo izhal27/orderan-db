@@ -1,0 +1,57 @@
+# Dependensi
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Next.js
+.next
+out
+
+# Sistem operasi
+.DS_Store
+Thumbs.db
+
+# IDE dan editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# File konfigurasi lokal
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# File log
+*.log
+
+# Direktori cache
+.cache
+
+# File build
+build
+
+# File temporary
+tmp
+temp
+
+# File pengujian
+coverage
+
+# File dokumentasi
+README.md
+CHANGELOG.md
+LICENSE
+
+# File Git
+.git
+.gitignore
+
+# File Docker
+Dockerfile
+docker-compose.yml
+
+# File lainnya yang mungkin tidak diperlukan
+*.md
+*.txt

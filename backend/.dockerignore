@@ -1,0 +1,67 @@
+# Dependensi
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Direktori build
+dist
+build
+
+# File konfigurasi lokal
+.env
+.env.*
+!.env.example
+
+# Sistem operasi
+.DS_Store
+Thumbs.db
+
+# IDE dan editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# File log
+*.log
+logs
+
+# Direktori cache
+.npm
+.eslintcache
+
+# File pengujian
+coverage
+.nyc_output
+
+# File dokumentasi
+README.md
+CHANGELOG.md
+LICENSE
+
+# File Git
+.git
+.gitignore
+
+# File Docker
+Dockerfile
+docker-compose.yml
+
+# File TypeScript
+*.tsbuildinfo
+
+# File konfigurasi
+nodemon.json
+nest-cli.json
+
+# File temporary
+tmp
+temp
+
+# File lainnya yang mungkin tidak diperlukan
+*.md
+*.txt
+
+# Direktori dan file khusus NestJS
+test
+e2e
