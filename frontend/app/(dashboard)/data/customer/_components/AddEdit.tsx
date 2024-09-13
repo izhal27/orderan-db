@@ -2,6 +2,7 @@
 
 import BackButton from "@/components/buttons/BackButton";
 import type { Customer, CustomerFormData } from "@/constants";
+import { isConflict } from "@/helpers";
 import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
 import { useApiClient } from "@/lib/apiClient";
 import { customerSchema } from "@/schemas/schemas";
@@ -58,11 +59,7 @@ export default function CustomerAddEdit({ customer }: props) {
         );
         router.back();
       } catch (error) {
-        if (
-          error instanceof Error &&
-          "status" in error &&
-          error.status === 409
-        ) {
+        if (isConflict(error as Error)) {
           showToast(
             "error",
             "Nama sudah digunakan, coba dengan nama yang lain.",
@@ -85,11 +82,7 @@ export default function CustomerAddEdit({ customer }: props) {
         showToast("success", `Pelanggan "${customer.name}" berhasil disimpan"`);
         router.back();
       } catch (error) {
-        if (
-          error instanceof Error &&
-          "status" in error &&
-          error.status === 409
-        ) {
+        if (isConflict(error as Error)) {
           showToast(
             "error",
             "Nama sudah digunakan, coba dengan nama yang lain.",

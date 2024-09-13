@@ -2,6 +2,7 @@
 
 import BackButton from "@/components/buttons/BackButton";
 import type { OrderType, OrderTypeFormData } from "@/constants";
+import { isConflict } from "@/helpers";
 import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
 import { useApiClient } from "@/lib/apiClient";
 import { orderTypeSchema } from "@/schemas/schemas";
@@ -55,11 +56,7 @@ export default function OrderTypeAddEdit({ orderType }: props) {
         );
         router.back();
       } catch (error) {
-        if (
-          error instanceof Error &&
-          "status" in error &&
-          error.status === 409
-        ) {
+        if (isConflict(error as Error)) {
           showToast(
             "error",
             "Nama sudah digunakan, coba dengan nama yang lain",
@@ -85,11 +82,7 @@ export default function OrderTypeAddEdit({ orderType }: props) {
         );
         router.back();
       } catch (error) {
-        if (
-          error instanceof Error &&
-          "status" in error &&
-          error.status === 409
-        ) {
+        if (isConflict(error as Error)) {
           showToast(
             "error",
             "Nama sudah digunakan, coba dengan nama yang lain",

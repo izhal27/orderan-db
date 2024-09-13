@@ -23,9 +23,7 @@ export default function JenisPesananPage() {
   const { request } = useApiClient();
 
   const fetchOrderTypes = useCallback(async () => {
-    if (!session?.accessToken) {
-      return;
-    }
+    if (!session?.accessToken) return;
     setLoading(true);
     try {
       const data = await request("/order-types");
@@ -41,7 +39,8 @@ export default function JenisPesananPage() {
       fetchOrderTypes();
       fetchedRef.current = true;
     }
-  }, [session, fetchOrderTypes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   const onRemoveHandler = useCallback(async () => {
     try {
