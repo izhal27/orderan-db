@@ -31,9 +31,7 @@ export default function PelangganPage() {
   const { request } = useApiClient();
 
   const fetchCustomers = useCallback(async () => {
-    if (!session?.accessToken) {
-      return;
-    }
+    if (!session?.accessToken) return;
     setLoading(true);
     const url = `/customers`;
     const searchParams = new URLSearchParams();
@@ -52,14 +50,16 @@ export default function PelangganPage() {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
-  }, [session?.accessToken, request, currentPage, limit, search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.accessToken, currentPage, limit, search]);
 
   useEffect(() => {
     if (session && session.accessToken && !fetchedRef.current) {
       fetchCustomers();
       fetchedRef.current = true;
     }
-  }, [session, fetchCustomers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   useEffect(() => {
     fetchCustomers();
