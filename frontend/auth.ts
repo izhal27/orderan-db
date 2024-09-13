@@ -1,6 +1,7 @@
 import NextAuth, { Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
+import { baseUrl } from "./lib/apiClient";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -11,7 +12,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       authorize: async (credentials) => {
         // logic to verify if the user exists
-        const res = await fetch("http://localhost:3002/api/auth/local/signin", {
+        const res = await fetch(`${baseUrl}/auth/local/signin`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
