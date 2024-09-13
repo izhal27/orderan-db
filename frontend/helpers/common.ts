@@ -19,3 +19,8 @@ export const isContain = (value: string, search: string) => {
   const regex = new RegExp(`\\b${search}\\b`, "i");
   return regex.test(value);
 };
+
+export const isConflict = (error: Error) => {
+  let erroObj = JSON.parse((error as Error).message);
+  return "statusCode" in erroObj && erroObj.statusCode === 409;
+}

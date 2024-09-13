@@ -43,8 +43,8 @@ export const userSchema = z.object({
   username: z
     .string()
     .min(
-      5,
-      "Username minimal 5 karakter, hanya mengandung karakter huruf & angka",
+      3,
+      "Username minimal 3 karakter, hanya mengandung karakter huruf & angka",
     ),
   password: z
     .string()
