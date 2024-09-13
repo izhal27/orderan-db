@@ -1,3 +1,6 @@
+import { join } from 'path';
+import * as fs from 'fs';
+import { Express } from 'express';
 import {
   Controller,
   Get,
@@ -18,8 +21,6 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { join } from 'path';
-import * as fs from 'fs';
 
 import { UserEntity } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -111,7 +112,7 @@ export class UsersController {
       this.removeImage(currentUser?.image!);
       updateUserDto.image = file.filename;
     }
-    return this.usersService.update({ where: { id }, data: updateUserDto });
+    return this.usersService.updateProfile({ where: { id }, data: updateUserDto });
   }
 
   @Delete(':id')

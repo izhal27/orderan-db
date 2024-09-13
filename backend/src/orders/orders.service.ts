@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { PrintedStatus, Prisma, User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 import {
@@ -19,7 +19,7 @@ import { OrderEntity } from './entities/order.entity';
 import { orderNumber } from '../helpers';
 import { CustomersService } from '../customers/customers.service';
 import { ADMIN } from '../types';
-import { UserEntity } from '../users/entities/user.entity';
+import { WebSocketService } from '../lib/websocket.service';
 
 @Injectable()
 export class OrdersService {
@@ -28,6 +28,7 @@ export class OrdersService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly customersService: CustomersService,
+    private readonly webSocketService: WebSocketService,
   ) { }
 
   async create(
@@ -42,7 +43,7 @@ export class OrdersService {
         async (prisma): Promise<OrderEntity[] | any> => {
           try {
             await this.customersService.create({ name: customerUpperCase }, userId);
-            return await prisma.order.create({
+            const result = await prisma.order.create({
               data: {
                 number,
                 date,
@@ -79,6 +80,8 @@ export class OrdersService {
                 },
               },
             });
+            this.webSocketService.emitEvent('order:new', result, userId);
+            return result;
           } catch (error) {
             this.logger.error(error);
             throw new Error(error);
@@ -139,8 +142,9 @@ export class OrdersService {
   async filter(params: {
     startDate?: Date;
     endDate?: Date;
+    orderNumber?: string;
     customer?: string;
-    userId?: number;
+    user?: string;
     sortBy?: string;
     sortOrder?: Prisma.SortOrder;
     page?: number;
@@ -149,8 +153,9 @@ export class OrdersService {
     const {
       startDate,
       endDate,
+      orderNumber,
       customer,
-      userId,
+      user,
       sortBy = 'updatedAt', // Default sorting by 'createdAt'
       sortOrder = 'desc', // Default sorting order 'desc'
       page,
@@ -166,12 +171,31 @@ export class OrdersService {
       };
     }
 
-    if (customer) {
-      where.customer = customer;
+    if (orderNumber) {
+      where.number = {
+        contains: orderNumber,
+        mode: 'insensitive'
+      };
     }
 
-    if (userId) {
-      where.userId = userId;
+    if (customer) {
+      where.customer = {
+        contains: customer,
+        mode: 'insensitive'
+      };
+    }
+
+    if (user) {
+      where.user = {
+        username: {
+          contains: user,
+          mode: 'insensitive'
+        },
+        name: {
+          contains: user,
+          mode: 'insensitive'
+        },
+      };
     }
 
     let skip: number | undefined;
@@ -185,7 +209,7 @@ export class OrdersService {
     const orders = await this.prismaService.order.findMany({
       where,
       orderBy: {
-        [sortBy]: sortOrder,
+        updatedAt: sortOrder,
       },
       skip,
       take,
@@ -362,13 +386,12 @@ export class OrdersService {
       await this.prismaService.orderDetail.deleteMany({
         where: { id: { in: deletedOd } }
       });
-      return await this.prismaService.order.update({
+      const result = await this.prismaService.order.update({
         where: { id },
         data: {
           date,
           customer,
           description,
-          userId,
           OrderDetails: {
             updateMany: updatedOd,
             createMany: {
@@ -401,13 +424,15 @@ export class OrdersService {
           },
         },
       });
+      this.webSocketService.emitEvent('order:update', result, userId);
+      return result;
     } catch (error) {
       this.logger.error(error);
       throw new NotFoundException(error);
     }
   }
 
-  async delete(where: Prisma.OrderWhereUniqueInput, role: string): Promise<OrderEntity> {
+  async delete(where: Prisma.OrderWhereUniqueInput, role: string, userId: number): Promise<OrderEntity> {
     const order = await this.findUnique(where);
     // selain admin,
     // order hanya bisa dihapus jika belum dilakukan pembayaran atau
@@ -416,7 +441,7 @@ export class OrdersService {
       throw new ForbiddenException('403 Forbidden');
     }
     try {
-      return this.prismaService.order.delete({
+      const result = await this.prismaService.order.delete({
         where,
         include: {
           OrderDetails: true,
@@ -433,6 +458,8 @@ export class OrdersService {
           }
         },
       });
+      this.webSocketService.emitEvent('order:delete', result.id, userId);
+      return result;
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(error);
@@ -442,7 +469,7 @@ export class OrdersService {
   async markPrint(orderDetailId: string, markPrintedDto: MarkPrintedDto, printedById: number) {
     const { status, description, printAt } = markPrintedDto;
     try {
-      return this.prismaService.printedStatus.upsert({
+      const result = await this.prismaService.printedStatus.upsert({
         where: { orderDetailId },
         update: {
           status,
@@ -468,16 +495,18 @@ export class OrdersService {
           }
         }
       });
+      this.webSocketService.emitEvent('order:markPrint', result, printedById);
+      return result;
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(error);
     }
   }
 
-  markPay(orderId: string, markPayDto: MarkPayDto, markedById: number) {
+  async markPay(orderId: string, markPayDto: MarkPayDto, markedById: number) {
     const { status, description, payAt } = markPayDto;
     try {
-      return this.prismaService.payStatus.upsert({
+      const result = await this.prismaService.payStatus.upsert({
         where: { orderId },
         update: {
           status,
@@ -503,16 +532,18 @@ export class OrdersService {
           }
         }
       });
+      this.webSocketService.emitEvent('order:markPay', result, markedById);
+      return result;
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(error);
     }
   }
 
-  markTaken(orderId: string, markTakenDto: MarkTakenDto, markedById: number) {
+  async markTaken(orderId: string, markTakenDto: MarkTakenDto, markedById: number) {
     const { status, description, takenAt } = markTakenDto;
     try {
-      return this.prismaService.takenStatus.upsert({
+      const result = await this.prismaService.takenStatus.upsert({
         where: { orderId },
         update: {
           status,
@@ -538,16 +569,18 @@ export class OrdersService {
           }
         }
       });
+      this.webSocketService.emitEvent('order:markTaken', result, markedById);
+      return result;
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(error);
     }
   }
 
-  cancelStatus({ type, orderId, orderDetailId }: { type: CancelType, orderId?: string, orderDetailId?: string }) {
+  async cancelStatus({ type, orderId, orderDetailId, userId }: { type: CancelType, orderId?: string, orderDetailId?: string, userId: number }) {
     switch (type) {
       case CancelType.PRINT:
-        return this.prismaService.printedStatus.update({
+        const resultPrint = await this.prismaService.printedStatus.update({
           where: { orderDetailId: orderDetailId },
           data: { status: false },
           include: {
@@ -561,9 +594,11 @@ export class OrdersService {
             },
           },
         });
+        this.webSocketService.emitEvent('order:cancelPrint', resultPrint, userId);
+        return resultPrint;
 
       case CancelType.PAY:
-        return this.prismaService.payStatus.update({
+        const resultPay = await this.prismaService.payStatus.update({
           where: { orderId },
           data: { status: false },
           include: {
@@ -577,9 +612,11 @@ export class OrdersService {
             },
           },
         });
+        this.webSocketService.emitEvent('order:cancelPay', resultPay, userId);
+        return resultPay;
 
       case CancelType.TAKEN:
-        return this.prismaService.takenStatus.update({
+        const resultTaken = await this.prismaService.takenStatus.update({
           where: { orderId },
           data: { status: false },
           include: {
@@ -593,6 +630,8 @@ export class OrdersService {
             },
           },
         });
+        this.webSocketService.emitEvent('order:cancelTaken', resultTaken, userId);
+        return resultTaken;
     }
   }
 }

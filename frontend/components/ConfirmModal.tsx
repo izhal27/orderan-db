@@ -4,7 +4,7 @@ import { Button, Modal } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 interface props {
-  yesButtonColor?: 'failure' | 'success' | 'warning';
+  yesButtonColor?: "failure" | "success" | "warning";
   text: string;
   openModal: boolean;
   onCloseHandler(): void;
@@ -12,7 +12,7 @@ interface props {
 }
 
 export default function ConfirmModal({
-  yesButtonColor = 'failure',
+  yesButtonColor = "failure",
   text,
   openModal,
   onCloseHandler,

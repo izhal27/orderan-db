@@ -1,6 +1,6 @@
 export enum Roles {
-  ADMIN = 'admin',
-  ADMINISTRASI = 'administrasi',
-  DESIGNER = 'designer',
-  OPERATOR = 'operator',
+  ADMIN = "admin",
+  ADMINISTRASI = "administrasi",
+  DESIGNER = "designer",
+  OPERATOR = "operator",
 }

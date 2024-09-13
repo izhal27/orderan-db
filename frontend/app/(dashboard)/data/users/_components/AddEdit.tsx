@@ -4,7 +4,9 @@ import AvatarWithEditButton from "@/components/AvatarWithEditButton";
 import BackButton from "@/components/buttons/BackButton";
 import type { UserFormData } from "@/constants/formTypes";
 import type { User } from "@/constants/interfaces";
-import { showToast } from "@/helpers/toast";
+import { isConflict } from "@/helpers";
+import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
+import { useApiClient } from "@/lib/apiClient";
 import { userSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -16,7 +18,7 @@ import {
 } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { RoleSelectInput } from "./RoleSelectInput";
 
@@ -42,16 +44,19 @@ export default function UsersAddEdit({ user }: props) {
     resolver: zodResolver(userSchema),
   });
 
+  const { request } = useApiClient();
+
   useEffect(() => {
     setFocus("username");
-    if (isEditMode && user) {
+    if (user) {
       setValue("username", user.username);
       setValue("email", user.email);
       setValue("name", user.name);
       setRoleId(user.roleId);
       setBlocked(user.blocked);
     }
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode]);
 
   const onSubmit = async (data: UserFormData) => {
     if (!roleId || roleId === 0) {
@@ -61,81 +66,102 @@ export default function UsersAddEdit({ user }: props) {
       });
       return;
     }
-    return !isEditMode ? addHandler(data) : editHandler(user!.id, data);
+
+    return isEditMode ? editHandler(user.id, data) : addHandler(data);
   };
 
-  const appendData = (data: UserFormData) => {
-    const formData = new FormData();
-    formData.append("username", data.username);
-    formData.append("password", data.password ? data.password : "");
-    formData.append("email", data.email ? data.email : "");
-    formData.append("name", data.name ? data.name : "");
-    formData.append("blocked", JSON.stringify(blocked));
-    roleId && formData.append("roleId", roleId.toString());
-    selectedImage && formData.append("image", selectedImage);
-    return formData;
-  };
+  const appendData = useCallback(
+    async (data: UserFormData) => {
+      const formData = new FormData();
+      formData.append("username", data.username);
+      formData.append("password", data.password ? data.password : "");
+      formData.append("email", data.email ? data.email : "");
+      formData.append("name", data.name ? data.name : "");
+      formData.append("blocked", JSON.stringify(blocked));
+      roleId && formData.append("roleId", roleId.toString());
+      selectedImage && formData.append("image", selectedImage);
+      return formData;
+    },
+    [blocked, roleId, selectedImage],
+  );
 
-  const addHandler = async (data: UserFormData) => {
-    // password harus ada, jika tidak ada tampilkan error
-    if (!data.password) {
-      setError("password", {
-        type: "required",
-        message: "Anda belum memasukkan password",
-      });
-      return;
-    }
-    const formData = appendData(data);
-    const res = await fetch("http://localhost:3002/api/users", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-      body: formData,
-    });
-    showInfo(res, await res.json());
-  };
+  const addHandler = useCallback(
+    async (data: UserFormData) => {
+      // password harus ada, jika tidak ada tampilkan error
+      if (!data.password) {
+        setError("password", {
+          type: "required",
+          message: "Anda belum memasukkan password",
+        });
+        return;
+      }
 
-  const editHandler = async (id: string, data: UserFormData) => {
-    // jika user admin diganti role selain admin, tampilkan error
-    if (
-      (user?.id === "1" ||
-        (user?.username === "admin" && user?.role.name === "admin")) &&
-      roleId !== 1
-    ) {
-      showToast("error", "Admin user harus memiliki role admin.");
-    } else {
-      const formData = appendData(data);
-      const res = await fetch(`http://localhost:3002/api/users/${id}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-        body: formData,
-      });
-      const user = await res.json();
-      // update data session current user
-      session?.user.id === user.id && update({ user });
-      showInfo(res, user);
-    }
-  };
+      try {
+        const formData = await appendData(data);
+        const res = await request("/users", {
+          method: "POST",
+          body: formData,
+        });
+        showToast("success", `User "${res.username}" berhasil ditambahkan"`);
+        router.back();
+      } catch (error) {
+        if (isConflict(error as Error)) {
+          showToast(
+            "error",
+            "Nama sudah digunakan, coba dengan nama yang lain.",
+          );
+        } else {
+          showToast("error", COMMON_ERROR_MESSAGE);
+        }
+      }
+    },
+    [appendData, request, router, setError],
+  );
 
-  function showInfo(res: Response, user: User) {
-    if (res.ok) {
-      showToast(
-        "success",
-        `User "${user.username}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
-      );
-      router.back();
-    } else if (res.status == 409) {
-      showToast(
-        "error",
-        "Username sudah digunakan, coba dengan nama yang lain.",
-      );
-    } else {
-      showToast("error", "Terjadi kesalahan, coba lagi nanti.");
-    }
-  }
+  const editHandler = useCallback(
+    async (id: string, data: UserFormData) => {
+      try {
+        // jika user admin diganti role selain admin, tampilkan error
+        if (
+          (user?.id === "1" ||
+            (user?.username === "admin" && user?.role.name === "admin")) &&
+          roleId !== 1
+        ) {
+          showToast("error", "Admin user harus memiliki role admin");
+        } else {
+          const formData = await appendData(data);
+          const res = await request(`/users/${id}`, {
+            method: "PATCH",
+            body: formData,
+          });
+          // update data session current user
+          session?.user.id === res.id &&
+            update({
+              user: {
+                id: res.id,
+                username: res.username,
+                name: res.name,
+                email: res.email,
+                image: res.image,
+                role: res.role.name,
+              },
+            });
+          showToast("success", `User "${res.username}" berhasil disimpan"`);
+        }
+        router.back();
+      } catch (error) {
+        if (isConflict(error as Error)) {
+          showToast(
+            "error",
+            "Nama sudah digunakan, coba dengan nama yang lain.",
+          );
+        } else {
+          showToast("error", COMMON_ERROR_MESSAGE);
+        }
+      }
+    },
+    [appendData, request, router, session, user, roleId, update],
+  );
 
   return (
     <div className="flex flex-col gap-4 p-4">

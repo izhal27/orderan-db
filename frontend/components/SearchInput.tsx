@@ -49,10 +49,11 @@ export default function SearchInput({ onSeachHandler, onClearHandler }: props) {
         onClick={handleSearch}
         disabled={!value}
         className={`absolute right-0 top-0 h-full rounded-r-md px-4 focus:outline-none
-           ${value
-            ? "bg-blue-500 text-white hover:bg-blue-600"
-            : "cursor-not-allowed bg-gray-300 text-gray-500"
-          }`}
+           ${
+             value
+               ? "bg-blue-500 text-white hover:bg-blue-600"
+               : "cursor-not-allowed bg-gray-300 text-gray-500"
+           }`}
       >
         <HiSearch />
       </button>

@@ -1,26 +1,22 @@
+# Use the official Node.js 20 image based on Alpine
 FROM node:20-alpine
 
-ENV PORT 3000
-
-# where our Next.js app will live
-RUN mkdir -p /app
-
-# Set /app as the working directory
+# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-# to the /app working directory
-COPY ./frontend/package*.json /app/
-COPY ./.env /app/
+# Install dependencies
+COPY ./frontend/package*.json ./
+COPY ./frontend/yarn.lock ./
+RUN yarn install
 
-# Install dependencies in /app
-RUN yarn config set network-timeout 600000 -g && yarn install
+# Copy the rest of the application code
+COPY ./frontend .
 
-# Copy the rest of our Next.js folder into /app
-COPY ./frontend /app
-
-# Ensure port 3005 is accessible to our system
+# Expose the application port
 EXPOSE 3000
 
-# Run yarn dev, as we would via the command line 
-CMD [ "yarn", "dev" ]
+# Set the environment variable for development
+ENV NODE_ENV=development
+
+# Start the Next.js application in development mode
+CMD ["yarn", "dev"]

@@ -3,7 +3,9 @@
 import AvatarWithEditButton from "@/components/AvatarWithEditButton";
 import type { UserFormData } from "@/constants/formTypes";
 import type { User } from "@/constants/interfaces";
+import type { ToastType } from "@/helpers/toast";
 import { showToast } from "@/helpers/toast";
+import { baseUrl, useApiClient } from "@/lib/apiClient";
 import { userSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Label, Spinner, TextInput } from "flowbite-react";
@@ -11,6 +13,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import type { ToastContent } from "react-toastify";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -25,20 +28,12 @@ export default function SettingsPage() {
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
   });
+  const { request } = useApiClient();
 
   useEffect(() => {
     if (session?.user) {
       const fetchData = async () => {
-        const res = await fetch(
-          `http://localhost:3002/api/users/${session.user.id}/profile`,
-          {
-            headers: {
-              Authorization: `Bearer ${session?.accessToken}`,
-            },
-            cache: "no-store",
-          },
-        );
-        const user = await res.json();
+        const user = await request(`/users/${session.user.id}/profile`);
         const fetchUser = user || session.user;
         setValue("username", fetchUser.username);
         setValue("email", fetchUser.email);
@@ -47,7 +42,7 @@ export default function SettingsPage() {
       };
       fetchData();
     }
-  }, [session]);
+  }, [session?.user, request, setValue, setCurrentUser]);
 
   const appendData = (data: UserFormData) => {
     const formData = new FormData();
@@ -60,24 +55,33 @@ export default function SettingsPage() {
 
   const onSubmit = async (data: UserFormData) => {
     const formData = appendData(data);
-    const res = await fetch(
-      `http://localhost:3002/api/users/${currentUser?.id}/profile`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-        body: formData,
+    const res = await fetch(`${baseUrl}/${currentUser?.id}/profile`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
       },
-    );
-    const infoToast = (type: any, content: any) =>
+      body: formData,
+    });
+    const infoToast = (type: ToastType, content: ToastContent) =>
       showToast(type, content, {
         position: "top-center",
         hideProgressBar: true,
       });
     if (res.ok) {
+      const user = await res.json();
+      // update data session current user
+      update({
+        user: {
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          role: user.role.name,
+        },
+      });
       infoToast("success", "Perubahan berhasil disimpan");
-      router.push('/');
+      router.push("/");
     } else if (res.status == 409) {
       infoToast(
         "error",
@@ -86,9 +90,6 @@ export default function SettingsPage() {
     } else {
       infoToast("error", "Terjadi kesalahan, coba lagi nanti.");
     }
-    const user = await res.json();
-    // update data session current user
-    session?.user.id === user.id && update({ user });
   };
 
   return (
@@ -161,7 +162,7 @@ export default function SettingsPage() {
             {isSubmitting && <Spinner size={"sm"} />}
             <span className={isSubmitting ? "pl-3" : ""}>Simpan</span>
           </Button>
-          <Button color="red" onClick={() => router.push('/')}>
+          <Button color="red" onClick={() => router.push("/")}>
             Batal
           </Button>
         </div>

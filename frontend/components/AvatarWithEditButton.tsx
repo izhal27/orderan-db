@@ -43,8 +43,10 @@ const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
         rounded
         size={"xl"}
         img={(props) => {
+          // eslint-disable-next-line react/prop-types
           props.className = props.className + " object-cover";
           return (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               alt="User Avatar"
               width={40}

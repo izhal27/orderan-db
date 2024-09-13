@@ -2,7 +2,8 @@
 
 import { Avatar } from "flowbite-react";
 import Image from "next/image";
-import { PropsWithChildren, useEffect, useState } from "react";
+import type { PropsWithChildren } from "react";
+import { useEffect, useState } from "react";
 
 interface props {
   userImage: string | undefined;
@@ -20,7 +21,7 @@ export default function UserAvatar({
   userImage,
   width = 40,
   height = 40,
-  size = 'md',
+  size = "md",
   rounded = false,
   bordered = false,
   children,
@@ -55,7 +56,9 @@ export default function UserAvatar({
             />
           );
         }}
-      >{children}</Avatar>
+      >
+        {children}
+      </Avatar>
     );
   }
 

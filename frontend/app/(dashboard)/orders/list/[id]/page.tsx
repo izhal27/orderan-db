@@ -1,32 +1,25 @@
 "use client";
 
+import type { Order } from "@/constants";
+import { useApiClient } from "@/lib/apiClient";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Order } from "@/constants";
 import OrderAddEdit from "../_components/AddEdit";
 
 export default function EditPage({ params }: { params: { id: string } }) {
   const { data: session } = useSession();
-  const [order, setCustomer] = useState<Order | undefined>(undefined);
+  const [order, setOrder] = useState<Order | undefined>(undefined);
+  const { request } = useApiClient();
 
   useEffect(() => {
     if (session) {
       const fetchData = async () => {
-        const res = await fetch(
-          `http://localhost:3002/api/orders/${params.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${session?.accessToken}`,
-              "Content-Type": "application/json",
-            },
-            cache: "no-store",
-          },
-        );
-        setCustomer(await res.json());
+        const order = await request(`/orders/${params.id}`);
+        setOrder(order);
       };
       fetchData();
     }
-  }, [session]);
+  }, [session, params.id, request]);
 
   return <OrderAddEdit order={order} />;
 }

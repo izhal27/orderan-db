@@ -43,8 +43,8 @@ export const userSchema = z.object({
   username: z
     .string()
     .min(
-      5,
-      "Username minimal 5 karakter, hanya mengandung karakter huruf & angka",
+      3,
+      "Username minimal 3 karakter, hanya mengandung karakter huruf & angka",
     ),
   password: z
     .string()
@@ -57,6 +57,7 @@ export const userSchema = z.object({
     .min(3, "Nama minimal 3 karakter")
     .max(50, "Nama maksimal 50 karakter"),
   roleId: z.number().optional().or(z.literal("")),
+  image: z.string().optional().or(z.literal("")),
   // blocked: z.boolean()
   //   .optional()
   //   .or(z.literal('')),
@@ -74,20 +75,15 @@ export const orderDetailSchema = z.object({
     .number()
     .min(0, "Heigth minimal 0")
     .max(100000, "Width maksimal 100000"),
-  qty: z
-    .number()
-    .min(1, "Qty minimal 1")
-    .max(10000, "Qty maksimal 10000"),
+  qty: z.number().min(1, "Qty minimal 1").max(10000, "Qty maksimal 10000"),
   design: z
     .number()
     .min(0, "Design minimal 0")
     .max(1000, "Design maksimal 1000")
     .optional()
     .or(z.literal(0)),
-  eyelets: z
-    .boolean(),
-  shiming: z
-    .boolean(),
+  eyelets: z.boolean(),
+  shiming: z.boolean(),
   description: z
     .string()
     .max(300, "Keterangan maksimal 300 karakter")

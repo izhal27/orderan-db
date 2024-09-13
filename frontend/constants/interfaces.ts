@@ -47,7 +47,7 @@ export interface OrderDetail {
   shiming: boolean;
   description?: string;
   deleted?: boolean;
-  MarkedPrinted?: MarkedPrinted
+  MarkedPrinted?: MarkedPrinted;
 }
 
 export interface Order {
@@ -59,40 +59,47 @@ export interface Order {
   userId: number;
   OrderDetails: OrderDetail[];
   user: User;
-  MarkedPay: MarkedPay,
-  MarkedTaken: MarkedTaken,
+  MarkedPay: MarkedPay;
+  MarkedTaken: MarkedTaken;
   createdAt: string;
   updatedAt: string;
+  animate?: boolean;
 }
 
 export interface MarkedPrinted {
-  id: string,
-  status: boolean,
-  printAt: string,
-  description: string,
-  PrintedBy: User,
+  id: string;
+  status: boolean;
+  printAt: string;
+  description: string;
+  PrintedBy: User;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface MarkedPay {
-  id: string,
-  status: boolean
-  payAt: string, // DateTime
-  description?: string,
-  MarkedBy?: User,
-  markedById?: number,
+  id: string;
+  status: boolean;
+  payAt: string; // DateTime
+  description?: string;
+  MarkedBy?: User;
+  markedById?: number;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface MarkedTaken {
-  id: string,
-  status: boolean
-  takenAt: string, // DateTime
-  description?: string,
-  MarkedBy?: User,
-  markedById?: number,
+  id: string;
+  status: boolean;
+  takenAt: string; // DateTime
+  description?: string;
+  MarkedBy?: User;
+  markedById?: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface WebSocketEvent {
+  event: string;
+  data: any;
+  userId: string;
 }

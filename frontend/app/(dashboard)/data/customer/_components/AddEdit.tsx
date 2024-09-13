@@ -1,15 +1,15 @@
 "use client";
 
 import BackButton from "@/components/buttons/BackButton";
-import type { CustomerFormData } from "@/constants/formTypes";
-import type { Customer } from "@/constants/interfaces";
-import { showToast } from "@/helpers/toast";
+import type { Customer, CustomerFormData } from "@/constants";
+import { isConflict } from "@/helpers";
+import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
+import { useApiClient } from "@/lib/apiClient";
 import { customerSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Label, Spinner, TextInput } from "flowbite-react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 interface props {
@@ -19,7 +19,6 @@ interface props {
 export default function CustomerAddEdit({ customer }: props) {
   const isEditMode = !!customer;
   const router = useRouter();
-  const { data: session } = useSession();
   const {
     register,
     handleSubmit,
@@ -29,59 +28,72 @@ export default function CustomerAddEdit({ customer }: props) {
   } = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
   });
+  const { request } = useApiClient();
 
   useEffect(() => {
     setFocus("name");
-    if (isEditMode && customer) {
+    if (customer) {
       setValue("name", customer.name);
       setValue("address", customer.address);
       setValue("contact", customer.contact);
       setValue("email", customer.email);
       setValue("description", customer.description);
     }
-  }, [customer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode]);
 
   const onSubmit = async (data: CustomerFormData) => {
-    return !isEditMode ? addHandler(data) : editHandler(customer!.id, data);
+    return isEditMode ? editHandler(customer.id, data) : addHandler(data);
   };
 
-  const addHandler = async (data: CustomerFormData) => {
-    const res = await fetch("http://localhost:3002/api/customers", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    showInfo(res, await res.json());
-  };
+  const addHandler = useCallback(
+    async (data: CustomerFormData) => {
+      try {
+        const customer = await request("/customers", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+        showToast(
+          "success",
+          `Pelanggan "${customer.name}" berhasil ditambahkan"`,
+        );
+        router.back();
+      } catch (error) {
+        if (isConflict(error as Error)) {
+          showToast(
+            "error",
+            "Nama sudah digunakan, coba dengan nama yang lain.",
+          );
+        } else {
+          showToast("error", COMMON_ERROR_MESSAGE);
+        }
+      }
+    },
+    [request, router],
+  );
 
-  const editHandler = async (id: string, data: CustomerFormData) => {
-    const res = await fetch(`http://localhost:3002/api/customers/${id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    showInfo(res, await res.json());
-  };
-
-  function showInfo(res: Response, customer: any) {
-    if (res.ok) {
-      showToast(
-        "success",
-        `Pelanggan "${customer.name}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
-      );
-      router.back();
-    } else if (res.status == 409) {
-      showToast("error", "Nama sudah digunakan, coba dengan nama yang lain.");
-    } else {
-      showToast("error", "Terjadi kesalahan, coba lagi nanti.");
-    }
-  }
+  const editHandler = useCallback(
+    async (id: string, data: CustomerFormData) => {
+      try {
+        const customer = await request(`/customers/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
+        showToast("success", `Pelanggan "${customer.name}" berhasil disimpan"`);
+        router.back();
+      } catch (error) {
+        if (isConflict(error as Error)) {
+          showToast(
+            "error",
+            "Nama sudah digunakan, coba dengan nama yang lain.",
+          );
+        } else {
+          showToast("error", COMMON_ERROR_MESSAGE);
+        }
+      }
+    },
+    [request, router],
+  );
 
   return (
     <div className="flex flex-col gap-4 p-4">

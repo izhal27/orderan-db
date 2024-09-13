@@ -1,13 +1,13 @@
-import { type FC, type PropsWithChildren } from "react";
+import { LoadingModal } from "@/components/LoadingModal";
+import { LoadingProvider } from "@/context/LoadingContext";
+import ToastProvider from "@/context/ToastProvider";
 import { Flowbite, ThemeModeScript } from "flowbite-react";
 import { SessionProvider } from "next-auth/react";
 import { Inter } from "next/font/google";
-import { flowbiteTheme } from "./theme";
+import { type FC, type PropsWithChildren } from "react";
 import { twMerge } from "tailwind-merge";
-import ToastProvider from "@/context/ToastProvider";
 import "./globals.css";
-import { LoadingProvider } from "@/context/LoadingContext";
-import { LoadingModal } from "@/components/LoadingModal";
+import { flowbiteTheme } from "./theme";
 
 const inter = Inter({ subsets: ["latin"] });
 

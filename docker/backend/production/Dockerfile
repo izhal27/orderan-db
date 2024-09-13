@@ -1,31 +1,36 @@
-FROM node:20
+# Use the official Node.js 20 image based on Alpine
+FROM node:20-alpine
 
-# where our Strapi app will live
-RUN mkdir -p /app
+# Install PM2 globally
+RUN yarn global add pm2
+RUN yarn global add @nestjs/cli
 
-# Set /app as the working directory
+# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-# to the /app working directory
-COPY ./backend/package*.json ./backend/yarn.lock /app/
-COPY ./.env /app/
+# Install dependencies
+COPY ./backend/package*.json ./
+COPY ./backend/yarn.lock ./
+RUN yarn install --production
 
-ENV PATH /app/node_modules/.bin:$PATH
+# Copy the rest of the application code
+COPY ./backend .
 
-# Install dependencies in /app
-RUN yarn config set network-timeout 600000 -g && yarn install
+# Generate Prisma client
+RUN yarn prisma generate
 
-# Copy the rest of our Strapi folder into /app
-COPY ./backend /app
+# Copy the entrypoint script
+COPY ./backend/.entrypoint.sh .
+RUN chmod +x /app/.entrypoint.sh
 
-EXPOSE 3002
+# Set the environment variable for production
+ENV NODE_ENV=production
 
-# For production build
-ENV NODE_ENV=${NODE_ENV}
-
-# Build Strapi admin
+# Build the NestJS application
 RUN yarn build
 
-# Run yarn dev, as we would via the command line 
-CMD ["yarn", "start"]
+# Expose the application port
+EXPOSE 3002
+
+# Use the entrypoint script
+CMD ["/bin/sh","/app/.entrypoint.sh"]

@@ -1,48 +1,85 @@
 "use client";
 
-import { Table } from "flowbite-react";
-import { HiCheck, HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
-import { Order, Roles, User } from "@/constants";
-import localDate from "@/lib/getLocalDate";
 import UserAvatar from "@/components/UserAvatar";
+import type { Order, User } from "@/constants";
+import { Roles } from "@/constants";
+import { isContain } from "@/helpers";
+import { useMoment } from "@/lib/useMoment";
+import { Table } from "flowbite-react";
+import type { Session } from "next-auth";
+import { HiDocumentSearch, HiPencil, HiTrash } from "react-icons/hi";
+import { twMerge } from "tailwind-merge";
+import LabelStatus from "./LabelStatus";
 
 interface props {
-  data: Order[];
+  order: Order[];
   onEditHandler(id: string): void;
   onDetailHandler(id: string): void;
   onRemoveHandler(id: string): void;
-  role: string | undefined;
+  session: Session | null;
+  reportMode?: boolean;
 }
 
 function userImage(user: User) {
   return (
     <UserAvatar rounded userImage={user?.image} size="sm">
-      <div className="flex flex-col gap-1 items-start font-medium dark:text-white">
-        <div className="text-sm font-bold text-gray-500 dark:text-gray-400">{user?.name}</div>
-        <span className="text-xs font-extralight text-gray-500 dark:text-gray-400">@{user?.username}</span>
+      <div className="flex flex-col items-start gap-1 font-medium dark:text-white">
+        <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
+          {user?.name}
+        </div>
+        <span className="text-xs font-extralight text-gray-500 dark:text-gray-400">
+          @{user?.username}
+        </span>
       </div>
-    </UserAvatar >
+    </UserAvatar>
   );
 }
 
 const getStatus = (order: Order) => {
-  let status: any = '-';
-  if ((order.MarkedPay?.status || order.OrderDetails.some(od => od.MarkedPrinted?.status) && !order.MarkedTaken?.status)) {
-    status = <span className="px-3 py-1 bg-gray-500 dark:bg-gray-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold">ON PROSES</span>
-  }
-  if (order.MarkedPay?.status && order.OrderDetails.every(od => od.MarkedPrinted?.status) && order.MarkedTaken?.status) {
-    status = <span className="px-3 py-1 bg-green-500 dark:bg-green-400 rounded-full text-white dark:text-gray-700 text-xs font-semibold inline-flex items-center justify-center w-fit gap-2"><HiCheck className="inline-block" /> SELESAI</span>
-  }
-  return status;
-}
+  return LabelStatus({
+    order,
+    classNameOnProses: "px-3 text-xs",
+    classNameDone: "px-3 text-xs",
+  });
+};
 
 export default function OrderTable({
-  data,
+  order,
   onEditHandler,
   onDetailHandler,
   onRemoveHandler,
-  role,
+  session,
+  reportMode = false,
 }: props) {
+  const { moment } = useMoment();
+
+  // hanya user yang membuat order atau admin, administrasi yang bisa edit dan hapus order
+  const canEditOrder = (item: Order) => {
+    if (!session) return false;
+    const isCreator = session?.user?.id === item.user.id;
+    const userRole = session?.user?.role;
+    const isAdminOrAdministrasi =
+      isContain(userRole, Roles.ADMIN) ||
+      isContain(userRole, Roles.ADMINISTRASI);
+    return isCreator || isAdminOrAdministrasi;
+  };
+
+  // jika role user saat ini designer atau operator dan status sudah on proses
+  // maka sembunyikan button edit dan hapus
+  const isOrderInProcess = (item: Order) => {
+    if (!session) return;
+    const userRole = session?.user?.role;
+    const isAdminOrAdministrasi =
+      isContain(userRole, Roles.ADMIN) ||
+      isContain(userRole, Roles.ADMINISTRASI);
+    return (
+      !isAdminOrAdministrasi &&
+      (item.MarkedPay?.status ||
+        item.MarkedTaken?.status ||
+        item.OrderDetails.some((od) => od.MarkedPrinted?.status))
+    );
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <Table hoverable>
@@ -51,45 +88,46 @@ export default function OrderTable({
           <Table.HeadCell className="text-center">Nomor</Table.HeadCell>
           <Table.HeadCell className="text-center">Waktu</Table.HeadCell>
           <Table.HeadCell className="text-center">Pelanggan</Table.HeadCell>
-          <Table.HeadCell className="text-center">Keterangan</Table.HeadCell>
+          {!reportMode && (
+            <Table.HeadCell className="text-center">Keterangan</Table.HeadCell>
+          )}
           <Table.HeadCell className="text-center">Status</Table.HeadCell>
           <Table.HeadCell className="text-center">Aksi</Table.HeadCell>
         </Table.Head>
         <Table.Body className="divide-y">
-          {data?.map((item: Order) => {
+          {order?.map((item: Order) => {
             return (
               <Table.Row
                 key={item.id}
-                className="bg-white dark:border-gray-700 dark:bg-gray-800 text-center"
+                className={twMerge(
+                  "bg-white text-center dark:border-gray-700 dark:bg-gray-800",
+                  item.animate ? "animate-splash dark:animate-splashDark" : "",
+                )}
               >
                 <Table.Cell className="flex">{userImage(item.user)}</Table.Cell>
                 <Table.Cell>{item.number}</Table.Cell>
-                <Table.Cell>{localDate(item.updatedAt, 'long', false, true).substring(0, 5)}</Table.Cell>
+                <Table.Cell>{moment(item.updatedAt).format("LT")}</Table.Cell>
                 <Table.Cell>{item.customer}</Table.Cell>
-                <Table.Cell>{item.description}</Table.Cell>
+                {!reportMode && <Table.Cell>{item.description}</Table.Cell>}
                 <Table.Cell>{getStatus(item)}</Table.Cell>
                 <Table.Cell>
-                  <div className="flex gap-2 justify-center">
+                  <div className="flex justify-center gap-2">
                     <HiDocumentSearch
                       className="cursor-pointer text-blue-500"
                       onClick={() => onDetailHandler(item.id)}
                     />
-                    {
-                      // jika role user saat ini designer atau operator dan status sudah on proses
-                      // maka sembunyikan button edit dan hapus
-                      role && (role.includes(Roles.DESIGNER) || role.includes(Roles.OPERATOR)) &&
-                        (item.MarkedPay?.status || item.MarkedTaken?.status || item.OrderDetails.every(od => od.MarkedPrinted?.status)) ?
-                        null : <>
-                          <HiPencil
-                            className="cursor-pointer text-blue-500"
-                            onClick={() => onEditHandler(item.id)}
-                          />
-                          <HiTrash
-                            className="cursor-pointer text-red-500"
-                            onClick={() => onRemoveHandler(item.id)}
-                          />
-                        </>
-                    }
+                    {canEditOrder(item) && !isOrderInProcess(item) && (
+                      <>
+                        <HiPencil
+                          className="cursor-pointer text-blue-500"
+                          onClick={() => onEditHandler(item.id)}
+                        />
+                        <HiTrash
+                          className="cursor-pointer text-red-500"
+                          onClick={() => onRemoveHandler(item.id)}
+                        />
+                      </>
+                    )}
                   </div>
                 </Table.Cell>
               </Table.Row>
@@ -97,6 +135,6 @@ export default function OrderTable({
           })}
         </Table.Body>
       </Table>
-    </div >
+    </div>
   );
 }

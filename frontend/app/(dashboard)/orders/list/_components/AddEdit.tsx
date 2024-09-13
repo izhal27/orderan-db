@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { Button, Label, TextInput } from "flowbite-react";
-import { HiDocumentAdd, HiSave, HiXCircle } from "react-icons/hi";
-import { OrderDetail, Order, Customer } from "@/constants/interfaces";
-import { showToast } from "@/helpers/toast";
+import AutoCompleteTextInput from "@/components/AutoCompleteTextInput";
 import BackButton from "@/components/buttons/BackButton";
 import ConfirmModal from "@/components/ConfirmModal";
-import localDate from "@/lib/getLocalDate";
-import OrderDetailTable from "./OrderDetailTable";
+import type { Customer, Order, OrderDetail } from "@/constants/interfaces";
+import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
+import { useApiClient } from "@/lib/apiClient";
+import { useMoment } from "@/lib/useMoment";
+import { Button, Label, TextInput } from "flowbite-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { HiDocumentAdd, HiSave, HiXCircle } from "react-icons/hi";
 import ModalInput from "./ModalInput";
-import AutoCompleteTextInput from '@/components/AutoCompleteTextInput';
+import OrderDetailTable from "./OrderDetailTable";
 
 interface props {
   order?: Order;
@@ -27,13 +28,16 @@ export default function OrderAddEdit({ order }: props) {
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [showConfirmSaveModal, setShowConfirmSaveModal] = useState(false);
   const [deletedIndex, setDeletedIndex] = useState<number | null>(null);
-  const [deletedOrderDetails, setDeletedOrderDetails] = useState<OrderDetail[]>([]);
+  const [deletedOrderDetails, setDeletedOrderDetails] = useState<OrderDetail[]>(
+    [],
+  );
   const modalRef = useRef<{
-    setOrderdetailForm: (index: number, data: OrderDetail) => void
+    setOrderdetailForm: (index: number, data: OrderDetail) => void;
   }>(null);
-  const [customer, setCustomer] = useState<string | undefined>('');
-  const [description, setDescription] = useState<string | undefined>('');
-  const [someEmpty, setSomeEmpty] = useState(true);
+  const [customer, setCustomer] = useState<string | undefined>("");
+  const [description, setDescription] = useState<string | undefined>("");
+  const { request } = useApiClient();
+  const { moment } = useMoment();
 
   useEffect(() => {
     if (order) {
@@ -41,69 +45,82 @@ export default function OrderAddEdit({ order }: props) {
       setDescription(order?.description);
       setOrderDetails([...order.OrderDetails]);
     }
-  }, [order]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode]);
 
-  const onSubmit = async () => {
-    if (!session || someEmpty) {
+  const isValid = useMemo(() => {
+    return (
+      (customer?.trim().length ?? 0) >= 3 &&
+      orderDetails.length > 0 &&
+      orderDetails.every((item) => item.name?.trim().length)
+    );
+  }, [customer, orderDetails]);
+
+  const onSubmit = useCallback(async () => {
+    if (!session || !isValid) {
       return;
     }
-    return !isEditMode ? addHandler() : editHandler();
-  };
+    return isEditMode ? editHandler() : addHandler();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode, isValid, session, orderDetails]);
 
-  const addHandler = async () => {
-    const res = await fetch("http://localhost:3002/api/orders", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ date: new Date().toISOString(), customer, description, orderDetails }),
-    });
-    showInfo(res);
-  };
-
-  const editHandler = async () => {
-    const res = await fetch(`http://localhost:3002/api/orders/${order?.id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ description, orderDetails: [...orderDetails, ...deletedOrderDetails] }),
-    });
-    showInfo(res);
-  };
-
-  function showInfo(res: Response) {
-    if (res.ok) {
+  const addHandler = useCallback(async () => {
+    try {
+      await request("/orders", {
+        method: "POST",
+        body: JSON.stringify({
+          date: new Date().toISOString(),
+          customer,
+          description,
+          orderDetails,
+        }),
+      });
       showToast(
         "success",
-        `Pesanan "${customer}" berhasil ${isEditMode ? "disimpan" : "ditambahkan"}.`,
+        `Pesanan "${customer?.toUpperCase()}" berhasil ditambahkan"`,
       );
       router.back();
-    } else {
-      showToast("error", "Terjadi kesalahan, coba lagi nanti.");
+    } catch (error) {
+      showToast("error", COMMON_ERROR_MESSAGE);
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customer, description, orderDetails]);
 
-  const updateItemAtIndex = (index: number, newItem: Partial<OrderDetail>): OrderDetail[] => {
-    const updatedData = [...orderDetails.map((item, i) =>
-      i === index ? { ...item, ...newItem } : item
-    )];
-    return updatedData;
+  const editHandler = async () => {
+    try {
+      await request(`/orders/${order?.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          description,
+          orderDetails: [...orderDetails, ...deletedOrderDetails],
+        }),
+      });
+      showToast(
+        "success",
+        `Pesanan "${customer?.toUpperCase()}" berhasil disimpan"`,
+      );
+      router.back();
+    } catch (error) {
+      showToast("error", COMMON_ERROR_MESSAGE);
+    }
   };
 
-  const handleSelectCustomer = (data: any) => {
-    setCustomer(data)
-  };
+  // update item in array by index
+  const updateItemAtIndex = useCallback(
+    (index: number, newItem: Partial<OrderDetail>): OrderDetail[] => {
+      const updatedData = [
+        ...orderDetails.map((item, i) =>
+          i === index ? { ...item, ...newItem } : item,
+        ),
+      ];
+      return updatedData;
+    },
+    [orderDetails],
+  );
 
-  useEffect(() => {
-    if (customer?.trim().length && orderDetails.some(item => item.name)) {
-      setSomeEmpty(false);
-    } else {
-      setSomeEmpty(true);
-    }
-  }, [customer, orderDetails])
+  const handleSelectCustomer = useCallback((data: Customer | string) => {
+    setCustomer(typeof data === "string" ? data : data.name);
+  }, []);
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -122,7 +139,7 @@ export default function OrderAddEdit({ order }: props) {
               />
             </div>
             <div>
-              <p className="font-medium text-gray-500 dark:text-gray-400">{localDate(Date.now(), 'long')}</p>
+              <p className="font-medium text-gray-500 dark:text-gray-400">{`${moment(Date.now()).format("dddd")}, ${moment(Date.now()).format("LL")}`}</p>
             </div>
           </div>
           <div className="flex items-center">
@@ -135,13 +152,12 @@ export default function OrderAddEdit({ order }: props) {
             </div>
             <div className="grow">
               <AutoCompleteTextInput<Customer>
-                fetchUrl="http://localhost:3002/api/customers/filter"
+                fetchUrl="/customers/filter"
                 getDisplayValue={(customer: Customer) => customer.name}
                 getKeyValue={(customer: Customer) => customer.id}
                 onSelect={handleSelectCustomer}
-                accessToken={session?.accessToken}
-                onEmptyQueryHandler={() => setSomeEmpty(true)}
-                value={isEditMode ? customer : ''}
+                onEmptyQueryHandler={() => setCustomer("")}
+                value={isEditMode ? customer : ""}
                 onChange={(newValue) => setCustomer(newValue)}
               />
             </div>
@@ -156,8 +172,8 @@ export default function OrderAddEdit({ order }: props) {
             </div>
             <div className="grow">
               <TextInput
-                type='text'
-                id='keterangan'
+                type="text"
+                id="keterangan"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
@@ -167,9 +183,13 @@ export default function OrderAddEdit({ order }: props) {
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex justify-between">
-          <div className="flex gap-4 items-center text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400">
             <div>
-              <Button size={"sm"} color={"blue"} onClick={() => setShowModal(true)}>
+              <Button
+                size={"sm"}
+                color={"blue"}
+                onClick={() => setShowModal(true)}
+              >
                 <HiDocumentAdd className="mr-2 size-5" />
                 Tambah item
               </Button>
@@ -177,11 +197,18 @@ export default function OrderAddEdit({ order }: props) {
             <div className="flex gap-4">
               <p>Items : {orderDetails.length}</p>
               <p>|</p>
-              <p>Total Qty : {orderDetails.reduce((acc, od) => acc + od.qty, 0)}</p>
+              <p>
+                Total Qty : {orderDetails.reduce((acc, od) => acc + od.qty, 0)}
+              </p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button size={"sm"} color={"green"} disabled={someEmpty} onClick={() => setShowConfirmSaveModal(true)}>
+            <Button
+              size={"sm"}
+              color={"green"}
+              disabled={!isValid}
+              onClick={() => setShowConfirmSaveModal(true)}
+            >
               <HiSave className="mr-2 size-5" />
               Simpan
             </Button>
@@ -193,7 +220,7 @@ export default function OrderAddEdit({ order }: props) {
         </div>
         <OrderDetailTable
           data={orderDetails}
-          onEditHandler={index => {
+          onEditHandler={(index) => {
             if (modalRef.current) {
               modalRef.current.setOrderdetailForm(index, orderDetails[index]);
             }
@@ -207,7 +234,7 @@ export default function OrderAddEdit({ order }: props) {
         <ModalInput
           show={showModal}
           onAddHandler={(item) => {
-            setOrderDetails(prevState => [...prevState, item]);
+            setOrderDetails((prevState) => [...prevState, item]);
             setShowModal(false);
           }}
           onEditHandler={(index, data) => {
@@ -222,12 +249,14 @@ export default function OrderAddEdit({ order }: props) {
           openModal={showConfirmDeleteModal}
           onCloseHandler={() => setShowConfirmDeleteModal(false)}
           onYesHandler={() => {
-            if (isEditMode && deletedIndex !== -1) {
-              const deletedOd = orderDetails[deletedIndex!];
+            if (isEditMode && deletedIndex !== null) {
+              const deletedOd = orderDetails[deletedIndex];
               deletedOd.deleted = true;
-              setDeletedOrderDetails(prevState => [...prevState, deletedOd]);
+              setDeletedOrderDetails((prevState) => [...prevState, deletedOd]);
             }
-            const updatedData = orderDetails.filter((_, i) => i !== deletedIndex);
+            const updatedData = orderDetails.filter(
+              (_, i) => i !== deletedIndex,
+            );
             setOrderDetails([...updatedData]);
             setShowConfirmDeleteModal(false);
           }}

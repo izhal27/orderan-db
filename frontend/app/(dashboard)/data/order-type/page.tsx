@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import AddButton from "@/components/buttons/AddButton";
+import ConfirmModal from "@/components/ConfirmModal";
+import SkeletonTable from "@/components/SkeletonTable";
+import type { OrderType } from "@/constants";
+import { showToast } from "@/helpers";
+import { useApiClient } from "@/lib/apiClient";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { OrderTypeTable } from "./_components/Table";
-import AddButton from "@/components/buttons/AddButton";
-import SkeletonTable from "@/components/SkeletonTable";
-import { OrderType } from "@/constants";
-import { showToast } from "@/helpers";
-import ConfirmModal from "@/components/ConfirmModal";
-import { useApiClient } from "@/lib/apiClient";
 
 export default function JenisPesananPage() {
   const { data: session } = useSession();
@@ -20,36 +20,36 @@ export default function JenisPesananPage() {
   const [deleteId, setDeleteId] = useState<number | null>();
   const [loading, setLoading] = useState(true);
   const fetchedRef = useRef(false);
-  const { request } = useApiClient()
+  const { request } = useApiClient();
 
   const fetchOrderTypes = useCallback(async () => {
-    if (!session?.accessToken) {
-      return;
-    }
+    if (!session?.accessToken) return;
     setLoading(true);
     try {
-      const data = await request('/order-types');
+      const data = await request("/order-types");
       setOrderTypes(data);
     } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
-  }, [session?.accessToken]);
+  }, [session?.accessToken, request]);
 
   useEffect(() => {
     if (session && session.accessToken && !fetchedRef.current) {
       fetchOrderTypes();
       fetchedRef.current = true;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   const onRemoveHandler = useCallback(async () => {
     try {
-      const url = `/order-types/${deleteId}`;
-      const deletedObject = await request(`${url}`, { method: "DELETE", body: "" });
-      setOrderTypes(prevState => prevState.filter(
-        (item) => item.id !== deletedObject.id,
-      ));
+      const deletedObject = await request(`/order-types/${deleteId}`, {
+        method: "DELETE",
+      });
+      setOrderTypes((prevState) =>
+        prevState.filter((item) => item.id !== deletedObject.id),
+      );
       showToast(
         "success",
         `Jenis Pesanan "${deletedObject.name}" berhasil dihapus.`,
@@ -58,7 +58,7 @@ export default function JenisPesananPage() {
       showToast("error", "Gagal menghapus data, coba lagi nanti.");
     }
     setOpenModal(false);
-  }, [session?.accessToken, deleteId]);
+  }, [request, deleteId]);
 
   const table = useMemo(() => {
     if (loading) {

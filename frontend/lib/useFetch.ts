@@ -13,6 +13,7 @@ export const useFetch = ({
   method?: string | undefined;
   body?: string | undefined;
 }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [data, setData] = useState<null | any[]>(null);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +42,7 @@ export const useFetch = ({
       }
     };
     fetchData();
-  }, [url]);
+  }, [url, body, method, session?.accessToken]);
 
   return { data, isPending, error };
 };

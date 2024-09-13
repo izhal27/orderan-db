@@ -1,24 +1,33 @@
-import { Fragment } from "react";
+import type { OrderDetail } from "@/constants";
+import { Roles } from "@/constants";
+import { isContain } from "@/helpers";
+import { useMoment } from "@/lib/useMoment";
 import { Checkbox, Table } from "flowbite-react";
+import { Fragment } from "react";
 import { HiChevronDown, HiChevronRight } from "react-icons/hi";
-import { OrderDetail, Roles } from "@/constants";
-import localDate from "@/lib/getLocalDate";
 
 interface props {
-  data: OrderDetail[];
-  expandedRowId: string | null,
+  markedTaken?: boolean;
+  orderDetails: OrderDetail[];
+  expandedRowId: string | null;
   onExpandedRowToggleHandler(id: string): void;
-  onCheckBoxPrintedClickHandler(e: any, orderDetailId: string): void,
+  onCheckBoxPrintedClickHandler(
+    e: React.ChangeEvent<HTMLInputElement>,
+    orderDetailId: string,
+  ): void;
   role: string | undefined;
 }
 
 export default function ShowDetailOrderTable({
-  data,
+  markedTaken,
+  orderDetails,
   expandedRowId,
   onExpandedRowToggleHandler,
   onCheckBoxPrintedClickHandler,
-  role }: props
-) {
+  role,
+}: props) {
+  const { moment } = useMoment();
+
   return (
     <Table>
       <Table.Head>
@@ -33,69 +42,79 @@ export default function ShowDetailOrderTable({
         <Table.HeadCell className="text-center">Dicetak</Table.HeadCell>
       </Table.Head>
       <Table.Body className="divide-y">
-        {data?.map((item: OrderDetail, index) => {
+        {orderDetails?.map((item: OrderDetail, index) => {
           return (
             <Fragment key={index}>
-              <Table.Row
-                className="bg-white dark:border-gray-700 dark:bg-gray-800 text-center"
-              >
+              <Table.Row className="bg-white text-center dark:border-gray-700 dark:bg-gray-800">
                 <Table.Cell>{item.name}</Table.Cell>
                 <Table.Cell>{item.width}</Table.Cell>
                 <Table.Cell>{item.height}</Table.Cell>
                 <Table.Cell>{item.qty}</Table.Cell>
                 <Table.Cell>{item.design}</Table.Cell>
-                <Table.Cell>{item.eyelets ? 'Ya' : 'Tidak'}</Table.Cell>
-                <Table.Cell>{item.shiming ? 'Ya' : 'Tidak'}</Table.Cell>
+                <Table.Cell>{item.eyelets ? "Ya" : "Tidak"}</Table.Cell>
+                <Table.Cell>{item.shiming ? "Ya" : "Tidak"}</Table.Cell>
                 <Table.Cell>{item.description}</Table.Cell>
                 <Table.Cell>
                   <div className="flex items-center justify-center gap-1">
                     {
                       // jika user bertipe admin atau operator
                       // maka tampilkan checkbox marked printed
-                      !role?.includes(Roles.ADMINISTRASI) && !role?.includes(Roles.DESIGNER) ?
+                      isContain(role || "", Roles.ADMIN) ||
+                      isContain(role || "", Roles.OPERATOR) ? (
                         <Checkbox
                           id="marked-printed"
-                          onChange={(e) => onCheckBoxPrintedClickHandler(e, item.id)}
-                          defaultChecked={item.MarkedPrinted?.status} /> :
-                        <span>{item.MarkedPrinted?.status ? 'Sudah' : 'Belum'}</span>
-                    }
-                    {
-                      item.MarkedPrinted && (
-                        <span onClick={() => onExpandedRowToggleHandler(item.id)} color="gray" className="cursor-pointer">
-                          {expandedRowId === item.id ? (
-                            <HiChevronDown className="h-5 w-5" />
-                          ) : (
-                            <HiChevronRight className="h-5 w-5" />
-                          )}
+                          onChange={(e) =>
+                            onCheckBoxPrintedClickHandler(e, item.id)
+                          }
+                          checked={item.MarkedPrinted?.status || false}
+                          disabled={markedTaken}
+                          className="disabled:cursor-not-allowed disabled:text-gray-500"
+                        />
+                      ) : (
+                        <span>
+                          {item.MarkedPrinted?.status ? "Sudah" : "Belum"}
                         </span>
                       )
                     }
+                    {item.MarkedPrinted && (
+                      <button
+                        onClick={() => onExpandedRowToggleHandler(item.id)}
+                        color="gray"
+                        className="cursor-pointer"
+                      >
+                        {expandedRowId === item.id ? (
+                          <HiChevronDown className="size-5" />
+                        ) : (
+                          <HiChevronRight className="size-5" />
+                        )}
+                      </button>
+                    )}
                   </div>
                 </Table.Cell>
               </Table.Row>
-              {
-                item.MarkedPrinted && (
-                  <Table.Row>
-                    <Table.Cell colSpan={9} className="p-0">
-                      <div className={expandedRowId === item.id ? 'block' : 'hidden'}>
-                        <div className="p-4 bg-gray-100 dark:bg-gray-700 ">
-                          <div className="text-gray-700 dark:text-gray-300">
-                            {
-                              item.MarkedPrinted.status ?
-                                <span className="text-sm font-light">
-                                  {`Ditandai dicetak oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${localDate(item.MarkedPrinted?.updatedAt, 'long', true, true)}`}
-                                </span> :
-                                <span className="text-sm font-light">
-                                  {`Dibatalkan oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${localDate(item.MarkedPrinted?.updatedAt, 'long', true, true)}`}
-                                </span>
-                            }
-                          </div>
+              {item.MarkedPrinted && (
+                <Table.Row>
+                  <Table.Cell colSpan={9} className="p-0">
+                    <div
+                      className={expandedRowId === item.id ? "block" : "hidden"}
+                    >
+                      <div className="bg-gray-100 p-4 dark:bg-gray-700 ">
+                        <div className="text-gray-700 dark:text-gray-300">
+                          {item.MarkedPrinted.status ? (
+                            <span className="text-sm font-light">
+                              {`Ditandai dicetak oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${`${moment(Date.now()).format("LLLL")}`}`}
+                            </span>
+                          ) : (
+                            <span className="text-sm font-light">
+                              {`Dibatalkan oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${`${moment(Date.now()).format("LLLL")}`}`}
+                            </span>
+                          )}
                         </div>
                       </div>
-                    </Table.Cell>
-                  </Table.Row>
-                )
-              }
+                    </div>
+                  </Table.Cell>
+                </Table.Row>
+              )}
             </Fragment>
           );
         })}

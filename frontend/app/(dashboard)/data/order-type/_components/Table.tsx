@@ -1,8 +1,8 @@
 "use client";
 
+import type { OrderType } from "@/constants";
 import { Table } from "flowbite-react";
 import { HiPencil, HiTrash } from "react-icons/hi";
-import { OrderType } from "@/constants";
 
 interface props {
   data: OrderType[];
@@ -10,7 +10,11 @@ interface props {
   onRemoveHandler(id: number): void;
 }
 
-export function OrderTypeTable({ data, onEditHandler, onRemoveHandler }: props) {
+export function OrderTypeTable({
+  data,
+  onEditHandler,
+  onRemoveHandler,
+}: props) {
   return (
     <div>
       <Table hoverable>
@@ -33,7 +37,7 @@ export function OrderTypeTable({ data, onEditHandler, onRemoveHandler }: props) 
                   {item.description}
                 </Table.Cell>
                 <Table.Cell>
-                  <div className="flex gap-1 justify-center">
+                  <div className="flex justify-center gap-1">
                     <HiPencil
                       className="cursor-pointer text-blue-500"
                       onClick={() => onEditHandler(item.id)}

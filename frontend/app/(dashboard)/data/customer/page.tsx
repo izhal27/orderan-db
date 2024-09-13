@@ -1,18 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AddButton from "@/components/buttons/AddButton";
+import ConfirmModal from "@/components/ConfirmModal";
+import PaginationTable from "@/components/Pagination";
+import SearchInput from "@/components/SearchInput";
+import SelectInput from "@/components/SelectInput";
+import SkeletonTable from "@/components/SkeletonTable";
 import type { Customer } from "@/constants";
 import { showToast } from "@/helpers";
+import { useApiClient } from "@/lib/apiClient";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CustomerTable from "./_components/Table";
-import ConfirmModal from "@/components/ConfirmModal";
-import SkeletonTable from "@/components/SkeletonTable";
-import SelectInput from "@/components/SelectInput";
-import SearchInput from "@/components/SearchInput";
-import PaginationTable from "@/components/Pagination";
-import { useApiClient } from "@/lib/apiClient";
 
 export default function PelangganPage() {
   const { data: session } = useSession();
@@ -31,9 +31,7 @@ export default function PelangganPage() {
   const { request } = useApiClient();
 
   const fetchCustomers = useCallback(async () => {
-    if (!session?.accessToken) {
-      return;
-    }
+    if (!session?.accessToken) return;
     setLoading(true);
     const url = `/customers`;
     const searchParams = new URLSearchParams();
@@ -42,7 +40,9 @@ export default function PelangganPage() {
     searchParams.append("limit", limit.toString());
     search && searchParams.append("search", search);
     try {
-      const { data, total, totalPages } = await request(`${url}?${searchParams}`);
+      const { data, total, totalPages } = await request(
+        `${url}?${searchParams}`,
+      );
       setCustomers(data);
       setTotalData(total);
       setTotalPages(totalPages);
@@ -50,6 +50,7 @@ export default function PelangganPage() {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
     setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken, currentPage, limit, search]);
 
   useEffect(() => {
@@ -57,11 +58,12 @@ export default function PelangganPage() {
       fetchCustomers();
       fetchedRef.current = true;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   useEffect(() => {
     fetchCustomers();
-  }, [currentPage, limit, search]);
+  }, [fetchCustomers, currentPage, limit, search]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -70,14 +72,20 @@ export default function PelangganPage() {
   const onRemoveHandler = useCallback(async () => {
     try {
       const url = `/customers/${deleteId}`;
-      const deletedObject = await request(`${url}`, { method: "DELETE", body: "" });;
+      const deletedObject = await request(`${url}`, {
+        method: "DELETE",
+        body: "",
+      });
       await fetchCustomers();
-      showToast("success", `Pelanggan "${deletedObject.name}" berhasil dihapus.`);
+      showToast(
+        "success",
+        `Pelanggan "${deletedObject.name}" berhasil dihapus.`,
+      );
     } catch (error) {
       showToast("error", "Gagal menghapus data, coba lagi nanti.");
     }
     setOpenModal(false);
-  }, [session?.accessToken, deleteId]);
+  }, [request, deleteId, fetchCustomers]);
 
   const table = useMemo(() => {
     if (loading) {

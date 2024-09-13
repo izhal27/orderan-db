@@ -1,36 +1,40 @@
-# Dockerfile
-# Use node alpine as it's a small node image
-FROM node:alpine
-ARG NODE_ENV
+# Use the official Node.js 20 image based on Alpine
+FROM node:20-alpine AS builder
 
-ENV PORT 3000
-
-# Create the directory on the node image 
-# where our Next.js app will live
-RUN mkdir -p /app
-
-# Set /app as the working directory
+# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-# to the /app working directory
-COPY ./frontend/package*.json /app/
-COPY ./.env /app/
+# Install dependencies
+COPY ./frontend/package*.json ./
+COPY ./frontend/yarn.lock ./
+RUN yarn install
 
-# Install dependencies in /app
-RUN yarn config set network-timeout 600000 -g && yarn install
+# Copy the rest of the application code
+COPY ./frontend .
 
-# Copy the rest of our Next.js folder into /app
-COPY ./frontend /app
-
-# For production build
-ENV NODE_ENV=${NODE_ENV}
-
-# Build app
+# Build the Next.js application
 RUN yarn build
 
-# Ensure port 3005 is accessible to our system
+# Use a lightweight web server to serve the built application
+FROM node:20-alpine AS runner
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the built application from the builder stage
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/yarn.lock ./
+
+# Install only production dependencies
+RUN yarn install --production
+
+# Expose the application port
 EXPOSE 3000
 
-# Run yarn dev, as we would via the command line 
-CMD [ "yarn", "start" ]
+# Set the environment variable for production
+ENV NODE_ENV=production
+
+# Start the Next.js application
+CMD ["yarn", "start"]
