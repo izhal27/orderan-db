@@ -55,11 +55,8 @@ export default function SettingsPage() {
 
   const onSubmit = async (data: UserFormData) => {
     const formData = appendData(data);
-    const res = await fetch(`${baseUrl}/${currentUser?.id}/profile`, {
+    const res = await fetch(`${baseUrl}/users/${currentUser?.id}/profile`, {
       method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
       body: formData,
     });
     const infoToast = (type: ToastType, content: ToastContent) =>
