@@ -1,20 +1,53 @@
-# Use the official Node.js 20 image based on Alpine
-FROM node:20-alpine
+# Stage 1: Builder
+FROM node:20-alpine AS builder
 
-# Install PM2 globally
-RUN yarn global add pm2
+# Install @nestjs/cli globally
 RUN yarn global add @nestjs/cli
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
 # Install dependencies
 COPY ./backend/package*.json ./
 COPY ./backend/yarn.lock ./
-RUN yarn install --production
+RUN yarn install --frozen-lockfile
 
-# Copy the rest of the application code
+# Copy all project files
 COPY ./backend .
+
+COPY .env .
+
+# Generate Prisma client
+RUN yarn prisma generate
+
+# Build the NestJS application
+RUN yarn build
+
+# Stage 2: Production
+FROM node:20-alpine AS production
+
+# Set NODE_ENV to production
+ENV NODE_ENV=production
+
+# Set working directory
+WORKDIR /app
+
+# Install only production dependencies
+COPY ./backend/package*.json ./
+COPY ./backend/yarn.lock ./
+RUN yarn install --frozen-lockfile --production=true
+
+# Install prisma globally
+RUN yarn global add prisma
+
+# Install PM2 globally
+RUN yarn global add pm2
+
+# Copy the built app from the builder stage
+COPY --from=builder /app/dist ./dist
+
+# Copy Prisma files (if Prisma is needed in production for the client)
+COPY --from=builder /app/prisma ./prisma
 
 # Generate Prisma client
 RUN yarn prisma generate
@@ -23,14 +56,8 @@ RUN yarn prisma generate
 COPY ./backend/entrypoint.sh .
 RUN chmod +x /app/entrypoint.sh
 
-# Set the environment variable for production
-ENV NODE_ENV=production
-
-# Build the NestJS application
-RUN yarn build
-
 # Expose the application port
 EXPOSE 3002
 
-# Use the entrypoint script
-CMD ["sh","/app/entrypoint.sh"]
+# Command to run the application
+CMD ["sh", "entrypoint.sh"]

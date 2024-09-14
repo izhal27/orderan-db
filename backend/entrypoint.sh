@@ -2,10 +2,10 @@
 # entrypoint.sh
 
 # Run Prisma migrations
-yarn prisma migrate deploy
+npx prisma migrate deploy
 
 # Run Prisma seed
-npx ts-node prisma/seed.ts
+node dist/prisma/seed.js
 
 # Run NestJS application
-exec pm2-runtime start dist/main --name "backend"
+exec pm2-runtime start dist/src/main.js --name "backend"
