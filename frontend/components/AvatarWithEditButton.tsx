@@ -53,7 +53,7 @@ const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
               height={40}
               src={
                 isEditMode && userImage === img
-                  ? `http://localhost:3002/images/${img}`
+                  ? `${process.env.NEXT_PUBLIC_IMAGE_PATH || "http://localhost:3002/images"}/${img}`
                   : img
               }
               {...props}

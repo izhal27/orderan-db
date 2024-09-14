@@ -36,6 +36,7 @@ WORKDIR /app
 COPY ./backend/package*.json ./
 COPY ./backend/yarn.lock ./
 RUN yarn install --frozen-lockfile --production=true
+RUN yarn add sharp
 
 # Install prisma globally
 RUN yarn global add prisma

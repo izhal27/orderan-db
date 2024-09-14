@@ -7,16 +7,22 @@ const config = {
       {
         hostname: "localhost",
       },
+      {
+        protocol: "http",
+        hostname: "*",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
           {
-            key: 'Access-Control-Allow-Origin',
-            value: '*',
+            key: "Access-Control-Allow-Origin",
+            value: "*",
           },
         ],
       },
