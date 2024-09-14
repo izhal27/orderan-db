@@ -3,7 +3,7 @@
 import AvatarWithEditButton from "@/components/AvatarWithEditButton";
 import type { UserFormData } from "@/constants/formTypes";
 import type { User } from "@/constants/interfaces";
-import type { ToastType } from "@/helpers/toast";
+import { isConflict } from "@/helpers";
 import { showToast } from "@/helpers/toast";
 import { baseUrl, useApiClient } from "@/lib/apiClient";
 import { userSchema } from "@/schemas/schemas";
@@ -11,9 +11,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { ToastContent } from "react-toastify";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -30,19 +29,23 @@ export default function SettingsPage() {
   });
   const { request } = useApiClient();
 
+  const fetchUser = useCallback(async () => {
+    if (!session?.accessToken) return;
+    const user = await request(`/users/${session?.user.id}/profile`);
+    const currentUser = user || session?.user;
+    setValue("username", currentUser.username);
+    setValue("email", currentUser.email);
+    setValue("name", currentUser.name);
+    setCurrentUser(currentUser);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user]);
+
   useEffect(() => {
     if (session?.user) {
-      const fetchData = async () => {
-        const user = await request(`/users/${session.user.id}/profile`);
-        const fetchUser = user || session.user;
-        setValue("username", fetchUser.username);
-        setValue("email", fetchUser.email);
-        setValue("name", fetchUser.name);
-        setCurrentUser(fetchUser);
-      };
-      fetchData();
+      fetchUser();
     }
-  }, [session?.user, request, setValue, setCurrentUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user]);
 
   const appendData = (data: UserFormData) => {
     const formData = new FormData();
@@ -53,41 +56,48 @@ export default function SettingsPage() {
     return formData;
   };
 
-  const onSubmit = async (data: UserFormData) => {
-    const formData = appendData(data);
-    const res = await fetch(`${baseUrl}/users/${currentUser?.id}/profile`, {
-      method: "PATCH",
-      body: formData,
-    });
-    const infoToast = (type: ToastType, content: ToastContent) =>
-      showToast(type, content, {
-        position: "top-center",
-        hideProgressBar: true,
-      });
-    if (res.ok) {
-      const user = await res.json();
-      // update data session current user
-      update({
-        user: {
-          id: user.id,
-          username: user.username,
-          name: user.name,
-          email: user.email,
-          image: user.image,
-          role: user.role.name,
-        },
-      });
-      infoToast("success", "Perubahan berhasil disimpan");
-      router.push("/");
-    } else if (res.status == 409) {
-      infoToast(
-        "error",
-        "Username sudah digunakan, coba dengan nama yang lain.",
-      );
-    } else {
-      infoToast("error", "Terjadi kesalahan, coba lagi nanti.");
-    }
-  };
+  const onSubmit = useCallback(
+    async (data: UserFormData) => {
+      if (!session?.accessToken) return;
+      const formData = appendData(data);
+      try {
+        const res = await fetch(`${baseUrl}/users/${currentUser?.id}/profile`, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+          body: formData,
+        });
+        if (res.ok) {
+          const user = await res.json();
+          // update data session current user
+          update({
+            user: {
+              id: user.id,
+              username: user.username,
+              name: user.name,
+              email: user.email,
+              image: user.image,
+              role: user.role.name,
+            },
+          });
+          showToast("success", "Perubahan berhasil disimpan");
+          router.push("/");
+        }
+      } catch (error) {
+        if (isConflict(error as Error)) {
+          showToast(
+            "error",
+            "Username sudah digunakan, coba dengan nama yang lain.",
+          );
+        } else {
+          showToast("error", "Terjadi kesalahan, coba lagi nanti.");
+        }
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [session?.accessToken, appendData, currentUser?.id, router],
+  );
 
   return (
     <div className="flex flex-col gap-4 p-4">
