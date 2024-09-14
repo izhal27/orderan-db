@@ -1,0 +1,71 @@
+version: "3"
+services:
+  frontend:
+    container_name: ${PROJECT_SLUG}_frontend
+    build:
+      context: .
+      dockerfile: ./docker/frontend/production/Dockerfile
+      args:
+        - NODE_ENV=production
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_URL: ${AUTH_URL}
+      AUTH_TRUST_HOST: ${AUTH_TRUST_HOST}
+      AUTH_API_URL: ${AUTH_API_URL}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_WEBSOCKET_URL: ${NEXT_PUBLIC_WEBSOCKET_URL}
+    networks:
+      - internal
+    ports:
+      - "2703:3000"
+    depends_on:
+      - backend
+
+  backend:
+    container_name: ${PROJECT_SLUG}_backend
+    build:
+      context: .
+      dockerfile: ./docker/backend/production/Dockerfile
+      args:
+        - NODE_ENV=production
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES: ${JWT_EXPIRES}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
+      REFRESH_TOKEN_EXPIRES: ${REFRESH_TOKEN_EXPIRES}
+      NODE_ENV: production
+    networks:
+      - internal
+    ports:
+      - "2704:3002"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16.0-alpine
+    container_name: ${PROJECT_SLUG}_postgres
+    platform: linux/amd64
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/
+    networks:
+      - internal
+
+volumes:
+  postgres-data:
+
+networks:
+  internal:
+    name: ${PROJECT_SLUG}_internal
+    driver: bridge

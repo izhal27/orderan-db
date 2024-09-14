@@ -16,8 +16,8 @@ COPY ./backend .
 RUN yarn prisma generate
 
 # Copy the entrypoint script
-COPY ./backend/.entrypoint-development.sh .
-RUN chmod +x /app/.entrypoint-development.sh
+COPY ./backend/entrypoint-development.sh .
+RUN chmod +x /app/entrypoint-development.sh
 
 # Expose the application port
 EXPOSE 3002
@@ -26,4 +26,4 @@ EXPOSE 3002
 ENV NODE_ENV=development
 
 # Use the entrypoint script
-CMD ["/bin/sh", "/app/.entrypoint-development.sh"]
+CMD ["/bin/sh", "/app/entrypoint-development.sh"]
