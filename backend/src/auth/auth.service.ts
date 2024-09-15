@@ -2,6 +2,7 @@ import { REFRESH_TOKEN_SECRET } from '../constants/constants';
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -26,6 +27,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) { }
+
+  private logger = new Logger(AuthService.name);
 
   async signupLocal({ username, password }: AuthDto) {
     const user = await this.userService.create({
@@ -78,11 +81,20 @@ export class AuthService {
   }
 
   private async generateTokens(user: UserEntity): Promise<Tokens> {
-    // get access_token and refresh_token
-    const tokens = await this.getTokens(user);
-    // generate new refresh token hash and save to database
-    await this.updateRefreshTokenHash(user.username, tokens.refresh_token);
-    return tokens;
+    try {
+      // get access_token and refresh_token
+      const tokens = await this.getTokens(user);
+      // generate new refresh token hash and save to database
+      const hash = await hashValue(tokens.refresh_token);
+      this.userService.update({
+        where: { username: user.username },
+        data: { refreshToken: hash },
+      });
+      return tokens;
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error(error);
+    }
   }
 
   async getTokens(user: UserEntity) {
@@ -115,15 +127,14 @@ export class AuthService {
         email: user.email,
         role: user.role?.name
       },
-      expiresIn: this.configService.get(JWT_EXPIRES),
+      expiresAt: Date.now() + this.convertToMilliseconds(JWT_EXPIRES),
     };
   }
 
-  private async updateRefreshTokenHash(username: string, refreshToken: string) {
-    const hash = await hashValue(refreshToken);
-    this.userService.update({
-      where: { username },
-      data: { refreshToken: hash },
-    });
+  private convertToMilliseconds(expireIn: string) {
+    const timeUnits = { 's': 1000, 'm': 60000, 'h': 3600000, 'd': 86400000 };
+    const unit = expireIn[expireIn.length - 1];
+    const amount = parseInt(expireIn.slice(0, -1), 10);
+    return amount * timeUnits[unit];
   }
 }
