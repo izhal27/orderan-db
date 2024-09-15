@@ -31,40 +31,55 @@ export class AuthService {
   private logger = new Logger(AuthService.name);
 
   async signupLocal({ username, password }: AuthDto) {
-    const user = await this.userService.create({
-      username,
-      password,
-    });
-    return this.generateTokens(user);
+    try {
+      const user = await this.userService.create({
+        username,
+        password,
+      });
+      return this.generateTokens(user);
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error(error);
+    }
   }
 
   async signinLocal({ username, password }: AuthDto): Promise<Tokens> {
-    const user = await this.userService.findUnique({ username }, true);
-    if (!user) {
-      throw new NotFoundException('User not found');
+    try {
+      const user = await this.userService.findUnique({ username }, true);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      const isValid = await compareValue(password, user.password);
+      if (!isValid) {
+        throw new UnauthorizedException('Username or password is incorect');
+      }
+      if (user.blocked || !user.roleId) {
+        throw new UnauthorizedException(
+          'User has been blocked or does not have any roles',
+        );
+      }
+      return this.generateTokens(user);
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error(error);
     }
-    const isValid = await compareValue(password, user.password);
-    if (!isValid) {
-      throw new UnauthorizedException('Username or password is incorect');
-    }
-    if (user.blocked || !user.roleId) {
-      throw new UnauthorizedException(
-        'User has been blocked or does not have any roles',
-      );
-    }
-    return this.generateTokens(user);
   }
 
   async logout(userId: number) {
-    const user = await this.userService.findUnique({
-      id: userId,
-      refreshToken: { not: null },
-    });
-    if (user) {
-      this.userService.update({
-        where: { id: userId },
-        data: { refreshToken: null },
+    try {
+      const user = await this.userService.findUnique({
+        id: userId,
+        refreshToken: { not: null },
       });
+      if (user) {
+        this.userService.update({
+          where: { id: userId },
+          data: { refreshToken: null },
+        });
+      }
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error(error);
     }
   }
 
@@ -84,7 +99,7 @@ export class AuthService {
     try {
       // get access_token and refresh_token
       const tokens = await this.getTokens(user);
-      // generate new refresh token hash and save to database
+      // generate new refresh_token hash and save to database
       const hash = await hashValue(tokens.refresh_token);
       this.userService.update({
         where: { username: user.username },
@@ -127,7 +142,7 @@ export class AuthService {
         email: user.email,
         role: user.role?.name
       },
-      expiresAt: Date.now() + this.convertToMilliseconds(JWT_EXPIRES),
+      expires_at: Date.now() + this.convertToMilliseconds(this.configService.get(JWT_EXPIRES) as string),
     };
   }
 
