@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -72,6 +72,12 @@ export const useFetch = <T>({
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      signOut();
+    }
+  }, [status]);
 
   return { data, loading, status, error };
 };
