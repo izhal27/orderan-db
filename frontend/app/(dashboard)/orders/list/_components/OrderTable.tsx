@@ -56,7 +56,7 @@ export default function OrderTable({
   // hanya user yang membuat order atau admin, administrasi yang bisa edit dan hapus order
   const canEditOrder = (item: Order) => {
     if (!session) return false;
-    const isCreator = session?.user?.id === item.user.id;
+    const isCreator = session?.user?.id === item.user?.id;
     const userRole = session?.user?.role;
     const isAdminOrAdministrasi =
       isContain(userRole, Roles.ADMIN) ||
