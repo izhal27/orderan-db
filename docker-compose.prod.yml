@@ -10,16 +10,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      AUTH_SECRET: ${AUTH_SECRET}
-      AUTH_URL: ${AUTH_URL}
-      AUTH_TRUST_HOST: ${AUTH_TRUST_HOST}
-      AUTH_API_URL: ${AUTH_API_URL}
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-      NEXT_PUBLIC_WEBSOCKET_URL: ${NEXT_PUBLIC_WEBSOCKET_URL}
-      NEXT_PUBLIC_IMAGE_PROTOCOL: ${NEXT_PUBLIC_IMAGE_PROTOCOL}
-      NEXT_PUBLIC_IMAGE_DOMAIN: ${NEXT_PUBLIC_IMAGE_DOMAIN}
-      NEXT_PUBLIC_IMAGE_PORT: ${NEXT_PUBLIC_IMAGE_PORT}
     networks:
       - internal
     ports:
@@ -37,12 +27,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES: ${JWT_EXPIRES}
-      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
-      REFRESH_TOKEN_EXPIRES: ${REFRESH_TOKEN_EXPIRES}
-      NODE_ENV: production
     networks:
       - internal
     ports:
@@ -55,11 +39,8 @@ services:
     container_name: ${PROJECT_SLUG}_postgres
     platform: linux/amd64
     restart: unless-stopped
-    env_file: .env
-    environment:
-      POSTGRES_USER: ${DATABASE_USERNAME}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
+    env_file:
+      - .env
     volumes:
       - postgres-data:/var/lib/postgresql/data/
     networks:

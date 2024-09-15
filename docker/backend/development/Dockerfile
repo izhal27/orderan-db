@@ -12,9 +12,6 @@ RUN yarn install
 # Copy the rest of the application code
 COPY ./backend .
 
-# Generate Prisma client
-RUN yarn prisma generate
-
 # Copy the entrypoint script
 COPY ./backend/entrypoint-development.sh .
 RUN chmod +x /app/entrypoint-development.sh
@@ -26,4 +23,4 @@ EXPOSE 3002
 ENV NODE_ENV=development
 
 # Use the entrypoint script
-CMD ["/bin/sh", "/app/entrypoint-development.sh"]
+CMD ["sh", "/app/entrypoint-development.sh"]

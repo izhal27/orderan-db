@@ -15,8 +15,6 @@ RUN yarn install --frozen-lockfile
 # Copy all project files
 COPY ./backend .
 
-COPY .env .
-
 # Generate Prisma client
 RUN yarn prisma generate
 
