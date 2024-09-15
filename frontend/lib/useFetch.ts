@@ -17,6 +17,7 @@ export const baseUrl =
 interface UseFetchState<T> {
   data: T | null;
   loading: boolean;
+  status: "authenticated" | "loading" | "unauthenticated";
   error: string | null;
 }
 
@@ -27,7 +28,7 @@ export const useFetch = <T>({
   body,
   isFormData = false, // Default-nya tidak menggunakan FormData
 }: UseFetchProps<T>): UseFetchState<T> => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,5 +73,5 @@ export const useFetch = <T>({
     fetchData();
   }, [fetchData]);
 
-  return { data, loading, error };
+  return { data, loading, status, error };
 };
