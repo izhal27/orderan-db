@@ -582,7 +582,7 @@ export class OrdersService {
       case CancelType.PRINT:
         const resultPrint = await this.prismaService.printedStatus.update({
           where: { orderDetailId: orderDetailId },
-          data: { status: false },
+          data: { status: false, printedById: userId }, // cancel by userId
           include: {
             PrintedBy: {
               select: {
