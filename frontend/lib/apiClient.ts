@@ -1,7 +1,6 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState } from "react";
 
 export const baseUrl =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002/api";
