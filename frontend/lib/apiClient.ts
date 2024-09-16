@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { useState } from "react";
 
 export const baseUrl =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002/api";
@@ -11,14 +12,16 @@ export const useApiClient = () => {
   const request = async (
     endpoint: string,
     {
-      method = "GET",
+      method = "GET" || "POST" || "PATCH" || "PUT" || "DELETE",
       body,
       headers = {} as Record<string, string>,
+      isFormData = false,
       ...customConfig
     }: {
       method?: string;
       body?: BodyInit | null;
       headers?: Record<string, string>;
+      isFormData?: boolean;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [key: string]: any;
     } = {},
@@ -31,11 +34,7 @@ export const useApiClient = () => {
       ...headers,
     };
 
-    if (
-      body &&
-      !(body instanceof FormData) &&
-      !defaultHeaders["Content-Type"]
-    ) {
+    if (body && !isFormData && !defaultHeaders["Content-Type"]) {
       defaultHeaders["Content-Type"] = "application/json";
     }
 
