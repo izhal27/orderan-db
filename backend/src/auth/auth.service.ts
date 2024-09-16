@@ -30,7 +30,7 @@ export class AuthService {
 
   private logger = new Logger(AuthService.name);
 
-  async signupLocal({ username, password }: AuthDto) {
+  async signupLocal({ username, password }: AuthDto): Promise<Tokens | undefined> {
     try {
       const user = await this.userService.create({
         username,
@@ -43,12 +43,10 @@ export class AuthService {
     }
   }
 
-  async signinLocal({ username, password }: AuthDto): Promise<Tokens> {
+  async signinLocal({ username, password }: AuthDto): Promise<Tokens | undefined> {
     try {
       const user = await this.userService.findUnique({ username }, true);
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
+      if (!user) return;
       const isValid = await compareValue(password, user.password);
       if (!isValid) {
         throw new UnauthorizedException('Username or password is incorect');
@@ -79,11 +77,10 @@ export class AuthService {
       }
     } catch (error) {
       this.logger.error(error);
-      throw new Error(error);
     }
   }
 
-  async refreshTokens(username: string, refreshToken: string): Promise<Tokens> {
+  async refreshTokens(username: string, refreshToken: string): Promise<Tokens | undefined> {
     const user = await this.userService.findUnique({ username }, true);
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access denied');
@@ -95,7 +92,7 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  private async generateTokens(user: UserEntity): Promise<Tokens> {
+  private async generateTokens(user: UserEntity): Promise<Tokens | undefined> {
     try {
       // get access_token and refresh_token
       const tokens = await this.getTokens(user);
@@ -108,7 +105,6 @@ export class AuthService {
       return tokens;
     } catch (error) {
       this.logger.error(error);
-      throw new Error(error);
     }
   }
 

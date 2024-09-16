@@ -30,7 +30,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             expiresAt: result.expires_at,
           } as User;
         }
-        throw new Error("User not found.");
+        return null;
       },
     }),
   ],

@@ -55,7 +55,7 @@ export class UsersService {
       },
     });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(`User "${where.username}" not found`);
     }
     return this.sanitizeUser(user);
   }
