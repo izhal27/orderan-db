@@ -3,12 +3,6 @@
 import BackButton from "@/components/buttons/BackButton";
 import SkeletonTable from "@/components/SkeletonTable";
 import UserAvatar from "@/components/UserAvatar";
-import type {
-  MarkedPay,
-  MarkedPrinted,
-  MarkedTaken,
-  OrderDetail,
-} from "@/constants";
 import { Roles } from "@/constants";
 import { useLoading } from "@/context/LoadingContext";
 import { isContain, showToast } from "@/helpers";
@@ -30,26 +24,13 @@ type BodyType = {
   takenAt?: string;
 };
 
-type ResultType = {
-  orderDetailId?: string;
-  status: boolean;
-  printAt?: string;
-  payAt?: string;
-  takenAt?: string;
-  MarkedBy?: {
-    name: string;
-    username: string;
-  };
-  updatedAt: string;
-};
-
 type EventType = {
   urlMarked: string;
   urlCancel: string;
   body: BodyType;
   isChecked: boolean;
-  onSuccessMarkedHandler(result: ResultType): void;
-  onSuccessUnmarkedHandler(result: ResultType): void;
+  onSuccessMarkedHandler(): void;
+  onSuccessUnmarkedHandler(): void;
 };
 
 export default function DetailPage({ params }: { params: { id: string } }) {
@@ -60,18 +41,14 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   const { request } = useApiClient();
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const { order, setOrder } = useOrderStatusWebSocket(undefined);
-  const [orderDetails, setOrderDetails] = useState<OrderDetail[]>([]);
   const { moment } = useMoment();
 
   const fetchOrder = useCallback(async () => {
-    if (!session?.accessToken) {
-      return;
-    }
+    if (!session?.accessToken) return;
     setLoading(true);
     try {
       const result = await request(`/orders/${params.id}`);
       setOrder(result);
-      setOrderDetails(result.OrderDetails);
     } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
@@ -97,16 +74,16 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       setModalLoading(true);
       try {
         if (isChecked) {
-          const result = await request(urlMarked, {
+          await request(urlMarked, {
             method: "POST",
             body: JSON.stringify(body),
           });
-          onSuccessMarkedHandler(result);
+          onSuccessMarkedHandler();
         } else {
-          const result = await request(urlCancel, {
+          await request(urlCancel, {
             method: "POST",
           });
-          onSuccessUnmarkedHandler(result);
+          onSuccessUnmarkedHandler();
         }
       } catch (error) {
         showToast("error", "Terjadi kesalahan, coba lagi nanti");
@@ -116,25 +93,9 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     500,
   );
 
-  const updatePrintedStatus = (
-    orderDetailId: string,
-    markedPrint: MarkedPrinted,
-  ) => {
-    setOrderDetails((prevOrderDetails) => {
-      const updatedOrderDetails = prevOrderDetails.map((detail) =>
-        detail.id === orderDetailId
-          ? { ...detail, MarkedPrinted: markedPrint }
-          : detail,
-      );
-      return [...updatedOrderDetails];
-    });
-  };
-
   const handleCheckboxPrintedClick = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
       const isChecked = e.target.checked;
-      console.log("CHECKED", isChecked);
-
       sendPostMarked({
         urlMarked: `/orders/detail/${id}/print`,
         urlCancel: `/orders/detail/${id}/cancel-print`,
@@ -143,35 +104,16 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           printAt: new Date().toISOString(),
         },
         isChecked,
-        onSuccessMarkedHandler: (result) => {
-          updatePrintedStatus(
-            result.orderDetailId || "",
-            result as MarkedPrinted,
-          );
+        onSuccessMarkedHandler: () => {
           showToast("success", "Berhasil ditandai sudah dicetak");
         },
-        onSuccessUnmarkedHandler: (result) => {
-          updatePrintedStatus(
-            result.orderDetailId || "",
-            result as MarkedPrinted,
-          );
+        onSuccessUnmarkedHandler: () => {
           showToast("warning", "Berhasil menghapus tanda sudah dicetak");
         },
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [sendPostMarked],
-  );
-
-  const updateStateMarkedPay = useCallback(
-    (result: MarkedPay) => {
-      setOrder((prevOrder) => {
-        if (!prevOrder) return prevOrder;
-        const updatedState = { ...prevOrder };
-        updatedState.MarkedPay = { ...result };
-        return updatedState;
-      });
-    },
-    [setOrder],
   );
 
   const handleCheckboxPayClick = useCallback(
@@ -185,29 +127,15 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           payAt: new Date().toISOString(),
         },
         isChecked,
-        onSuccessMarkedHandler: (result) => {
-          updateStateMarkedPay(result as MarkedPay);
+        onSuccessMarkedHandler: () => {
           showToast("success", "Berhasil ditandai sudah dibayar");
         },
-        onSuccessUnmarkedHandler: (result) => {
-          updateStateMarkedPay(result as MarkedPay);
+        onSuccessUnmarkedHandler: () => {
           showToast("warning", "Berhasil menghapus tanda sudah dibayar");
         },
       });
     },
-    [order?.id, sendPostMarked, updateStateMarkedPay],
-  );
-
-  const updateStateMarkedTaken = useCallback(
-    (result: MarkedTaken) => {
-      setOrder((prevOrder) => {
-        if (!prevOrder) return prevOrder;
-        const updatedState = { ...prevOrder };
-        updatedState.MarkedTaken = { ...result };
-        return updatedState;
-      });
-    },
-    [setOrder],
+    [order?.id, sendPostMarked],
   );
 
   const handleCheckboxTakenClick = useCallback(
@@ -221,17 +149,15 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           takenAt: new Date().toISOString(),
         },
         isChecked,
-        onSuccessMarkedHandler: (result) => {
-          updateStateMarkedTaken(result as MarkedTaken);
+        onSuccessMarkedHandler: () => {
           showToast("success", "Berhasil ditandai sudah diambil");
         },
-        onSuccessUnmarkedHandler: (result) => {
-          updateStateMarkedTaken(result as MarkedTaken);
+        onSuccessUnmarkedHandler: () => {
           showToast("warning", "Berhasil menghapus tanda sudah diambil");
         },
       });
     },
-    [order?.id, sendPostMarked, updateStateMarkedTaken],
+    [order?.id, sendPostMarked],
   );
 
   const table = useMemo(() => {
@@ -255,7 +181,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       return (
         <ShowDetailOrderTable
           markedTaken={order?.MarkedTaken?.status}
-          orderDetails={orderDetails || []}
+          orderDetails={order?.OrderDetails || []}
           expandedRowId={expandedRowId}
           onExpandedRowToggleHandler={(id: string) => {
             setExpandedRowId(expandedRowId === id ? null : id);
@@ -265,11 +191,11 @@ export default function DetailPage({ params }: { params: { id: string } }) {
         />
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     loading,
     session?.user?.role,
     order,
-    orderDetails,
     expandedRowId,
     handleCheckboxPrintedClick,
   ]);

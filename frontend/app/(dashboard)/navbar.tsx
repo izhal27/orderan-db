@@ -78,7 +78,7 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
                 <Dropdown.Item
                   onClick={() =>
                     signOut({
-                      callbackUrl: "http://localhost:3000/auth/signin",
+                      callbackUrl: `${process.env.AUTH_URL || "http://localhost:3000"}/auth/signin`,
                       redirect: true,
                     })
                   }

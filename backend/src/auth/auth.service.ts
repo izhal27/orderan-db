@@ -2,6 +2,7 @@ import { REFRESH_TOKEN_SECRET } from '../constants/constants';
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -27,45 +28,59 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) { }
 
-  async signupLocal({ username, password }: AuthDto) {
-    const user = await this.userService.create({
-      username,
-      password,
-    });
-    return this.generateTokens(user);
+  private logger = new Logger(AuthService.name);
+
+  async signupLocal({ username, password }: AuthDto): Promise<Tokens | undefined> {
+    try {
+      const user = await this.userService.create({
+        username,
+        password,
+      });
+      return this.generateTokens(user);
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error(error);
+    }
   }
 
-  async signinLocal({ username, password }: AuthDto): Promise<Tokens> {
-    const user = await this.userService.findUnique({ username }, true);
-    if (!user) {
-      throw new NotFoundException('User not found');
+  async signinLocal({ username, password }: AuthDto): Promise<Tokens | undefined> {
+    try {
+      const user = await this.userService.findUnique({ username }, true);
+      if (!user) return;
+      const isValid = await compareValue(password, user.password);
+      if (!isValid) {
+        throw new UnauthorizedException('Username or password is incorect');
+      }
+      if (user.blocked || !user.roleId) {
+        throw new UnauthorizedException(
+          'User has been blocked or does not have any roles',
+        );
+      }
+      return this.generateTokens(user);
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error(error);
     }
-    const isValid = await compareValue(password, user.password);
-    if (!isValid) {
-      throw new UnauthorizedException('Username or password is incorect');
-    }
-    if (user.blocked || !user.roleId) {
-      throw new UnauthorizedException(
-        'User has been blocked or does not have any roles',
-      );
-    }
-    return this.generateTokens(user);
   }
 
   async logout(userId: number) {
-    const user = await this.userService.findUnique({
-      id: userId,
-      refreshToken: { not: null },
-    });
-    if (user) {
-      this.userService.update({
-        where: { id: userId },
-        data: { refreshToken: null },
+    try {
+      const user = await this.userService.findUnique({
+        id: userId,
+        refreshToken: { not: null },
       });
+      if (user) {
+        this.userService.update({
+          where: { id: userId },
+          data: { refreshToken: null },
+        });
+      }
+    } catch (error) {
+      this.logger.error(error);
     }
   }
 
-  async refreshTokens(username: string, refreshToken: string): Promise<Tokens> {
+  async refreshTokens(username: string, refreshToken: string): Promise<Tokens | undefined> {
     const user = await this.userService.findUnique({ username }, true);
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access denied');
@@ -77,12 +92,20 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  private async generateTokens(user: UserEntity): Promise<Tokens> {
-    // get access_token and refresh_token
-    const tokens = await this.getTokens(user);
-    // generate new refresh token hash and save to database
-    await this.updateRefreshTokenHash(user.username, tokens.refresh_token);
-    return tokens;
+  private async generateTokens(user: UserEntity): Promise<Tokens | undefined> {
+    try {
+      // get access_token and refresh_token
+      const tokens = await this.getTokens(user);
+      // generate new refresh_token hash and save to database
+      const hash = await hashValue(tokens.refresh_token);
+      this.userService.update({
+        where: { username: user.username },
+        data: { refreshToken: hash },
+      });
+      return tokens;
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 
   async getTokens(user: UserEntity) {
@@ -115,15 +138,14 @@ export class AuthService {
         email: user.email,
         role: user.role?.name
       },
-      expiresIn: this.configService.get(JWT_EXPIRES),
+      expires_at: Date.now() + this.convertToMilliseconds(this.configService.get(JWT_EXPIRES) as string),
     };
   }
 
-  private async updateRefreshTokenHash(username: string, refreshToken: string) {
-    const hash = await hashValue(refreshToken);
-    this.userService.update({
-      where: { username },
-      data: { refreshToken: hash },
-    });
+  private convertToMilliseconds(expireIn: string) {
+    const timeUnits = { 's': 1000, 'm': 60000, 'h': 3600000, 'd': 86400000 };
+    const unit = expireIn[expireIn.length - 1];
+    const amount = parseInt(expireIn.slice(0, -1), 10);
+    return amount * timeUnits[unit];
   }
 }

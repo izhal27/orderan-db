@@ -3,9 +3,8 @@
 import AvatarWithEditButton from "@/components/AvatarWithEditButton";
 import type { UserFormData } from "@/constants/formTypes";
 import type { User } from "@/constants/interfaces";
-import { isConflict } from "@/helpers";
 import { showToast } from "@/helpers/toast";
-import { baseUrl, useApiClient } from "@/lib/apiClient";
+import { useApiClient } from "@/lib/apiClient";
 import { userSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Label, Spinner, TextInput } from "flowbite-react";
@@ -61,38 +60,26 @@ export default function SettingsPage() {
       if (!session?.accessToken) return;
       const formData = appendData(data);
       try {
-        const res = await fetch(`${baseUrl}/users/${currentUser?.id}/profile`, {
+        const user = await request(`/users/${currentUser?.id}/profile`, {
           method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
           body: formData,
+          isFormData: true,
         });
-        if (res.ok) {
-          const user = await res.json();
-          // update data session current user
-          update({
-            user: {
-              id: user.id,
-              username: user.username,
-              name: user.name,
-              email: user.email,
-              image: user.image,
-              role: user.role.name,
-            },
-          });
-          showToast("success", "Perubahan berhasil disimpan");
-          router.push("/");
-        }
+        // update data session current user
+        update({
+          user: {
+            id: user.id,
+            username: user.username,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+            role: user.role.name,
+          },
+        });
+        showToast("success", "Perubahan berhasil disimpan");
+        router.push("/");
       } catch (error) {
-        if (isConflict(error as Error)) {
-          showToast(
-            "error",
-            "Username sudah digunakan, coba dengan nama yang lain.",
-          );
-        } else {
-          showToast("error", "Terjadi kesalahan, coba lagi nanti.");
-        }
+        showToast("error", "Terjadi kesalahan, coba lagi nanti.");
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -9,7 +9,7 @@ import {
 export class AuthDto {
   @IsString()
   @IsNotEmpty()
-  @MinLength(5)
+  @MinLength(3)
   @IsAlphanumeric()
   @ApiProperty({
     example: 'johndoe',

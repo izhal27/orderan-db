@@ -27,7 +27,7 @@ class TokensEntity {
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Public()
   @Post('/local/signup')
@@ -39,7 +39,7 @@ export class AuthController {
     },
     description: 'Signup with username and password',
   })
-  signupLocal(@Body() authDto: AuthDto): Promise<Tokens> {
+  signupLocal(@Body() authDto: AuthDto) {
     return this.authService.signupLocal(authDto);
   }
 
@@ -54,7 +54,7 @@ export class AuthController {
     },
     description: 'Signin with username and password',
   })
-  signinLocal(@Body() authDto: AuthDto): Promise<Tokens> {
+  signinLocal(@Body() authDto: AuthDto) {
     return this.authService.signinLocal(authDto);
   }
 
@@ -75,7 +75,7 @@ export class AuthController {
   refreshTokens(
     @GetCurrentUser('username') username: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
-  ): Promise<Tokens> {
+  ) {
     return this.authService.refreshTokens(username, refreshToken);
   }
 }

@@ -66,7 +66,7 @@ export default function ShowDetailOrderTable({
                           onChange={(e) =>
                             onCheckBoxPrintedClickHandler(e, item.id)
                           }
-                          checked={item.MarkedPrinted?.status || false}
+                          checked={item.MarkedPrinted?.status}
                           disabled={markedTaken}
                           className="disabled:cursor-not-allowed disabled:text-gray-500"
                         />
@@ -100,7 +100,7 @@ export default function ShowDetailOrderTable({
                     >
                       <div className="bg-gray-100 p-4 dark:bg-gray-700 ">
                         <div className="text-gray-700 dark:text-gray-300">
-                          {item.MarkedPrinted.status ? (
+                          {item.MarkedPrinted?.status ? (
                             <span className="text-sm font-light">
                               {`Ditandai dicetak oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${`${moment(Date.now()).format("LLLL")}`}`}
                             </span>

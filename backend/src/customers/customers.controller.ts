@@ -26,6 +26,7 @@ import { GetCurrentUserId, PaginationDto, Role, Roles } from '../common';
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) { }
 
+  // membuat customer baru dari proses menambahkan pesanan
   @Post()
   @ApiCreatedResponse({ type: CustomerEntity })
   create(
@@ -33,6 +34,16 @@ export class CustomersController {
     @GetCurrentUserId() userId: number,
   ) {
     return this.customersService.create(createCustomerDto, userId);
+  }
+
+  // membuat customer baru dari form
+  @Post('/new')
+  @ApiCreatedResponse({ type: CustomerEntity })
+  new(
+    @Body() createCustomerDto: CreateCustomerDto,
+    @GetCurrentUserId() userId: number,
+  ) {
+    return this.customersService.new(createCustomerDto, userId);
   }
 
   @Get()

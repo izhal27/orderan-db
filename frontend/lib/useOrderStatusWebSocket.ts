@@ -1,11 +1,9 @@
 import type { Order, WebSocketEvent } from "@/constants";
 import useWebSocket from "@/lib/useWebSocket";
-import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 
 export function useOrderStatusWebSocket(initialOrder: Order | undefined) {
   const [order, setOrder] = useState<Order | undefined>(initialOrder);
-  const { data: session } = useSession();
 
   useEffect(() => {
     setOrder(initialOrder);
@@ -13,9 +11,6 @@ export function useOrderStatusWebSocket(initialOrder: Order | undefined) {
 
   const handleOrderStatusChange = useCallback(
     (event: WebSocketEvent, statusType: "Print" | "Pay" | "Taken") => {
-      if (session?.user.id === event.userId) {
-        return;
-      }
       setOrder((prevOrder) => {
         if (!prevOrder) return prevOrder;
         let updatedOrder = { ...prevOrder };
@@ -25,23 +20,15 @@ export function useOrderStatusWebSocket(initialOrder: Order | undefined) {
               ? { ...detail, MarkedPrinted: event.data }
               : detail,
           );
-          if (
-            updatedOrderDetails.some(
-              (detail) => detail.id === event.data.orderDetailId,
-            )
-          ) {
-            updatedOrder = {
-              ...updatedOrder,
-              OrderDetails: updatedOrderDetails,
-              animate: true,
-            };
-          }
+          updatedOrder = {
+            ...updatedOrder,
+            OrderDetails: updatedOrderDetails,
+          };
         } else if (statusType === "Pay") {
           if (updatedOrder.id === event.data.orderId) {
             updatedOrder = {
               ...updatedOrder,
               MarkedPay: event.data,
-              animate: true,
             };
           }
         } else if (statusType === "Taken") {
@@ -49,14 +36,13 @@ export function useOrderStatusWebSocket(initialOrder: Order | undefined) {
             updatedOrder = {
               ...updatedOrder,
               MarkedTaken: event.data,
-              animate: true,
             };
           }
         }
         return updatedOrder;
       });
     },
-    [session?.user.id],
+    [],
   );
 
   useWebSocket({

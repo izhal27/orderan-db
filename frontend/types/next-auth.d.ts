@@ -5,6 +5,7 @@ declare module "next-auth" {
   interface Session {
     accessToken: string;
     refreshToken: string;
+    expiresAt: number;
     user: {
       id: string;
       username: string;
@@ -15,5 +16,20 @@ declare module "next-auth" {
       roleId: number;
       role: string;
     } & DefaultSession["user"];
+  }
+  interface CustomJWT {
+    accessToken: string;
+    refreshToken: string;
+    expiresAt: number;
+    user: {
+      id: string;
+      username: string;
+      name: string;
+      email: string;
+      image: string;
+      blocked: boolean;
+      roleId: number;
+      role: string;
+    };
   }
 }

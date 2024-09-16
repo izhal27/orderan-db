@@ -11,14 +11,16 @@ export const useApiClient = () => {
   const request = async (
     endpoint: string,
     {
-      method = "GET",
+      method = "GET" || "POST" || "PATCH" || "PUT" || "DELETE",
       body,
       headers = {} as Record<string, string>,
+      isFormData = false,
       ...customConfig
     }: {
       method?: string;
       body?: BodyInit | null;
       headers?: Record<string, string>;
+      isFormData?: boolean;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [key: string]: any;
     } = {},
@@ -31,11 +33,7 @@ export const useApiClient = () => {
       ...headers,
     };
 
-    if (
-      body &&
-      !(body instanceof FormData) &&
-      !defaultHeaders["Content-Type"]
-    ) {
+    if (body && !isFormData && !defaultHeaders["Content-Type"]) {
       defaultHeaders["Content-Type"] = "application/json";
     }
 
