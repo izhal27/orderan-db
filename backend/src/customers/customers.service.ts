@@ -48,6 +48,36 @@ export class CustomersService {
     }
   }
 
+  new(data: Prisma.CustomerCreateInput, userId: number): Promise<Customer> {
+    const { name, address, contact, email, description } = data;
+    try {
+      return this.prismaService.customer.create({
+        data: {
+          name,
+          address,
+          contact,
+          email,
+          description,
+          createdById: userId,
+        },
+        include: {
+          CreatedBy: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              image: true,
+              password: false,
+            },
+          }
+        }
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
+  }
+
   findMany(): Promise<Customer[]> {
     try {
       return this.prismaService.customer.findMany({

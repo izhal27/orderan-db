@@ -49,7 +49,7 @@ export default function CustomerAddEdit({ customer }: props) {
   const addHandler = useCallback(
     async (data: CustomerFormData) => {
       try {
-        const customer = await request("/customers", {
+        const customer = await request("/customers/new", {
           method: "POST",
           body: JSON.stringify(data),
         });
