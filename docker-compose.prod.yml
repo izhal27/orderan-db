@@ -24,6 +24,8 @@ services:
       dockerfile: ./docker/backend/production/Dockerfile
       args:
         - NODE_ENV=production
+    volumes:
+      - ./backend/public/images:/backend/public/images
     restart: unless-stopped
     env_file:
       - .env
