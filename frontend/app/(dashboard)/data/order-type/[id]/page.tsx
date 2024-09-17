@@ -19,7 +19,8 @@ export default function EditPage({ params }: { params: { id: string } }) {
       };
       fetchData();
     }
-  }, [session, request, params.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session, params.id]);
 
   return <OrderTypeAddEdit orderType={orderType} />;
 }

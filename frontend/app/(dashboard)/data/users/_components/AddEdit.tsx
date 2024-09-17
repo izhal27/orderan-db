@@ -133,6 +133,7 @@ export default function UsersAddEdit({ user }: props) {
           const res = await request(`/users/${id}`, {
             method: "PATCH",
             body: formData,
+            isFormData: true,
           });
           // update data session current user
           session?.user.id === res.id &&
