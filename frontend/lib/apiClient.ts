@@ -11,13 +11,13 @@ export const useApiClient = () => {
   const request = async (
     endpoint: string,
     {
-      method = "GET" || "POST" || "PATCH" || "PUT" || "DELETE",
+      method = "GET",
       body,
       headers = {} as Record<string, string>,
       isFormData = false,
       ...customConfig
     }: {
-      method?: string;
+      method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
       body?: BodyInit | null;
       headers?: Record<string, string>;
       isFormData?: boolean;
