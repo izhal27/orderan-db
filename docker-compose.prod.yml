@@ -25,7 +25,7 @@ services:
       args:
         - NODE_ENV=production
     volumes:
-      - ./backend/public/images:/backend/public/images
+      - backend-images:/app/dist/public/images
     restart: unless-stopped
     env_file:
       - .env
@@ -50,6 +50,7 @@ services:
 
 volumes:
   postgres-data:
+  backend-images:
 
 networks:
   internal:
