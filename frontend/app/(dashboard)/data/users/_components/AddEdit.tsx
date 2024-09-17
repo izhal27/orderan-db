@@ -101,6 +101,7 @@ export default function UsersAddEdit({ user }: props) {
         const res = await request("/users", {
           method: "POST",
           body: formData,
+          isFormData: true,
         });
         showToast("success", `User "${res.username}" berhasil ditambahkan"`);
         router.back();
