@@ -12,35 +12,36 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { OrderTypeTable } from "./_components/Table";
 
 export default function JenisPesananPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathName = usePathname();
   const [orderTypes, setOrderTypes] = useState<OrderType[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>();
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const fetchedRef = useRef(false);
   const { request } = useApiClient();
 
   const fetchOrderTypes = useCallback(async () => {
-    if (!session?.accessToken) return;
-    setLoading(true);
+    if (status === "loading" || !session?.accessToken) return;
+    setIsLoading(true);
     try {
       const data = await request("/order-types");
       setOrderTypes(data);
     } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
-    setLoading(false);
-  }, [session?.accessToken, request]);
+    setIsLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.accessToken, status]);
 
   useEffect(() => {
-    if (session && session.accessToken && !fetchedRef.current) {
+    if (session?.accessToken && !fetchedRef.current) {
       fetchOrderTypes();
       fetchedRef.current = true;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   const onRemoveHandler = useCallback(async () => {
     try {
@@ -61,7 +62,7 @@ export default function JenisPesananPage() {
   }, [request, deleteId]);
 
   const table = useMemo(() => {
-    if (loading) {
+    if (isLoading || status === "loading") {
       return (
         <SkeletonTable
           columnsName={["Nama", "ALamat", "Kontak", "Email", "Keterangan", ""]}
@@ -79,7 +80,7 @@ export default function JenisPesananPage() {
         />
       );
     }
-  }, [loading, orderTypes, pathName, router]);
+  }, [isLoading, orderTypes, pathName, router, status]);
 
   return (
     <main className="flex flex-col gap-4 p-4">

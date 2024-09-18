@@ -27,7 +27,7 @@ import {
 import OrderTable from "./_components/OrderTable";
 
 export default function ListOrderPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathName = usePathname();
   const { request } = useApiClient();
@@ -41,9 +41,7 @@ export default function ListOrderPage() {
   const { moment } = useMoment();
 
   const fetchOrders = useCallback(async () => {
-    if (!session?.accessToken) {
-      return;
-    }
+    if (status === "loading" || !session?.accessToken) return;
     setIsLoading(true);
     try {
       const { start, end } = getStartAndEndOfDay();
@@ -54,14 +52,15 @@ export default function ListOrderPage() {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
     setIsLoading(false);
-  }, [session?.accessToken, request]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.accessToken, status]);
 
   useEffect(() => {
-    if (session && session.accessToken && !fetchedRef.current) {
+    if (session?.accessToken && !fetchedRef.current) {
       fetchOrders();
       fetchedRef.current = true;
     }
-  }, [session, fetchOrders]);
+  }, [session?.accessToken, fetchOrders]);
 
   const onRemoveHandler = useCallback(async () => {
     try {
@@ -79,7 +78,8 @@ export default function ListOrderPage() {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
     setOpenModal(false);
-  }, [deleteId, request]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deleteId]);
 
   const calculateUserDesignCounts = () => {
     const counts: { [key: string]: number } = {};
@@ -134,7 +134,7 @@ export default function ListOrderPage() {
   }, [orders]);
 
   const table = useMemo(() => {
-    if (isLoading) {
+    if (status === "loading" || isLoading) {
       return (
         <SkeletonTable
           columnsName={[
@@ -162,7 +162,7 @@ export default function ListOrderPage() {
         />
       );
     }
-  }, [isLoading, orders, pathName, router, session]);
+  }, [isLoading, orders, pathName, router, session, status]);
 
   return (
     <main className="flex flex-col gap-4 p-4">

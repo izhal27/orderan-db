@@ -1,12 +1,14 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { useState } from "react";
 
 export const baseUrl =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002/api";
 
 export const useApiClient = () => {
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const request = async (
     endpoint: string,
@@ -25,9 +27,8 @@ export const useApiClient = () => {
       [key: string]: any;
     } = {},
   ) => {
-    if (!session) return; // prevent for error get access token
+    if (!session) return; // prevent error when no access token
 
-    // Default Content-Type is set only if not present and body is provided
     const defaultHeaders: Record<string, string> = {
       Authorization: session?.accessToken
         ? `Bearer ${session.accessToken}`
@@ -47,11 +48,52 @@ export const useApiClient = () => {
       cache: "no-store",
     };
 
-    const response = await fetch(`${baseUrl}${endpoint}`, config);
+    let response = await fetch(`${baseUrl}${endpoint}`, config);
 
+    // Check if access token has expired (401 status)
     if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(errorMessage);
+      if (response.status === 401 && !isRefreshing) {
+        setIsRefreshing(true);
+
+        try {
+          // Attempt to refresh the token
+          const refreshResponse = await fetch(`${baseUrl}/auth/refresh`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session?.refreshToken}`,
+            },
+          });
+
+          if (refreshResponse.ok) {
+            const refreshedData = await refreshResponse.json();
+
+            // Update session with the new access token
+            await updateSession({
+              ...session,
+              accessToken: refreshedData.access_token,
+              refreshToken: refreshedData.refresh_token,
+            });
+
+            // Retry the original request with the new access token
+            defaultHeaders.Authorization = `Bearer ${refreshedData.access_token}`;
+            config.headers = defaultHeaders;
+
+            response = await fetch(`${baseUrl}${endpoint}`, config);
+          } else {
+            // If refresh fails, sign out the user
+            signOut();
+            throw new Error("Failed to refresh token, signed out.");
+          }
+        } catch (error) {
+          throw error;
+        } finally {
+          setIsRefreshing(false);
+        }
+      } else {
+        const errorMessage = await response.text();
+        throw new Error(errorMessage);
+      }
     }
 
     return await response.json();

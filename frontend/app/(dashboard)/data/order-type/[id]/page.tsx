@@ -12,7 +12,7 @@ export default function EditPage({ params }: { params: { id: string } }) {
   const { request } = useApiClient();
 
   useEffect(() => {
-    if (session) {
+    if (session?.accessToken) {
       const fetchData = async () => {
         const orderType = await request(`/order-types/${params.id}`);
         setOrderType(orderType);
@@ -20,7 +20,7 @@ export default function EditPage({ params }: { params: { id: string } }) {
       fetchData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, params.id]);
+  }, [session?.accessToken, params.id]);
 
   return <OrderTypeAddEdit orderType={orderType} />;
 }

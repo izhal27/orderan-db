@@ -37,7 +37,7 @@ export default function SettingsPage() {
     setValue("name", currentUser.name);
     setCurrentUser(currentUser);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user]);
+  }, [session?.accessToken, session?.user]);
 
   useEffect(() => {
     if (session?.user) {

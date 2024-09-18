@@ -34,9 +34,9 @@ type EventType = {
 };
 
 export default function DetailPage({ params }: { params: { id: string } }) {
-  const { data: session } = useSession();
-  const [loading, setLoading] = useState(true);
-  const { setLoading: setModalLoading } = useLoading();
+  const { data: session, status } = useSession();
+  const [isLoading, setIsLoading] = useState(true);
+  const { setLoading } = useLoading();
   const fetchedRef = useRef(false);
   const { request } = useApiClient();
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
@@ -44,23 +44,25 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   const { moment } = useMoment();
 
   const fetchOrder = useCallback(async () => {
-    if (!session?.accessToken) return;
-    setLoading(true);
+    if (status === "loading" || !session?.accessToken) return;
+    setIsLoading(true);
     try {
       const result = await request(`/orders/${params.id}`);
       setOrder(result);
     } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
-    setLoading(false);
-  }, [session?.accessToken, request, params.id, setOrder]);
+    setIsLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.accessToken, params.id, status]);
 
   useEffect(() => {
-    if (session && session.accessToken && !fetchedRef.current) {
+    if (session?.accessToken && !fetchedRef.current) {
       fetchOrder();
       fetchedRef.current = true;
     }
-  }, [session, fetchOrder]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.accessToken]);
 
   const sendPostMarked = debounce(
     async ({
@@ -71,7 +73,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       onSuccessMarkedHandler,
       onSuccessUnmarkedHandler,
     }: EventType) => {
-      setModalLoading(true);
+      setLoading(true);
       try {
         if (isChecked) {
           await request(urlMarked, {
@@ -88,7 +90,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       } catch (error) {
         showToast("error", "Terjadi kesalahan, coba lagi nanti");
       }
-      setModalLoading(false);
+      setLoading(false);
     },
     500,
   );
@@ -161,7 +163,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   );
 
   const table = useMemo(() => {
-    if (loading) {
+    if (status === "loading" || isLoading) {
       return (
         <SkeletonTable
           columnsName={[
@@ -193,11 +195,12 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    loading,
+    isLoading,
     session?.user?.role,
     order,
     expandedRowId,
     handleCheckboxPrintedClick,
+    status,
   ]);
 
   return (
@@ -304,7 +307,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
               {
                 // hanya user yang bertipe role admin atau administrasi yang bisa menandai terbayar dan diambil
                 isContain(session?.user?.role || "", Roles.ADMIN) ||
-                  isContain(session?.user?.role || "", Roles.ADMINISTRASI) ? (
+                isContain(session?.user?.role || "", Roles.ADMINISTRASI) ? (
                   <>
                     <Label
                       htmlFor="marked-pay"

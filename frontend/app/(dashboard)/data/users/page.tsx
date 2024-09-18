@@ -12,36 +12,35 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { UsersTable } from "./_components/Table";
 
 export default function UsersPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathName = usePathname();
   const [users, setUsers] = useState<User[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>();
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const fetchedRef = useRef(false);
   const { request } = useApiClient();
 
   const fetchUsers = useCallback(async () => {
-    if (!session?.accessToken) {
-      return;
-    }
-    setLoading(true);
+    if (status === "loading" || !session?.accessToken) return;
+    setIsLoading(true);
     try {
       const data = await request("/users");
       setUsers(data);
     } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
-    setLoading(false);
-  }, [session?.accessToken, request]);
+    setIsLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.accessToken, status]);
 
   useEffect(() => {
-    if (session && session.accessToken && !fetchedRef.current) {
+    if (session?.accessToken && !fetchedRef.current) {
       fetchUsers();
       fetchedRef.current = true;
     }
-  }, [session, fetchUsers]);
+  }, [session?.accessToken, fetchUsers]);
 
   const onRemoveHandler = useCallback(async () => {
     // periksa jika user yang mempunyai role admin masih ada setelah user dihapus
@@ -74,7 +73,7 @@ export default function UsersPage() {
   }, [request, deleteId, users]);
 
   const table = useMemo(() => {
-    if (loading) {
+    if (status === "loading" || isLoading) {
       return (
         <SkeletonTable
           columnsName={["Username", "Email", "Nama", "Blocked", "Role", ""]}
@@ -92,7 +91,7 @@ export default function UsersPage() {
         />
       );
     }
-  }, [loading, users, pathName, router]);
+  }, [isLoading, users, pathName, router, status]);
 
   return (
     <main className="flex flex-col gap-4 p-4">

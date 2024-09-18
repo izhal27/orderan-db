@@ -23,7 +23,7 @@ import FilterModal from "../list/_components/FilterModal";
 import OrderTable from "../list/_components/OrderTable";
 
 export default function ReportPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -40,10 +40,8 @@ export default function ReportPage() {
 
   const handleApplyFilter = useCallback(
     async (filters: FilterState) => {
+      if (status === "loading" || !session?.accessToken) return; // prevent server side fetch without accessToken
       setSavedFilters(filters);
-      if (!session?.accessToken) {
-        return;
-      }
       setIsLoading(true);
       try {
         const queryParams = new URLSearchParams({
@@ -69,13 +67,11 @@ export default function ReportPage() {
       setIsLoading(false);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [session?.accessToken, currentPage, limit],
+    [session?.accessToken, currentPage, limit, status],
   );
 
   const fetchOrdersCurrentDate = useCallback(async () => {
-    if (!session?.accessToken) {
-      return;
-    }
+    if (status === "loading" || !session?.accessToken) return;
     setIsLoading(true);
     try {
       const { start, end } = getStartAndEndOfDay();
@@ -87,20 +83,23 @@ export default function ReportPage() {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
     setIsLoading(false);
-  }, [session?.accessToken, request]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.accessToken, status]);
 
   useEffect(() => {
-    if (session && session.accessToken && !fetchedRef.current) {
+    if (session?.accessToken && !fetchedRef.current) {
       fetchOrdersCurrentDate();
       fetchedRef.current = true;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   useEffect(() => {
-    savedFilters && handleApplyFilter(savedFilters);
+    if (session?.accessToken) {
+      savedFilters && handleApplyFilter(savedFilters);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, limit, savedFilters]);
+  }, [session?.accessToken, currentPage, limit, savedFilters]);
 
   const onRemoveHandler = useCallback(async () => {
     try {
@@ -122,7 +121,7 @@ export default function ReportPage() {
   }, [deleteId]);
 
   const table = useMemo(() => {
-    if (isLoading) {
+    if (status === "loading" || isLoading) {
       return (
         <SkeletonTable
           columnsName={[
@@ -151,7 +150,7 @@ export default function ReportPage() {
         />
       );
     }
-  }, [isLoading, orders, router, session]);
+  }, [isLoading, orders, router, session, status]);
 
   return (
     <main className="flex flex-col gap-4 p-4">

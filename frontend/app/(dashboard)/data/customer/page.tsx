@@ -15,13 +15,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CustomerTable from "./_components/Table";
 
 export default function PelangganPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathName = usePathname();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | undefined>();
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [limit, setLimit] = useState<number>(25);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalData, setTotalData] = useState<number>(0);
@@ -31,8 +31,8 @@ export default function PelangganPage() {
   const { request } = useApiClient();
 
   const fetchCustomers = useCallback(async () => {
-    if (!session?.accessToken) return;
-    setLoading(true);
+    if (status === "loading" || !session?.accessToken) return;
+    setIsLoading(true);
     const url = `/customers`;
     const searchParams = new URLSearchParams();
     const page = search ? "1" : currentPage.toString();
@@ -49,21 +49,22 @@ export default function PelangganPage() {
     } catch (error) {
       showToast("error", "Terjadi kesalahan saat memuat data, coba lagi nanti");
     }
-    setLoading(false);
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.accessToken, currentPage, limit, search]);
+  }, [session?.accessToken, currentPage, limit, search, status]);
 
   useEffect(() => {
-    if (session && session.accessToken && !fetchedRef.current) {
+    if (session?.accessToken && !fetchedRef.current) {
       fetchCustomers();
       fetchedRef.current = true;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   useEffect(() => {
     fetchCustomers();
-  }, [fetchCustomers, currentPage, limit, search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, limit, search]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -88,7 +89,7 @@ export default function PelangganPage() {
   }, [request, deleteId, fetchCustomers]);
 
   const table = useMemo(() => {
-    if (loading) {
+    if (status === "loading" || isLoading) {
       return (
         <SkeletonTable
           columnsName={["Nama", "Alamat", "Kontak", "Email", "Keterangan", ""]}
@@ -106,7 +107,7 @@ export default function PelangganPage() {
         />
       );
     }
-  }, [loading, customers, pathName, router]);
+  }, [isLoading, customers, pathName, router, status]);
 
   return (
     <main className="flex flex-col gap-4 p-4">
