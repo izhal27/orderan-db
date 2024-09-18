@@ -9,7 +9,7 @@ export const useApiClient = () => {
   const { data: session, status, update: updateSession } = useSession();
 
   if (status === "loading" || !session) {
-    return { request: async () => { } }; // Return a placeholder function if session is not ready
+    return { request: async () => {} }; // Return a placeholder function if session is not ready
   }
 
   const request = async (

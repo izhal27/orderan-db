@@ -140,10 +140,11 @@ export default function AutoCompleteTextInput<T>({
           {items.map((item, index) => (
             <li
               key={getKeyValue(item)}
-              className={`cursor-pointer p-2 ${index === activeIndex
+              className={`cursor-pointer p-2 ${
+                index === activeIndex
                   ? "bg-blue-500 text-white"
                   : "bg-white text-black"
-                }`}
+              }`}
               onClick={() => handleSuggestionClick(item)}
               onMouseEnter={() => setActiveIndex(index)}
               onKeyDown={(e) => {
