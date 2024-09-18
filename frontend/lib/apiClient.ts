@@ -25,6 +25,8 @@ export const useApiClient = () => {
       [key: string]: any;
     } = {},
   ) => {
+    if (!session) return; // prevent for error get access token
+
     // Default Content-Type is set only if not present and body is provided
     const defaultHeaders: Record<string, string> = {
       Authorization: session?.accessToken
