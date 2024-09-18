@@ -5,7 +5,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import SkeletonTable from "@/components/SkeletonTable";
 import type { User } from "@/constants/interfaces";
 import { showToast } from "@/helpers";
-import { useApiClient } from "@/lib/apiClient";
+import { useApiClient } from "@/lib/useApiClient";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";

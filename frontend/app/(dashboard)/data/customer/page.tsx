@@ -8,7 +8,7 @@ import SelectInput from "@/components/SelectInput";
 import SkeletonTable from "@/components/SkeletonTable";
 import type { Customer } from "@/constants";
 import { showToast } from "@/helpers";
-import { useApiClient } from "@/lib/apiClient";
+import { useApiClient } from "@/lib/useApiClient";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";

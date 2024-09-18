@@ -1,7 +1,7 @@
 "use client";
 
 import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers";
-import { useApiClient } from "@/lib/apiClient";
+import { useApiClient } from "@/lib/useApiClient";
 import { Label, Select } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";

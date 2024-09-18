@@ -1,7 +1,7 @@
 "use client";
 
 import type { Customer } from "@/constants";
-import { useApiClient } from "@/lib/apiClient";
+import { useApiClient } from "@/lib/useApiClient";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import CustomerAddEdit from "../_components/AddEdit";

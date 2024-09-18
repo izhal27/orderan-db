@@ -12,7 +12,7 @@ import {
   getStartAndEndOfDay,
   showToast,
 } from "@/helpers";
-import { useApiClient } from "@/lib/apiClient";
+import { useApiClient } from "@/lib/useApiClient";
 import { Button } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";

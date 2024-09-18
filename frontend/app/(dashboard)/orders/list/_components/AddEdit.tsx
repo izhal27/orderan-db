@@ -5,7 +5,7 @@ import BackButton from "@/components/buttons/BackButton";
 import ConfirmModal from "@/components/ConfirmModal";
 import type { Customer, Order, OrderDetail } from "@/constants/interfaces";
 import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
-import { useApiClient } from "@/lib/apiClient";
+import { useApiClient } from "@/lib/useApiClient";
 import { useMoment } from "@/lib/useMoment";
 import { Button, Label, TextInput } from "flowbite-react";
 import { useSession } from "next-auth/react";

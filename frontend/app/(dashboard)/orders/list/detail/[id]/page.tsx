@@ -6,7 +6,7 @@ import UserAvatar from "@/components/UserAvatar";
 import { Roles } from "@/constants";
 import { useLoading } from "@/context/LoadingContext";
 import { isContain, showToast } from "@/helpers";
-import { useApiClient } from "@/lib/apiClient";
+import { useApiClient } from "@/lib/useApiClient";
 import { useMoment } from "@/lib/useMoment";
 import { useOrderStatusWebSocket } from "@/lib/useOrderStatusWebSocket";
 import { Checkbox, Label } from "flowbite-react";
@@ -304,7 +304,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
               {
                 // hanya user yang bertipe role admin atau administrasi yang bisa menandai terbayar dan diambil
                 isContain(session?.user?.role || "", Roles.ADMIN) ||
-                isContain(session?.user?.role || "", Roles.ADMINISTRASI) ? (
+                  isContain(session?.user?.role || "", Roles.ADMINISTRASI) ? (
                   <>
                     <Label
                       htmlFor="marked-pay"

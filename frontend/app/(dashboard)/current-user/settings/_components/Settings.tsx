@@ -4,7 +4,7 @@ import AvatarWithEditButton from "@/components/AvatarWithEditButton";
 import type { UserFormData } from "@/constants/formTypes";
 import type { User } from "@/constants/interfaces";
 import { showToast } from "@/helpers/toast";
-import { useApiClient } from "@/lib/apiClient";
+import { useApiClient } from "@/lib/useApiClient";
 import { userSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Label, Spinner, TextInput } from "flowbite-react";

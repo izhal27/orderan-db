@@ -6,7 +6,7 @@ import type { UserFormData } from "@/constants/formTypes";
 import type { User } from "@/constants/interfaces";
 import { isConflict } from "@/helpers";
 import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
-import { useApiClient } from "@/lib/apiClient";
+import { useApiClient } from "@/lib/useApiClient";
 import { userSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {

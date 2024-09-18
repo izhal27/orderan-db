@@ -1,7 +1,7 @@
 "use client";
 
 import type { OrderType } from "@/constants";
-import { useApiClient } from "@/lib/apiClient";
+import { useApiClient } from "@/lib/useApiClient";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import OrderTypeAddEdit from "../_components/AddEdit";

@@ -4,7 +4,7 @@ import BackButton from "@/components/buttons/BackButton";
 import type { OrderType, OrderTypeFormData } from "@/constants";
 import { isConflict } from "@/helpers";
 import { COMMON_ERROR_MESSAGE, showToast } from "@/helpers/toast";
-import { useApiClient } from "@/lib/apiClient";
+import { useApiClient } from "@/lib/useApiClient";
 import { orderTypeSchema } from "@/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Label, Spinner, TextInput } from "flowbite-react";
