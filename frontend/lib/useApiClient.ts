@@ -1,14 +1,16 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
-import { useState } from "react";
 
 export const baseUrl =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002/api";
 
 export const useApiClient = () => {
-  const { data: session, update: updateSession } = useSession();
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { data: session, status, update: updateSession } = useSession();
+
+  if (status === "loading" || !session) {
+    return { request: async () => { } }; // Return a placeholder function if session is not ready
+  }
 
   const request = async (
     endpoint: string,
@@ -27,6 +29,7 @@ export const useApiClient = () => {
       [key: string]: any;
     } = {},
   ) => {
+    let isRefreshing = false;
     if (!session) return; // prevent error when no access token
 
     const defaultHeaders: Record<string, string> = {
@@ -51,49 +54,48 @@ export const useApiClient = () => {
     let response = await fetch(`${baseUrl}${endpoint}`, config);
 
     // Check if access token has expired (401 status)
-    if (!response.ok) {
-      if (response.status === 401 && !isRefreshing) {
-        setIsRefreshing(true);
+    if (!response.ok && response.status === 401 && !isRefreshing) {
+      isRefreshing = true;
+      try {
+        // Attempt to refresh the token
+        const refreshResponse = await fetch(`${baseUrl}/auth/refresh`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.refreshToken}`,
+          },
+        });
 
-        try {
-          // Attempt to refresh the token
-          const refreshResponse = await fetch(`${baseUrl}/auth/refresh`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${session?.refreshToken}`,
-            },
+        if (refreshResponse.ok) {
+          const refreshedData = await refreshResponse.json();
+
+          // Update session with the new access token
+          await updateSession({
+            ...session,
+            accessToken: refreshedData.access_token,
+            refreshToken: refreshedData.refresh_token,
           });
 
-          if (refreshResponse.ok) {
-            const refreshedData = await refreshResponse.json();
+          // Retry the original request with the new access token
+          defaultHeaders.Authorization = `Bearer ${refreshedData.access_token}`;
+          config.headers = defaultHeaders;
 
-            // Update session with the new access token
-            await updateSession({
-              ...session,
-              accessToken: refreshedData.access_token,
-              refreshToken: refreshedData.refresh_token,
-            });
-
-            // Retry the original request with the new access token
-            defaultHeaders.Authorization = `Bearer ${refreshedData.access_token}`;
-            config.headers = defaultHeaders;
-
-            response = await fetch(`${baseUrl}${endpoint}`, config);
-          } else {
-            // If refresh fails, sign out the user
-            signOut();
-            throw new Error("Failed to refresh token, signed out.");
-          }
-        } catch (error) {
-          throw error;
-        } finally {
-          setIsRefreshing(false);
+          response = await fetch(`${baseUrl}${endpoint}`, config);
+        } else {
+          // If refresh fails, sign out the user
+          signOut();
+          throw new Error("Failed to refresh token, signed out.");
         }
-      } else {
-        const errorMessage = await response.text();
-        throw new Error(errorMessage);
+      } catch (error) {
+        console.error("Error during token refresh:", error);
+        throw error;
+      } finally {
+        isRefreshing = false;
       }
+    } else if (!response.ok) {
+      const errorMessage = await response.text();
+      console.error("API request failed:", errorMessage);
+      throw new Error(errorMessage);
     }
 
     return await response.json();
