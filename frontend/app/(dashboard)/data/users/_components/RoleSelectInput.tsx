@@ -26,24 +26,27 @@ export function RoleSelectInput({
   const { request } = useApiClient();
 
   const fetchRoles = useCallback(async () => {
-    if (selectedUserRoleId) {
-      setUserRoleId(selectedUserRoleId);
-    }
     try {
       const roles = await request("/roles");
       setRoles(roles);
     } catch (error) {
       showToast("error", COMMON_ERROR_MESSAGE);
     }
-  }, [request, selectedUserRoleId, setUserRoleId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedUserRoleId]);
 
   useEffect(() => {
     if (session?.accessToken) {
       fetchRoles();
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, selectedUserRoleId]);
+  }, [session]);
+
+  useEffect(() => {
+    if (selectedUserRoleId) {
+      setUserRoleId(selectedUserRoleId);
+    }
+  }, [selectedUserRoleId]);
 
   const changeHandler = useCallback(
     (event: React.FormEvent<HTMLSelectElement>) => {
