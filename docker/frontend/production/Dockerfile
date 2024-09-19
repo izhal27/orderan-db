@@ -30,7 +30,7 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/yarn.lock ./
 
 # Add sharp package
-RUN yarn add sharp
+# RUN yarn add sharp
 
 # Install only production dependencies
 RUN yarn install --production
