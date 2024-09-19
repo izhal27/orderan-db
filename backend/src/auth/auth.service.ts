@@ -148,4 +148,13 @@ export class AuthService {
     const amount = parseInt(expireIn.slice(0, -1), 10);
     return amount * timeUnits[unit];
   }
+
+  async validatePassword(userId: number, password: string) {
+    const user = await this.userService.findUnique({ id: userId }, true);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const isValid = await compareValue(password, user.password);
+    return isValid;
+  } 
 }

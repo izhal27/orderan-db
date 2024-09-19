@@ -78,4 +78,19 @@ export class AuthController {
   ) {
     return this.authService.refreshTokens(username, refreshToken);
   }
+
+  @UseGuards(AccessTokenGuard)
+  @Post('/validate-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    type: Boolean,
+    description: 'Validate user password',
+  })
+  @ApiBearerAuth()
+  async validatePassword(
+    @GetCurrentUserId() userId: number,
+    @Body('password') password: string,
+  ) {
+    return this.authService.validatePassword(userId, password);
+  }
 }

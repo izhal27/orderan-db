@@ -72,12 +72,12 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     if (!currentCheckbox) return;
 
     try {
-      const response = await request("/auth/validate-password", {
+      const valid = await request("/auth/validate-password", {
         method: "POST",
         body: JSON.stringify({ password }),
       });
 
-      if (response.valid) {
+      if (valid) {
         if (currentCheckbox.type === "printed") {
           handleCheckboxPrintedClick({ target: { checked: currentCheckbox.state } } as React.ChangeEvent<HTMLInputElement>, currentCheckbox.id as string);
         } else if (currentCheckbox.type === "pay") {
@@ -86,10 +86,10 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           handleCheckboxTakenClick({ target: { checked: currentCheckbox.state } } as React.ChangeEvent<HTMLInputElement>);
         }
       } else {
-        showToast("error", "Password validation failed");
+        showToast("error", "Verifikasi password gagal");
       }
     } catch (error) {
-      showToast("error", "An error occurred during password validation");
+      showToast("error", "Terjadi kesalahan saat memvalidasi password");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentCheckbox]);
@@ -354,7 +354,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                       <Checkbox
                         id="marked-pay"
                         onChange={(e) =>handleCheckboxClick(e, "pay")}
-                        checked={order?.MarkedPay?.status}
+                        checked={order?.MarkedPay?.status || false}
                         // disable jika status sudah diambil
                         // disabled={order?.MarkedTaken?.status}
                         className="disabled:cursor-not-allowed disabled:text-gray-500"
@@ -368,7 +368,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                       <Checkbox
                         id="marked-taken"
                         onChange={(e) => handleCheckboxClick(e, "taken")}
-                        checked={order?.MarkedTaken?.status}
+                        checked={order?.MarkedTaken?.status || false}
                         // disable jika belum ada pembayaran atau semua belum ditandai dicetak
                         disabled={
                           !order?.OrderDetails?.every(
