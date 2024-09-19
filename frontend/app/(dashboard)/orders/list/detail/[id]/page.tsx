@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import LabelStatus from "../../_components/LabelStatus";
 import ShowDetailOrderTable from "../../_components/ShowDetailOrderTable";
+import ConfirmPasswordModal from "../../_components/ConfirmPasswordModal";
 
 type BodyType = {
   status: boolean;
@@ -42,6 +43,8 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const { order, setOrder } = useOrderStatusWebSocket(undefined);
   const { moment } = useMoment();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentCheckbox, setCurrentCheckbox] = useState<{ type: string; state: boolean; id?: string } | null>(null);
 
   const fetchOrder = useCallback(async () => {
     if (status === "loading" || !session?.accessToken) return;
@@ -63,6 +66,41 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
+
+  const handleModalConfirm = useCallback(async (password: string) => {
+    setIsModalOpen(false);
+    if (!currentCheckbox) return;
+
+    try {
+      const response = await request("/auth/validate-password", {
+        method: "POST",
+        body: JSON.stringify({ password }),
+      });
+
+      if (response.valid) {
+        if (currentCheckbox.type === "printed") {
+          handleCheckboxPrintedClick({ target: { checked: currentCheckbox.state } } as React.ChangeEvent<HTMLInputElement>, currentCheckbox.id as string);
+        } else if (currentCheckbox.type === "pay") {
+          handleCheckboxPayClick({ target: { checked: currentCheckbox.state } } as React.ChangeEvent<HTMLInputElement>);
+        } else if (currentCheckbox.type === "taken") {
+          handleCheckboxTakenClick({ target: { checked: currentCheckbox.state } } as React.ChangeEvent<HTMLInputElement>);
+        }
+      } else {
+        showToast("error", "Password validation failed");
+      }
+    } catch (error) {
+      showToast("error", "An error occurred during password validation");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentCheckbox]);
+
+  const handleCheckboxClick = (e: React.ChangeEvent<HTMLInputElement>, checkboxType: string, id?: string) => {
+    e.preventDefault();
+    setCurrentCheckbox({ type: checkboxType, state: e.target.checked, id });
+    setIsModalOpen(true);
+    // Reset the checkbox state to its previous value to prevent default behavior
+    e.target.checked = !e.target.checked;
+  };
 
   const sendPostMarked = debounce(
     async ({
@@ -188,7 +226,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           onExpandedRowToggleHandler={(id: string) => {
             setExpandedRowId(expandedRowId === id ? null : id);
           }}
-          onCheckBoxPrintedClickHandler={handleCheckboxPrintedClick}
+          onCheckBoxPrintedClickHandler={(e, id) => handleCheckboxClick(e, "printed", id)}
           role={session?.user?.role}
         />
       );
@@ -315,8 +353,8 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                     >
                       <Checkbox
                         id="marked-pay"
-                        onChange={handleCheckboxPayClick}
-                        checked={order?.MarkedPay?.status || false}
+                        onChange={(e) =>handleCheckboxClick(e, "pay")}
+                        checked={order?.MarkedPay?.status}
                         // disable jika status sudah diambil
                         // disabled={order?.MarkedTaken?.status}
                         className="disabled:cursor-not-allowed disabled:text-gray-500"
@@ -329,8 +367,8 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                     >
                       <Checkbox
                         id="marked-taken"
-                        onChange={handleCheckboxTakenClick}
-                        checked={order?.MarkedTaken?.status || false}
+                        onChange={(e) => handleCheckboxClick(e, "taken")}
+                        checked={order?.MarkedTaken?.status}
                         // disable jika belum ada pembayaran atau semua belum ditandai dicetak
                         disabled={
                           !order?.OrderDetails?.every(
@@ -348,7 +386,12 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-4">{table}</div>
+      <div className="flex flex-col gap-4">{table}</div>      
+      <ConfirmPasswordModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleModalConfirm}
+      />
     </div>
   );
 }
