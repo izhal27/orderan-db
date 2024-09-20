@@ -105,8 +105,8 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       } catch (error) {
         showToast("error", "Terjadi kesalahan saat memvalidasi password");
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentCheckbox],
   );
 
