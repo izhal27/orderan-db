@@ -9,6 +9,7 @@ import { useApiClient } from "@/lib/useApiClient";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ConfirmPasswordModal from "../../orders/list/_components/ConfirmPasswordModal";
 import { UsersTable } from "./_components/Table";
 
 export default function UsersPage() {
@@ -21,6 +22,7 @@ export default function UsersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const fetchedRef = useRef(false);
   const { request } = useApiClient();
+  const [openPasswordModal, setOpenPasswordModal] = useState(false);
 
   const fetchUsers = useCallback(async () => {
     if (status === "loading" || !session?.accessToken) return;
@@ -41,6 +43,29 @@ export default function UsersPage() {
       fetchedRef.current = true;
     }
   }, [session?.accessToken, fetchUsers]);
+
+  const handleModalConfirm = useCallback(
+    async (password: string) => {
+      setOpenPasswordModal(false);
+
+      try {
+        const valid = await request("/auth/validate-password", {
+          method: "POST",
+          body: JSON.stringify({ password }),
+        });
+
+        if (valid) {
+          setOpenModal(true);
+        } else {
+          showToast("error", "Verifikasi password gagal");
+        }
+      } catch (error) {
+        showToast("error", "Terjadi kesalahan saat memvalidasi password");
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   const onRemoveHandler = useCallback(async () => {
     // periksa jika user yang mempunyai role admin masih ada setelah user dihapus
@@ -86,7 +111,7 @@ export default function UsersPage() {
           onEditHandler={(id) => router.push(`${pathName}/${id}`)}
           onRemoveHandler={(id) => {
             setDeleteId(id);
-            setOpenModal(true);
+            setOpenPasswordModal(true);
           }}
         />
       );
@@ -117,6 +142,13 @@ export default function UsersPage() {
           setOpenModal(false);
         }}
         onYesHandler={() => onRemoveHandler()}
+      />
+      <ConfirmPasswordModal
+        isOpen={openPasswordModal}
+        onClose={() => {
+          setOpenPasswordModal(false);
+        }}
+        onConfirm={handleModalConfirm}
       />
     </main>
   );
