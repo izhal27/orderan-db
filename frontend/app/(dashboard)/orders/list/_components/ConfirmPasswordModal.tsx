@@ -44,16 +44,18 @@ export default function ConfirmPasswordModal({
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <dialog
       open={isOpen}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/25"
+      className="fixed inset-0 z-50 flex size-full items-center justify-center bg-gray-900/50 dark:bg-gray-900/80"
       onClick={onClose}
       onKeyDown={handleKeyDown}
     >
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div
-        className="rounded-lg bg-gray-800 p-6 shadow-lg"
+        className="rounded-lg bg-white p-6 shadow dark:bg-gray-700"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-4 text-white">Masukan password untuk melanjutkan.</h2>
+        <h2 className="mb-4 text-black dark:text-white">
+          Masukan password untuk melanjutkan.
+        </h2>
         <input
           ref={inputRef}
           type="password"
