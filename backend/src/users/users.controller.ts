@@ -67,7 +67,6 @@ export class UsersController {
   @ApiOkResponse({ type: UserEntity })
   getProfil(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserDto,
     @GetCurrentUserId() currentId: number
   ) {
     // only current user can get profile
@@ -112,7 +111,9 @@ export class UsersController {
       this.removeImage(currentUser?.image!);
       updateUserDto.image = file.filename;
     }
-    return this.usersService.updateProfile({ where: { id }, data: updateUserDto });
+    const { currentPassword, newPassword, ...data } = updateUserDto;
+
+    return this.usersService.updateProfile({ where: { id }, data: data }, currentPassword, newPassword);
   }
 
   @Delete(':id')

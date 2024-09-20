@@ -48,9 +48,13 @@ export default function SettingsPage() {
 
   const appendData = (data: UserFormData) => {
     const formData = new FormData();
-    formData.append("password", data.password ? data.password : "");
-    formData.append("email", data.email ? data.email : "");
     formData.append("name", data.name ? data.name : "");
+    formData.append(
+      "currentPassword",
+      data.currentPassword ? data.currentPassword : "",
+    );
+    formData.append("newPassword", data.newPassword ? data.newPassword : "");
+    formData.append("email", data.email ? data.email : "");
     selectedImage && formData.append("image", selectedImage);
     return formData;
   };
@@ -79,7 +83,11 @@ export default function SettingsPage() {
         showToast("success", "Perubahan berhasil disimpan");
         router.push("/");
       } catch (error) {
-        showToast("error", "Terjadi kesalahan, coba lagi nanti.");
+        if (error instanceof Error) {
+          showToast("error", JSON.parse(error.message).message);
+        } else {
+          showToast("error", "Terjadi kesalahan, coba lagi nanti.");
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,14 +124,38 @@ export default function SettingsPage() {
           </div>
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="password" value="Password" />
+              <Label htmlFor="name" value="Nama" />
             </div>
             <TextInput
-              {...register("password")}
-              id="password"
+              {...register("name")}
+              id="name"
+              type="text"
+              color={errors.name && "failure"}
+              helperText={errors?.name?.message}
+            />
+          </div>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="currentPassword" value="Password Lama" />
+            </div>
+            <TextInput
+              {...register("currentPassword")}
+              id="currentPassword"
               type="password"
-              color={errors.password && "failure"}
-              helperText={errors?.password?.message}
+              color={errors.currentPassword && "failure"}
+              helperText={errors?.currentPassword?.message}
+            />
+          </div>
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="newPassword" value="Password Baru" />
+            </div>
+            <TextInput
+              {...register("newPassword")}
+              id="newPassword"
+              type="password"
+              color={errors.newPassword && "failure"}
+              helperText={errors?.newPassword?.message}
             />
           </div>
           <div>
@@ -136,18 +168,6 @@ export default function SettingsPage() {
               type="email"
               color={errors.email && "failure"}
               helperText={errors?.email?.message}
-            />
-          </div>
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="name" value="Name" />
-            </div>
-            <TextInput
-              {...register("name")}
-              id="name"
-              type="text"
-              color={errors.name && "failure"}
-              helperText={errors?.name?.message}
             />
           </div>
         </div>

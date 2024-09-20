@@ -46,7 +46,12 @@ export const userSchema = z.object({
       3,
       "Username minimal 3 karakter, hanya mengandung karakter huruf & angka",
     ),
-  password: z
+  currentPassword: z
+    .string()
+    .min(3, "Password minimal 3 karakter")
+    .optional()
+    .or(z.literal("")),
+  newPassword: z
     .string()
     .min(3, "Password minimal 3 karakter")
     .optional()

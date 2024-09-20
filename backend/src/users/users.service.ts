@@ -8,7 +8,7 @@ import { Prisma, User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 import { UserEntity } from './entities/user.entity';
-import { hashValue } from '../helpers/hash';
+import { compareValue, hashValue } from '../helpers/hash';
 
 @Injectable()
 export class UsersService {
@@ -84,14 +84,25 @@ export class UsersService {
   async updateProfile(params: {
     where: Prisma.UserWhereUniqueInput;
     data: Prisma.UserUpdateInput;
-  }): Promise<User> {
+  },
+    currentPassword: string,
+    newPassword: string
+  ): Promise<User> {
     const { where, data } = params;
-    if (data.password) {
-      data.password = await hashValue(data.password.toString());
+    // jika password baru dikirim tersedia, hash password baru
+    if (newPassword) {
+      // cek password lama
+      const currentUser = await this.findUnique({ id: where.id });
+      const isMatch = await compareValue(currentPassword, currentUser!.password);
+      if (!isMatch) {
+        throw new BadRequestException('Password lama tidak cocok');
+      }
+      data.password = await hashValue(newPassword.toString());
     } else {
       // hapus value undefined, string empty atau null dari client
       delete data.password;
     }
+
     const user = await this.prismaService.user.update({
       where,
       data,
