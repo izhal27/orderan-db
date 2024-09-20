@@ -15,7 +15,7 @@ import {
 import { useApiClient } from "@/lib/useApiClient";
 import { Button } from "flowbite-react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HiFilter } from "react-icons/hi";
 import type { FilterState } from "../list/_components/FilterModal";
@@ -36,12 +36,11 @@ export default function ReportPage() {
   const [totalData, setTotalData] = useState(0);
   const [totalPages, setTotalPages] = useState<number>(1);
   const fetchedRef = useRef(false);
-  const [savedFilters, setSavedFilters] = useState<FilterState>();
+  const searchParams = useSearchParams();
 
   const handleApplyFilter = useCallback(
     async (filters: FilterState) => {
       if (status === "loading" || !session?.accessToken) return; // prevent server side fetch without accessToken
-      setSavedFilters(filters);
       setIsLoading(true);
       try {
         const queryParams = new URLSearchParams({
@@ -54,6 +53,7 @@ export default function ReportPage() {
           endDate: filters.endDate ? formatToEndDateToUTC(filters.endDate) : "",
         });
         const url = `/orders/filter?${queryParams.toString()}`;
+        router.push(`/orders/report?${queryParams.toString()}`);
         const {
           data,
           meta: { total, totalPages },
@@ -88,18 +88,16 @@ export default function ReportPage() {
 
   useEffect(() => {
     if (session?.accessToken && !fetchedRef.current) {
-      fetchOrdersCurrentDate();
+      const filters = Object.fromEntries(searchParams.entries());
+      if (filters && Object.keys(filters).length > 0) {
+        handleApplyFilter(filters as unknown as FilterState);
+      } else {
+        fetchOrdersCurrentDate();
+      }
       fetchedRef.current = true;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
-
-  useEffect(() => {
-    if (session?.accessToken) {
-      savedFilters && handleApplyFilter(savedFilters);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.accessToken, currentPage, limit, savedFilters]);
 
   const onRemoveHandler = useCallback(async () => {
     try {
