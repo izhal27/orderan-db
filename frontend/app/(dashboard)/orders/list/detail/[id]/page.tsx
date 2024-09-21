@@ -289,9 +289,12 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           </div>
           <div className="flex gap-x-6">
             <div className="grid grid-cols-[auto,auto,1fr] gap-x-4 text-sm text-gray-500 dark:text-gray-400">
+              <p>Nomor</p>
+              <span>:</span>
+              <p>{order?.number}</p>
               <p>Tanggal</p>
               <span>:</span>
-              <p>{`${moment(Date.now()).format("dddd")}, ${moment(Date.now()).format("LL")}`}</p>
+              <p>{moment(order?.updatedAt).format("DD MMMM YYYY HH.mm")}</p>
               <p>Pelanggan</p>
               <span>:</span>
               <p>{order?.customer}</p>
@@ -334,7 +337,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                 {order?.MarkedPay && (
                   <span className="col-span-3 text-xs font-light">
                     {order?.MarkedPay?.status ? "Ditandai" : "Dibatalkan"} oleh{" "}
-                    {`${order?.MarkedPay.MarkedBy?.name} @${order?.MarkedPay.MarkedBy?.username} ${moment(order?.MarkedPay?.updatedAt).format("LLLL")}`}
+                    {`${order?.MarkedPay.MarkedBy?.username} ${moment(order?.MarkedPay?.updatedAt).format("DD MMMM YYYY HH.mm")}`}
                   </span>
                 )}
                 <p>Diambil</p>
@@ -353,7 +356,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
                   <span className="col-span-3 text-xs font-light">
                     {order?.MarkedTaken?.status ? "Ditandai" : "Dibatalkan"}{" "}
                     oleh{" "}
-                    {`${order?.MarkedTaken.MarkedBy?.name} @${order?.MarkedTaken.MarkedBy?.username} ${moment(order?.MarkedTaken?.updatedAt).format("LLLL")}`}
+                    {`${order?.MarkedTaken.MarkedBy?.username} ${moment(order?.MarkedTaken?.updatedAt).format("DD MMMM YYYY HH.mm")}`}
                   </span>
                 )}
               </div>
@@ -367,7 +370,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
               {
                 // hanya user yang bertipe role admin atau administrasi yang bisa menandai terbayar dan diambil
                 isContain(session?.user?.role || "", Roles.ADMIN) ||
-                isContain(session?.user?.role || "", Roles.ADMINISTRASI) ? (
+                  isContain(session?.user?.role || "", Roles.ADMINISTRASI) ? (
                   <>
                     <Label
                       htmlFor="marked-pay"

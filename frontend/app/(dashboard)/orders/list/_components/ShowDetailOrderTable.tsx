@@ -60,7 +60,7 @@ export default function ShowDetailOrderTable({
                       // jika user bertipe admin atau operator
                       // maka tampilkan checkbox marked printed
                       isContain(role || "", Roles.ADMIN) ||
-                      isContain(role || "", Roles.OPERATOR) ? (
+                        isContain(role || "", Roles.OPERATOR) ? (
                         <Checkbox
                           id="marked-printed"
                           onChange={(e) =>
@@ -102,11 +102,11 @@ export default function ShowDetailOrderTable({
                         <div className="text-gray-700 dark:text-gray-300">
                           {item.MarkedPrinted?.status ? (
                             <span className="text-sm font-light">
-                              {`Ditandai dicetak oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${`${moment(Date.now()).format("LLLL")}`}`}
+                              {`Ditandai oleh ${item.MarkedPrinted?.PrintedBy?.username} ${`${moment(item.MarkedPrinted?.updatedAt).format("DD MMMM YYYY HH.mm")}`}`}
                             </span>
                           ) : (
                             <span className="text-sm font-light">
-                              {`Dibatalkan oleh : ${item.MarkedPrinted?.PrintedBy?.name} @${item.MarkedPrinted?.PrintedBy?.username} pada tanggal ${`${moment(Date.now()).format("LLLL")}`}`}
+                              {`Dibatalkan oleh ${item.MarkedPrinted?.PrintedBy?.username} ${`${moment(item.MarkedPrinted?.updatedAt).format("DD MMMM YYYY HH.mm")}`}`}
                             </span>
                           )}
                         </div>
