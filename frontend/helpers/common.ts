@@ -12,7 +12,9 @@ export const formatToStartDateToUTC = (date: Date) => {
 };
 
 export const formatToEndDateToUTC = (date: Date) => {
-  return moment.tz(date, timezone).add(2, "day").startOf("day").utc().format();
+  const momentDate = moment.tz(date, timezone);
+  const timezoneOffset = momentDate.utcOffset() / 60; // Konversi menit ke jam
+  return momentDate.endOf('day').subtract(timezoneOffset, 'hours').utc().format();
 };
 
 export const isContain = (value: string, search: string) => {
