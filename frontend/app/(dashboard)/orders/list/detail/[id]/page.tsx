@@ -370,7 +370,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
               {
                 // hanya user yang bertipe role admin atau administrasi yang bisa menandai terbayar dan diambil
                 isContain(session?.user?.role || "", Roles.ADMIN) ||
-                  isContain(session?.user?.role || "", Roles.ADMINISTRASI) ? (
+                isContain(session?.user?.role || "", Roles.ADMINISTRASI) ? (
                   <>
                     <Label
                       htmlFor="marked-pay"

@@ -106,7 +106,9 @@ export default function OrderTable({
               >
                 <Table.Cell className="flex">{userImage(item.user)}</Table.Cell>
                 <Table.Cell>{item.number}</Table.Cell>
-                <Table.Cell>{moment(item.updatedAt).format("DD MMM YYYY HH.mm")}</Table.Cell>
+                <Table.Cell>
+                  {moment(item.updatedAt).format("DD MMM YYYY HH.mm")}
+                </Table.Cell>
                 <Table.Cell>{item.customer}</Table.Cell>
                 {!reportMode && <Table.Cell>{item.description}</Table.Cell>}
                 <Table.Cell>{getStatus(item)}</Table.Cell>

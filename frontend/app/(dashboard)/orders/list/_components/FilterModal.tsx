@@ -21,6 +21,8 @@ export interface FilterState {
   customer: string;
   user: string;
   sortOrder: string;
+  page?: string;
+  limit?: string;
 }
 
 export default function FilterModal({

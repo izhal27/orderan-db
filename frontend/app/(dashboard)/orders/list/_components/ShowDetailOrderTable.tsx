@@ -60,7 +60,7 @@ export default function ShowDetailOrderTable({
                       // jika user bertipe admin atau operator
                       // maka tampilkan checkbox marked printed
                       isContain(role || "", Roles.ADMIN) ||
-                        isContain(role || "", Roles.OPERATOR) ? (
+                      isContain(role || "", Roles.OPERATOR) ? (
                         <Checkbox
                           id="marked-printed"
                           onChange={(e) =>

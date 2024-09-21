@@ -31,11 +31,11 @@ export default function ReportPage() {
   const [openModal, setOpenModal] = useState(false);
   const [deleteId, setDeleteId] = useState<string | undefined>();
   const [orders, setOrders] = useState<Order[]>([]);
+  const fetchedRef = useRef(false);
   const [limit, setLimit] = useState(25);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalData, setTotalData] = useState(0);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const fetchedRef = useRef(false);
   const searchParams = useSearchParams();
 
   const handleApplyFilter = useCallback(
@@ -44,16 +44,16 @@ export default function ReportPage() {
       setIsLoading(true);
       try {
         const queryParams = new URLSearchParams({
+          ...filters,
           page: currentPage.toString(),
           pageSize: limit.toString(),
-          ...filters,
           startDate: filters.startDate
             ? formatToStartDateToUTC(filters.startDate)
             : "",
           endDate: filters.endDate ? formatToEndDateToUTC(filters.endDate) : "",
         });
         const url = `/orders/filter?${queryParams.toString()}`;
-        router.push(`/orders/report?${queryParams.toString()}`);
+        router.push(`?${queryParams.toString()}`);
         const {
           data,
           meta: { total, totalPages },
@@ -98,6 +98,16 @@ export default function ReportPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
+
+  useEffect(() => {
+    if (session?.accessToken) {
+      const filters = Object.fromEntries(searchParams.entries());
+      if (filters && Object.keys(filters).length > 0) {
+        handleApplyFilter(filters as unknown as FilterState);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, limit]);
 
   const onRemoveHandler = useCallback(async () => {
     try {
@@ -148,7 +158,7 @@ export default function ReportPage() {
         />
       );
     }
-  }, [isLoading, orders, router, session, status]);
+  }, [isLoading, orders, session, status, router]);
 
   return (
     <main className="flex flex-col gap-4 p-4">
