@@ -104,10 +104,11 @@ export default function PelangganPage() {
             setDeleteId(id);
             setOpenModal(true);
           }}
+          session={session}
         />
       );
     }
-  }, [isLoading, customers, pathName, router, status]);
+  }, [isLoading, customers, pathName, router, status, session]);
 
   return (
     <main className="flex flex-col gap-4 p-4">

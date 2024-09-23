@@ -1,19 +1,23 @@
 "use client";
 
-import type { Customer } from "@/constants";
+import { Roles, type Customer } from "@/constants";
+import { isContain } from "@/helpers";
 import { Table } from "flowbite-react";
+import type { Session } from "next-auth";
 import { HiPencil, HiTrash } from "react-icons/hi";
 
 interface props {
   data: Customer[];
   onEditHandler(id: string): void;
   onRemoveHandler(id: string): void;
+  session: Session | null;
 }
 
 export default function CustomerTable({
   data,
   onEditHandler,
   onRemoveHandler,
+  session,
 }: props) {
   return (
     <div className="flex flex-col gap-4">
@@ -44,10 +48,16 @@ export default function CustomerTable({
                       className="cursor-pointer text-blue-500"
                       onClick={() => onEditHandler(item.id)}
                     />
-                    <HiTrash
-                      className="ml-2 cursor-pointer text-red-500"
-                      onClick={() => onRemoveHandler(item.id)}
-                    />
+                    {(isContain(session?.user?.role || "", Roles.ADMIN) ||
+                      isContain(
+                        session?.user?.role || "",
+                        Roles.ADMINISTRASI,
+                      )) && (
+                      <HiTrash
+                        className="ml-2 cursor-pointer text-red-500"
+                        onClick={() => onRemoveHandler(item.id)}
+                      />
+                    )}
                   </div>
                 </Table.Cell>
               </Table.Row>
