@@ -18,6 +18,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HiFilter } from "react-icons/hi";
+import ConfirmPasswordModal from "../list/_components/ConfirmPasswordModal";
 import type { FilterState } from "../list/_components/FilterModal";
 import FilterModal from "../list/_components/FilterModal";
 import OrderTable from "../list/_components/OrderTable";
@@ -37,6 +38,7 @@ export default function ReportPage() {
   const [totalData, setTotalData] = useState(0);
   const [totalPages, setTotalPages] = useState<number>(1);
   const searchParams = useSearchParams();
+  const [openPasswordModal, setOpenPasswordModal] = useState(false);
 
   const handleApplyFilter = useCallback(
     async (filters: FilterState) => {
@@ -109,6 +111,29 @@ export default function ReportPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, limit]);
 
+  const handleModalConfirm = useCallback(
+    async (password: string) => {
+      setOpenPasswordModal(false);
+
+      try {
+        const valid = await request("/auth/validate-password", {
+          method: "POST",
+          body: JSON.stringify({ password }),
+        });
+
+        if (valid) {
+          setOpenModal(true);
+        } else {
+          showToast("error", "Verifikasi password gagal");
+        }
+      } catch (error) {
+        showToast("error", "Terjadi kesalahan saat memvalidasi password");
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   const onRemoveHandler = useCallback(async () => {
     try {
       const deletedObject = await request(`/orders/${deleteId}`, {
@@ -151,7 +176,7 @@ export default function ReportPage() {
           onDetailHandler={(id) => router.push(`/orders/list/detail/${id}`)}
           onRemoveHandler={(id) => {
             setDeleteId(id);
-            setOpenModal(true);
+            setOpenPasswordModal(true);
           }}
           session={session}
           reportMode={true}
@@ -210,6 +235,13 @@ export default function ReportPage() {
         openModal={openModal}
         onCloseHandler={() => setOpenModal(false)}
         onYesHandler={() => onRemoveHandler()}
+      />
+      <ConfirmPasswordModal
+        isOpen={openPasswordModal}
+        onClose={() => {
+          setOpenPasswordModal(false);
+        }}
+        onConfirm={handleModalConfirm}
       />
     </main>
   );

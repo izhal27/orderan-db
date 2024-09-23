@@ -24,6 +24,7 @@ import {
   HiClock,
   HiInformationCircle,
 } from "react-icons/hi";
+import ConfirmPasswordModal from "./_components/ConfirmPasswordModal";
 import OrderTable from "./_components/OrderTable";
 
 export default function ListOrderPage() {
@@ -39,6 +40,7 @@ export default function ListOrderPage() {
   const orders = useOrderWebSocket(initialOrders, session?.user.id);
   const [showDesignModal, setShowDesignModal] = useState(false);
   const { moment } = useMoment();
+  const [openPasswordModal, setOpenPasswordModal] = useState(false);
 
   const fetchOrders = useCallback(async () => {
     if (status === "loading" || !session?.accessToken) return;
@@ -61,6 +63,29 @@ export default function ListOrderPage() {
       fetchedRef.current = true;
     }
   }, [session?.accessToken, fetchOrders]);
+
+  const handleModalConfirm = useCallback(
+    async (password: string) => {
+      setOpenPasswordModal(false);
+
+      try {
+        const valid = await request("/auth/validate-password", {
+          method: "POST",
+          body: JSON.stringify({ password }),
+        });
+
+        if (valid) {
+          setOpenModal(true);
+        } else {
+          showToast("error", "Verifikasi password gagal");
+        }
+      } catch (error) {
+        showToast("error", "Terjadi kesalahan saat memvalidasi password");
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   const onRemoveHandler = useCallback(async () => {
     try {
@@ -156,7 +181,7 @@ export default function ListOrderPage() {
           onDetailHandler={(id) => router.push(`${pathName}/detail/${id}`)}
           onRemoveHandler={(id) => {
             setDeleteId(id);
-            setOpenModal(true);
+            setOpenPasswordModal(true);
           }}
           session={session}
         />
@@ -259,6 +284,13 @@ export default function ListOrderPage() {
           <Button onClick={() => setShowDesignModal(false)}>Close</Button>
         </Modal.Footer>
       </Modal>
+      <ConfirmPasswordModal
+        isOpen={openPasswordModal}
+        onClose={() => {
+          setOpenPasswordModal(false);
+        }}
+        onConfirm={handleModalConfirm}
+      />
     </main>
   );
 }
