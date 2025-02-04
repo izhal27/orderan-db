@@ -9,7 +9,6 @@ WORKDIR /app
 
 # Install dependencies
 COPY ./backend/package*.json ./
-COPY ./backend/yarn.lock ./
 RUN yarn install --frozen-lockfile
 
 # Copy all project files
