@@ -9,6 +9,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY ./backend/package*.json ./
+COPY ./yarn.lock ./
 RUN yarn install --frozen-lockfile
 
 # Copy all project files
@@ -31,6 +32,7 @@ WORKDIR /app
 
 # Install only production dependencies
 COPY ./backend/package*.json ./
+COPY ./yarn.lock ./
 RUN yarn install --frozen-lockfile --production=true
 
 # Install prisma globally
