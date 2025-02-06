@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY ./backend/package*.json ./
-COPY ./yarn.lock ./
+COPY ./backend/yarn.lock ./
 RUN yarn install
 
 # Copy the rest of the application code
