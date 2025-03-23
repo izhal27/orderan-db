@@ -1,6 +1,8 @@
 # Stage 1: Builder
 FROM node:20-alpine AS builder
 
+RUN apk add --no-cache openssl
+
 # Install @nestjs/cli globally
 RUN yarn global add @nestjs/cli
 
@@ -23,6 +25,8 @@ RUN yarn build
 
 # Stage 2: Production
 FROM node:20-alpine AS production
+
+RUN apk add --no-cache openssl
 
 # Set NODE_ENV to production
 ENV NODE_ENV=production
