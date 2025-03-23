@@ -30,6 +30,7 @@ export default function AutoCompleteTextInput<T>({
   const [loading, setLoading] = useState<boolean>(false);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
   const [showItems, setShowItems] = useState<boolean>(true);
+  const [isItemSelected, setIsItemSelected] = useState<boolean>(true);
   const { request } = useApiClient();
 
   const fetchSuggestions = useCallback(
@@ -44,13 +45,14 @@ export default function AutoCompleteTextInput<T>({
         setLoading(false);
       }
     },
-    [fetchUrl, request],
+    [],
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetchSuggestions = useCallback(
     debounce((searchQuery: string) => {
       if (searchQuery.length >= minLength) {
+        console.log("fetching suggestions - " + Date.now());
         fetchSuggestions(searchQuery);
       } else {
         setItems([]);
@@ -60,45 +62,40 @@ export default function AutoCompleteTextInput<T>({
   );
 
   useEffect(() => {
-    if (!value) {
+    setInternalQuery(value);
+  }, [value]);
+
+  useEffect(() => {
+    if (!isItemSelected && internalQuery.trim().length) {
       debouncedFetchSuggestions(internalQuery);
-      if (!internalQuery.trim().length) {
-        onEmptyQueryHandler && onEmptyQueryHandler();
-      }
-      if (!items.length || activeIndex === -1) {
-        onSelect(internalQuery);
-      }
+    } else {
+      onEmptyQueryHandler && onEmptyQueryHandler();
+    }
+    if (!items.length || activeIndex === -1) {
+      onSelect(internalQuery);
     }
     return () => {
       debouncedFetchSuggestions.cancel();
     };
-  }, [
-    internalQuery,
-    debouncedFetchSuggestions,
-    value,
-    activeIndex,
-    items.length,
-    onEmptyQueryHandler,
-    onSelect,
-  ]);
-
-  useEffect(() => {
-    setInternalQuery(value);
-  }, [value]);
+  }, [internalQuery, isItemSelected]);
 
   const handleSuggestionClick = (item: T) => {
     const selectedValue = getDisplayValue(item);
     setInternalQuery(selectedValue);
     onChange && onChange(selectedValue);
     setShowItems(false);
+    setIsItemSelected(true);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInternalQuery(newValue);
     onChange && onChange(newValue);
-    if (newValue.length === 0) {
+    setIsItemSelected(false);
+    if (newValue.length >= minLength) {
       setShowItems(true);
+    } else {
+      setShowItems(false);
     }
   };
 
@@ -140,11 +137,10 @@ export default function AutoCompleteTextInput<T>({
           {items.map((item, index) => (
             <li
               key={getKeyValue(item)}
-              className={`cursor-pointer p-2 ${
-                index === activeIndex
-                  ? "bg-blue-500 text-white"
-                  : "bg-white text-black"
-              }`}
+              className={`cursor-pointer p-2 ${index === activeIndex
+                ? "bg-blue-500 text-white"
+                : "bg-white text-black"
+                }`}
               onClick={() => handleSuggestionClick(item)}
               onMouseEnter={() => setActiveIndex(index)}
               onKeyDown={(e) => {
