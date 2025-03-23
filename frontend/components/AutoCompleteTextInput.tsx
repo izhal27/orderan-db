@@ -33,20 +33,18 @@ export default function AutoCompleteTextInput<T>({
   const [isItemSelected, setIsItemSelected] = useState<boolean>(true);
   const { request } = useApiClient();
 
-  const fetchSuggestions = useCallback(
-    async (searchQuery: string) => {
-      setLoading(true);
-      try {
-        const data = await request(`${fetchUrl}?query=${searchQuery}`);
-        setItems(data);
-      } catch (error) {
-        showToast("error", "Error fetching suggestions");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
+  const fetchSuggestions = useCallback(async (searchQuery: string) => {
+    setLoading(true);
+    try {
+      const data = await request(`${fetchUrl}?query=${searchQuery}`);
+      setItems(data);
+    } catch (error) {
+      showToast("error", "Error fetching suggestions");
+    } finally {
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetchSuggestions = useCallback(
@@ -77,6 +75,7 @@ export default function AutoCompleteTextInput<T>({
     return () => {
       debouncedFetchSuggestions.cancel();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [internalQuery, isItemSelected]);
 
   const handleSuggestionClick = (item: T) => {
@@ -137,10 +136,11 @@ export default function AutoCompleteTextInput<T>({
           {items.map((item, index) => (
             <li
               key={getKeyValue(item)}
-              className={`cursor-pointer p-2 ${index === activeIndex
-                ? "bg-blue-500 text-white"
-                : "bg-white text-black"
-                }`}
+              className={`cursor-pointer p-2 ${
+                index === activeIndex
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-black"
+              }`}
               onClick={() => handleSuggestionClick(item)}
               onMouseEnter={() => setActiveIndex(index)}
               onKeyDown={(e) => {
