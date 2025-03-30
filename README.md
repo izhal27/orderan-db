@@ -1,15 +1,15 @@
-# Orderan Dunia Baliho
+# Sistem Orderan Digital Berkah
 
 Sistem yang menangani orderan cetakan masuk untuk di proses
 
 ## Deskripsi
 
-Orderan Dunia Baliho adalah sistem manajemen pesanan untuk perusahaan percetakan baliho. Sistem ini membantu mengelola dan memproses pesanan cetakan yang masuk secara efisien.
+Sistem Orderan Digital Berkah adalah sistem manajemen pesanan untuk perusahaan percetakan baliho. Sistem ini membantu mengelola dan memproses pesanan cetakan yang masuk secara efisien.
 
 ## Fitur Utama
 
 - Manajemen pelanggan
-- Pencatatan dan pelacakan pesanan 
+- Pencatatan dan pelacakan pesanan
 - Laporan pesanan
 
 ## Teknologi yang Digunakan
