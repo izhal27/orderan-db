@@ -50,7 +50,6 @@ export default function AutoCompleteTextInput<T>({
   const debouncedFetchSuggestions = useCallback(
     debounce((searchQuery: string) => {
       if (searchQuery.length >= minLength) {
-        console.log("fetching suggestions - " + Date.now());
         fetchSuggestions(searchQuery);
       } else {
         setItems([]);
@@ -66,17 +65,14 @@ export default function AutoCompleteTextInput<T>({
   useEffect(() => {
     if (!isItemSelected && internalQuery.trim().length) {
       debouncedFetchSuggestions(internalQuery);
-    } else {
+    } else if (internalQuery.trim().length === 0) {
       onEmptyQueryHandler && onEmptyQueryHandler();
-    }
-    if (!items.length || activeIndex === -1) {
-      onSelect(internalQuery);
     }
     return () => {
       debouncedFetchSuggestions.cancel();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [internalQuery, isItemSelected]);
+  }, [internalQuery]);
 
   const handleSuggestionClick = (item: T) => {
     const selectedValue = getDisplayValue(item);
@@ -109,7 +105,7 @@ export default function AutoCompleteTextInput<T>({
       if (activeIndex >= 0 && activeIndex < items.length) {
         handleSuggestionClick(items[activeIndex]);
       } else {
-        onSelect(internalQuery);
+        onSelect && onSelect(internalQuery);
         setShowItems(false);
       }
     }
@@ -131,16 +127,15 @@ export default function AutoCompleteTextInput<T>({
           <Spinner size="sm" />
         </div>
       )}
-      {showItems && items.length > 0 && (
+      {showItems && items?.length > 0 && (
         <ul className="absolute z-10 mt-2 w-full rounded border bg-white">
           {items.map((item, index) => (
             <li
               key={getKeyValue(item)}
-              className={`cursor-pointer p-2 ${
-                index === activeIndex
-                  ? "bg-blue-500 text-white"
-                  : "bg-white text-black"
-              }`}
+              className={`cursor-pointer p-2 ${index === activeIndex
+                ? "bg-blue-500 text-white"
+                : "bg-white text-black"
+                }`}
               onClick={() => handleSuggestionClick(item)}
               onMouseEnter={() => setActiveIndex(index)}
               onKeyDown={(e) => {
