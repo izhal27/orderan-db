@@ -12,8 +12,8 @@ import { flowbiteTheme } from "./theme";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Orderan Dunia Baliho",
-  description: "Sistem orderan dunia baliho",
+  title: "Orderan Digital Berkah",
+  description: "Sistem Orderan Digital Berkah",
   author: "Risal Walangadi",
   authors: [{ name: "Risal Walangadi", url: "https://github.com/izhal27" }],
   icons: {

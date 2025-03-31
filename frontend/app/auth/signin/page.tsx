@@ -11,7 +11,7 @@ export default function LoginPage() {
               src={"/db-image.png"}
               width={150}
               height={150}
-              alt="Dunia Baliho logo"
+              alt="Digital Berkah logo"
               style={{ objectFit: "contain" }}
             />
           </div>
@@ -35,7 +35,7 @@ export default function LoginPage() {
         <Image
           src={"/login-page-image.png"}
           fill
-          alt="Dunia Baliho logo"
+          alt="Digital Berkah logo"
           style={{ width: "100%", objectFit: "cover" }}
           className="object-bottom"
         />

@@ -40,14 +40,14 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
               </button>
               <Navbar.Brand as={Link} href="/">
                 <Image
-                  alt="Dunia Baliho logo"
+                  alt="Digital Berkah logo"
                   width="40"
                   height="40"
                   src={favIcon.src}
                   style={{ width: "auto", height: "auto" }}
                 />
                 <span className="self-center whitespace-nowrap px-3 text-xl font-semibold dark:text-white">
-                  Dunia Baliho
+                  Digital Berkah
                 </span>
               </Navbar.Brand>
             </div>
