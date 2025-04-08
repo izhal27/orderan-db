@@ -104,7 +104,6 @@ export class CustomersService {
       where: {
         name: {
           contains: query,
-          mode: 'insensitive',
         }
       },
       take: 10
