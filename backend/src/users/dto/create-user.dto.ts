@@ -55,7 +55,7 @@ export class CreateUserDto {
   })
   name?: string | null;
 
-  @IsObject()
+  @IsString()
   @IsOptional()
   @ApiProperty({
     required: false,
