@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Transform } from 'class-transformer';
 import {
+  IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -38,7 +39,7 @@ export class CreateCustomerDto {
   })
   contact: string | null;
 
-  @IsString()
+  @IsEmail()
   @IsOptional()
   @MaxLength(50)
   @ApiProperty({
