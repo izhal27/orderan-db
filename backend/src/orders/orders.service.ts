@@ -39,10 +39,10 @@ export class OrdersService {
       const { date, customer, description, orderDetails } = createOrderDto;
       const number = orderNumber('DB-', 3);
       const customerUpperCase = customer.toUpperCase();
-      return await this.prismaService.$transaction(
+      await this.customersService.create({ name: customerUpperCase }, userId);
+      const order = await this.prismaService.$transaction(
         async (prisma): Promise<OrderEntity[] | any> => {
           try {
-            await this.customersService.create({ name: customerUpperCase }, userId);
             const result = await prisma.order.create({
               data: {
                 number,
@@ -80,7 +80,6 @@ export class OrdersService {
                 },
               },
             });
-            this.webSocketService.emitEvent('order:new', result, userId);
             return result;
           } catch (error) {
             this.logger.error(error);
@@ -88,10 +87,13 @@ export class OrdersService {
           }
         },
       );
+      this.webSocketService.emitEvent('order:new', order, userId);
+      return order;
     } catch (error) {
       this.logger.error(error);
       throw new Error(error);
     }
+
   }
 
   findMany(): Promise<OrderEntity[] | null> {
