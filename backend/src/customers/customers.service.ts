@@ -12,7 +12,7 @@ import { PaginationDto } from 'src/common';
 export class CustomersService {
   private readonly logger = new Logger();
 
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   create(data: Prisma.CustomerCreateInput, userId: number): Promise<Customer> {
     const { name, address, contact, email, description } = data;
@@ -39,8 +39,8 @@ export class CustomersService {
               image: true,
               password: false,
             },
-          }
-        }
+          },
+        },
       });
     } catch (error) {
       this.logger.error(error);
@@ -69,8 +69,8 @@ export class CustomersService {
               image: true,
               password: false,
             },
-          }
-        }
+          },
+        },
       });
     } catch (error) {
       this.logger.error(error);
@@ -90,8 +90,8 @@ export class CustomersService {
               image: true,
               password: false,
             },
-          }
-        }
+          },
+        },
       });
     } catch (error) {
       this.logger.error(error);
@@ -104,10 +104,10 @@ export class CustomersService {
       where: {
         name: {
           contains: query,
-        }
+        },
       },
-      take: 10
-    })
+      take: 10,
+    });
   }
 
   async findUnique(where: Prisma.CustomerWhereUniqueInput): Promise<Customer> {
@@ -122,8 +122,8 @@ export class CustomersService {
             image: true,
             password: false,
           },
-        }
-      }
+        },
+      },
     });
     if (!article) {
       throw new NotFoundException('Article not found');
@@ -149,8 +149,8 @@ export class CustomersService {
               image: true,
               password: false,
             },
-          }
-        }
+          },
+        },
       });
     } catch (error) {
       this.logger.error(error);
@@ -176,15 +176,15 @@ export class CustomersService {
 
     const where = search
       ? {
-        OR: [
-          {
-            name: {
-              contains: search,
-              mode: 'insensitive' as const
-            }
-          },
-        ],
-      }
+          OR: [
+            {
+              name: {
+                contains: search,
+                mode: 'insensitive' as const,
+              },
+            },
+          ],
+        }
       : {};
 
     let [data, total] = await Promise.all([

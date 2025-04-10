@@ -1,12 +1,17 @@
 import { HttpAdapterHost } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaClient } from '@prisma/client';
 import { PrismaClientExceptionFilter } from 'nestjs-prisma';
 
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../../src/app.module';
 
-export const buildApp = async (module: any[] = []) => {
+export const buildApp = async (
+  module: any[] = [],
+): Promise<{
+  app: INestApplication;
+  prismaClient: PrismaClient;
+}> => {
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule, PrismaClient, ...module],
   }).compile();

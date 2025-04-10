@@ -18,7 +18,12 @@ import {
 } from '@nestjs/swagger';
 
 import { OrderEntity } from './entities/order.entity';
-import { CreateOrderDto, MarkPayDto, MarkPrintedDto, UpdateOrderDto } from './dto';
+import {
+  CreateOrderDto,
+  MarkPayDto,
+  MarkPrintedDto,
+  UpdateOrderDto,
+} from './dto';
 import { CancelType, OrdersService } from './orders.service';
 import { GetCurrentUser, Roles } from '../common/decorators';
 import { MarkTakenDto } from './dto/mark-taken.dto';
@@ -28,7 +33,7 @@ import { Role } from '../common';
 @ApiTags('orders')
 @ApiBearerAuth()
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
   @ApiCreatedResponse({ type: OrderEntity })
@@ -55,7 +60,8 @@ export class OrdersController {
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
     @Query('page') page?: number,
-    @Query('pageSize') pageSize?: number) {
+    @Query('pageSize') pageSize?: number,
+  ) {
     return this.ordersService.filter({
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined,
@@ -87,18 +93,22 @@ export class OrdersController {
 
   @Delete(':id')
   @ApiOkResponse({ type: OrderEntity })
-  delete(@Param('id') id: string,
+  delete(
+    @Param('id') id: string,
     @GetCurrentUser('role') role: string,
-    @GetCurrentUserId() userId: number) {
+    @GetCurrentUserId() userId: number,
+  ) {
     return this.ordersService.delete({ id }, role, userId);
   }
 
   @Post('/detail/:orderDetailId/print')
   @Roles(Role.Admin, Role.Operator)
   @HttpCode(200)
-  markPrinted(@Param('orderDetailId') id: string,
+  markPrinted(
+    @Param('orderDetailId') id: string,
     @Body() markPrintedDto: MarkPrintedDto,
-    @GetCurrentUserId() userId: number) {
+    @GetCurrentUserId() userId: number,
+  ) {
     return this.ordersService.markPrint(id, markPrintedDto, userId);
   }
 
@@ -107,39 +117,54 @@ export class OrdersController {
   @HttpCode(200)
   cancelMarkPrinted(
     @Param('orderDetailId') id: string,
-    @GetCurrentUserId() userId: number) {
-    return this.ordersService.cancelStatus({ type: CancelType.PRINT, orderDetailId: id, userId });
+    @GetCurrentUserId() userId: number,
+  ) {
+    return this.ordersService.cancelStatus({
+      type: CancelType.PRINT,
+      orderDetailId: id,
+      userId,
+    });
   }
 
   @Post('/:id/pay')
   @HttpCode(200)
-  markPay(@Param('id') id: string,
+  markPay(
+    @Param('id') id: string,
     @Body() markPayDto: MarkPayDto,
-    @GetCurrentUserId() userId: number) {
+    @GetCurrentUserId() userId: number,
+  ) {
     return this.ordersService.markPay(id, markPayDto, userId);
   }
 
   @Post('/:id/cancel-pay')
   @Roles(Role.Admin, Role.Administrasi)
   @HttpCode(200)
-  cancelMarkPay(@Param('id') id: string,
-    @GetCurrentUserId() userId: number) {
-    return this.ordersService.cancelStatus({ type: CancelType.PAY, orderId: id, userId });
+  cancelMarkPay(@Param('id') id: string, @GetCurrentUserId() userId: number) {
+    return this.ordersService.cancelStatus({
+      type: CancelType.PAY,
+      orderId: id,
+      userId,
+    });
   }
 
   @Post('/:id/taken')
   @HttpCode(200)
-  markTaken(@Param('id') id: string,
+  markTaken(
+    @Param('id') id: string,
     @Body() markTakenDto: MarkTakenDto,
-    @GetCurrentUserId() userId: number) {
+    @GetCurrentUserId() userId: number,
+  ) {
     return this.ordersService.markTaken(id, markTakenDto, userId);
   }
 
   @Post('/:id/cancel-taken')
   @Roles(Role.Admin, Role.Administrasi)
   @HttpCode(200)
-  cancelMarkTaken(@Param('id') id: string,
-    @GetCurrentUserId() userId: number) {
-    return this.ordersService.cancelStatus({ type: CancelType.TAKEN, orderId: id, userId });
+  cancelMarkTaken(@Param('id') id: string, @GetCurrentUserId() userId: number) {
+    return this.ordersService.cancelStatus({
+      type: CancelType.TAKEN,
+      orderId: id,
+      userId,
+    });
   }
 }

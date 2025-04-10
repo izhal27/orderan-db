@@ -11,7 +11,7 @@ import { PrismaService } from 'nestjs-prisma';
 export class OrderTypesService {
   private readonly logger = new Logger();
 
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   create(data: Prisma.OrderTypeCreateInput): Promise<OrderType> {
     try {
@@ -26,8 +26,8 @@ export class OrderTypesService {
     try {
       return this.prismaService.orderType.findMany({
         orderBy: {
-          name: 'asc'
-        }
+          name: 'asc',
+        },
       });
     } catch (error) {
       this.logger.error(error);
@@ -40,10 +40,10 @@ export class OrderTypesService {
       where: {
         name: {
           contains: query,
-        }
+        },
       },
-      take: 10
-    })
+      take: 10,
+    });
   }
 
   async findUnique(

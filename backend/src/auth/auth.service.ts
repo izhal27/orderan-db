@@ -26,11 +26,14 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   private logger = new Logger(AuthService.name);
 
-  async signupLocal({ username, password }: AuthDto): Promise<Tokens | undefined> {
+  async signupLocal({
+    username,
+    password,
+  }: AuthDto): Promise<Tokens | undefined> {
     try {
       const user = await this.userService.create({
         username,
@@ -43,7 +46,10 @@ export class AuthService {
     }
   }
 
-  async signinLocal({ username, password }: AuthDto): Promise<Tokens | undefined> {
+  async signinLocal({
+    username,
+    password,
+  }: AuthDto): Promise<Tokens | undefined> {
     try {
       const user = await this.userService.findUnique({ username }, true);
       if (!user) return;
@@ -80,7 +86,10 @@ export class AuthService {
     }
   }
 
-  async refreshTokens(username: string, refreshToken: string): Promise<Tokens | undefined> {
+  async refreshTokens(
+    username: string,
+    refreshToken: string,
+  ): Promise<Tokens | undefined> {
     const user = await this.userService.findUnique({ username }, true);
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access denied');
@@ -136,14 +145,18 @@ export class AuthService {
         name: user.name,
         image: user.image,
         email: user.email,
-        role: user.role?.name
+        role: user.role?.name,
       },
-      expires_at: Date.now() + this.convertToMilliseconds(this.configService.get(JWT_EXPIRES) as string),
+      expires_at:
+        Date.now() +
+        this.convertToMilliseconds(
+          this.configService.get(JWT_EXPIRES) as string,
+        ),
     };
   }
 
   private convertToMilliseconds(expireIn: string) {
-    const timeUnits = { 's': 1000, 'm': 60000, 'h': 3600000, 'd': 86400000 };
+    const timeUnits = { s: 1000, m: 60000, h: 3600000, d: 86400000 };
     const unit = expireIn[expireIn.length - 1];
     const amount = parseInt(expireIn.slice(0, -1), 10);
     return amount * timeUnits[unit];
@@ -156,5 +169,5 @@ export class AuthService {
     }
     const isValid = await compareValue(password, user.password);
     return isValid;
-  } 
+  }
 }

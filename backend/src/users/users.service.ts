@@ -14,7 +14,7 @@ import { compareValue, hashValue } from '../helpers/hash';
 export class UsersService {
   private readonly logger = new Logger();
 
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
     data.password = await hashValue(data.password);
@@ -35,7 +35,7 @@ export class UsersService {
         },
         orderBy: {
           username: 'asc',
-        }
+        },
       });
       return users.map((user) => this.sanitizeUser(user));
     } catch (error) {
@@ -81,19 +81,23 @@ export class UsersService {
     return this.sanitizeUser(user);
   }
 
-  async updateProfile(params: {
-    where: Prisma.UserWhereUniqueInput;
-    data: Prisma.UserUpdateInput;
-  },
+  async updateProfile(
+    params: {
+      where: Prisma.UserWhereUniqueInput;
+      data: Prisma.UserUpdateInput;
+    },
     currentPassword: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<User> {
     const { where, data } = params;
     // jika password baru dikirim tersedia, hash password baru
     if (newPassword) {
       // cek password lama
       const currentUser = await this.findUnique({ id: where.id });
-      const isMatch = await compareValue(currentPassword, currentUser!.password);
+      const isMatch = await compareValue(
+        currentPassword,
+        currentUser!.password,
+      );
       if (!isMatch) {
         throw new BadRequestException('Password lama tidak cocok');
       }

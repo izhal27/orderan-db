@@ -26,7 +26,7 @@ import { Role } from '../common';
 @ApiTags('order-types')
 @ApiBearerAuth()
 export class OrderTypesController {
-  constructor(private readonly orderTypeService: OrderTypesService) { }
+  constructor(private readonly orderTypeService: OrderTypesService) {}
 
   @Post()
   @Roles(Role.Admin, Role.Administrasi, Role.Designer)

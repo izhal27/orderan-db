@@ -27,7 +27,7 @@ import { Role } from '../common';
 @ApiExcludeController()
 @ApiBearerAuth()
 export class RolesController {
-  constructor(private readonly rolesService: RolesService) { }
+  constructor(private readonly rolesService: RolesService) {}
 
   @Post()
   @ApiCreatedResponse({ type: RoleEntity })

@@ -13,7 +13,7 @@ export class CreateCustomerDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
-  @Transform(((param) => param.value.toUpperCase()))
+  @Transform((param) => param.value.toUpperCase())
   @ApiProperty({
     example: 'John Doe',
     description: 'Customer name',

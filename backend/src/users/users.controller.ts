@@ -33,7 +33,7 @@ import { multerOptions } from '../lib';
 @ApiTags('users')
 @ApiBearerAuth()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @Roles(Role.Admin, Role.Administrasi)
@@ -41,7 +41,7 @@ export class UsersController {
   @ApiCreatedResponse({ type: UserEntity })
   create(
     @Body() createUserDto: CreateUserDto,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
   ) {
     if (file) {
       createUserDto.image = file.filename;
@@ -67,7 +67,7 @@ export class UsersController {
   @ApiOkResponse({ type: UserEntity })
   getProfil(
     @Param('id', ParseIntPipe) id: number,
-    @GetCurrentUserId() currentId: number
+    @GetCurrentUserId() currentId: number,
   ) {
     // only current user can get profile
     if (id !== currentId) {
@@ -83,7 +83,7 @@ export class UsersController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
   ) {
     const currentUser = await this.usersService.findUnique({ id });
     if (file) {
@@ -100,7 +100,7 @@ export class UsersController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
     @GetCurrentUserId() currentId: number,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
   ) {
     // only current user can update profile
     if (id !== currentId) {
@@ -113,7 +113,11 @@ export class UsersController {
     }
     const { currentPassword, newPassword, ...data } = updateUserDto;
 
-    return this.usersService.updateProfile({ where: { id }, data: data }, currentPassword, newPassword);
+    return this.usersService.updateProfile(
+      { where: { id }, data: data },
+      currentPassword,
+      newPassword,
+    );
   }
 
   @Delete(':id')

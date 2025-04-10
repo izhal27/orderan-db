@@ -39,4 +39,4 @@ import { CustomersModule } from './customers/customers.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

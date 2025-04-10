@@ -14,7 +14,7 @@ async function bootstrap() {
     cors: true,
   });
   app.useStaticAssets(join(__dirname, '..', 'public'), {
-    index: false
+    index: false,
   });
   const configService = app.get<ConfigService>(ConfigService);
   app.useGlobalPipes(

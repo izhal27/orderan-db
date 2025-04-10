@@ -11,4 +11,4 @@ import { WebSocketService } from '../lib/websocket.service';
   controllers: [OrdersController],
   providers: [OrdersService, WebSocketService],
 })
-export class OrdersModule { }
+export class OrdersModule {}

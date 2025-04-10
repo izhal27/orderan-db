@@ -13,7 +13,7 @@ export class CreateOrderTypeDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(5)
-  @Transform(((param) => param.value.toUpperCase()))
+  @Transform((param) => param.value.toUpperCase())
   @ApiProperty({
     example: 'FLEXY BANNER 280 GSM',
     description: 'Unique order type',

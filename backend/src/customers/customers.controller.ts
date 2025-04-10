@@ -24,7 +24,7 @@ import { GetCurrentUserId, PaginationDto, Role, Roles } from '../common';
 @ApiTags('customers')
 @ApiBearerAuth()
 export class CustomersController {
-  constructor(private readonly customersService: CustomersService) { }
+  constructor(private readonly customersService: CustomersService) {}
 
   // membuat customer baru dari proses menambahkan pesanan
   @Post()

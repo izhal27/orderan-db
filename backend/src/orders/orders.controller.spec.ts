@@ -8,7 +8,7 @@ import {
   UpdateOrderDto,
   MarkPrintedDto,
   MarkPayDto,
-  MarkTakenDto
+  MarkTakenDto,
 } from './dto';
 
 describe('OrdersController', () => {

@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Order, OrderDetail, PayStatus, PrintedStatus, TakenStatus } from '@prisma/client';
+import {
+  Order,
+  OrderDetail,
+  PayStatus,
+  PrintedStatus,
+  TakenStatus,
+} from '@prisma/client';
 
 export class OrderEntity implements Order {
   @ApiProperty({
