@@ -29,7 +29,7 @@ export class OrdersService {
     private readonly prismaService: PrismaService,
     private readonly customersService: CustomersService,
     private readonly webSocketService: WebSocketService,
-  ) { }
+  ) {}
 
   async create(
     createOrderDto: CreateOrderDto,
@@ -57,6 +57,7 @@ export class OrdersService {
               include: {
                 OrderDetails: {
                   select: {
+                    id: true,
                     name: true,
                     price: true,
                     width: true,
@@ -75,7 +76,7 @@ export class OrdersService {
                     username: true,
                     name: true,
                     image: true,
-                    password: false
+                    password: false,
                   },
                 },
               },
@@ -93,7 +94,6 @@ export class OrdersService {
       this.logger.error(error);
       throw new Error(error);
     }
-
   }
 
   findMany(): Promise<OrderEntity[] | null> {
@@ -127,13 +127,13 @@ export class OrdersService {
               username: true,
               name: true,
               image: true,
-              password: false
+              password: false,
             },
           },
         },
         orderBy: {
-          createdAt: 'desc'
-        }
+          createdAt: 'desc',
+        },
       });
     } catch (error) {
       this.logger.error(error);
@@ -268,7 +268,7 @@ export class OrdersService {
             username: true,
             name: true,
             image: true,
-            password: false
+            password: false,
           },
         },
       },
@@ -325,8 +325,8 @@ export class OrdersService {
             updatedAt: true,
           },
           orderBy: {
-            createdAt: 'asc'
-          }
+            createdAt: 'asc',
+          },
         },
         MarkedPay: {
           include: {
@@ -336,7 +336,7 @@ export class OrdersService {
                 username: true,
                 name: true,
                 image: true,
-              }
+              },
             },
           },
         },
@@ -357,7 +357,7 @@ export class OrdersService {
             id: true,
             username: true,
             name: true,
-            image: true
+            image: true,
           },
         },
       },
@@ -373,54 +373,68 @@ export class OrdersService {
     updateOrderDto: UpdateOrderDto,
     userId: number,
   ): Promise<OrderEntity | any> {
+    const order = await this.findUnique({ id });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
     const { date, customer, description, orderDetails } = updateOrderDto;
-    const newOd = orderDetails!.filter(od => !('id' in od)); // order detail baru yang ditambahkan
-    const existOd = orderDetails!.filter(od => "id" in od && !od.deleted);
-    const updatedOd = existOd?.map((od) => ({ where: { id: od.id }, data: { ...od } }));
-    const deletedOd = orderDetails?.filter(od => od.deleted === true)
-      .map(od => od.id);
-
+    // order detail yang baru ditambahkan
+    const newOd = orderDetails!.filter((od) => !('id' in od));
+    // order detail yang sudah ada dan yang ingin diupdate
+    const updatedOd = orderDetails!
+      .filter((od) => 'id' in od && !od.deleted)
+      .map((od) => ({
+        where: { id: od.id },
+        data: { ...od },
+      }));
+    // order detail yang sudah ada dan yang ingin dihapus
+    const deletedOd = orderDetails!
+      .filter((od) => od.deleted && 'id' in od)
+      .map((od) => od.id);
     try {
-      await this.prismaService.orderDetail.deleteMany({
-        where: { id: { in: deletedOd } }
-      });
-      const result = await this.prismaService.order.update({
-        where: { id },
-        data: {
-          date,
-          customer,
-          description,
-          OrderDetails: {
-            updateMany: updatedOd,
-            createMany: {
-              data: newOd
-            }
-          },
-        },
-        include: {
-          OrderDetails: {
-            select: {
-              name: true,
-              price: true,
-              width: true,
-              height: true,
-              qty: true,
-              design: true,
-              eyelets: true,
-              shiming: true,
-              description: true,
-              MarkedPrinted: true,
+      const result = await this.prismaService.$transaction(async (prisma) => {
+        await prisma.orderDetail.deleteMany({
+          where: { id: { in: deletedOd } },
+        });
+        return await prisma.order.update({
+          where: { id },
+          data: {
+            date,
+            customer,
+            description,
+            OrderDetails: {
+              updateMany: updatedOd,
+              createMany: {
+                data: newOd,
+              },
             },
           },
-          user: {
-            select: {
-              id: true,
-              username: true,
-              name: true,
-              image: true
+          include: {
+            OrderDetails: {
+              select: {
+                id: true,
+                name: true,
+                price: true,
+                width: true,
+                height: true,
+                qty: true,
+                design: true,
+                eyelets: true,
+                shiming: true,
+                description: true,
+                MarkedPrinted: true,
+              },
+            },
+            user: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                image: true,
+              },
             },
           },
-        },
+        });
       });
       this.webSocketService.emitEvent('order:update', result, userId);
       return result;
@@ -430,7 +444,11 @@ export class OrdersService {
     }
   }
 
-  async delete(where: Prisma.OrderWhereUniqueInput, role: string, userId: number): Promise<OrderEntity> {
+  async delete(
+    where: Prisma.OrderWhereUniqueInput,
+    role: string,
+    userId: number,
+  ): Promise<OrderEntity> {
     const order = await this.findUnique(where);
     // selain admin,
     // order hanya bisa dihapus jika belum dilakukan pembayaran atau
@@ -452,8 +470,8 @@ export class OrdersService {
               email: true,
               name: true,
               image: true,
-            }
-          }
+            },
+          },
         },
       });
       this.webSocketService.emitEvent('order:delete', result.id, userId);
@@ -464,7 +482,11 @@ export class OrdersService {
     }
   }
 
-  async markPrint(orderDetailId: string, markPrintedDto: MarkPrintedDto, printedById: number) {
+  async markPrint(
+    orderDetailId: string,
+    markPrintedDto: MarkPrintedDto,
+    printedById: number,
+  ) {
     const { status, description, printAt } = markPrintedDto;
     try {
       const result = await this.prismaService.printedStatus.upsert({
@@ -489,9 +511,9 @@ export class OrdersService {
               username: true,
               name: true,
               image: true,
-            }
-          }
-        }
+            },
+          },
+        },
       });
       this.webSocketService.emitEvent('order:markPrint', result, printedById);
       return result;
@@ -526,9 +548,9 @@ export class OrdersService {
               username: true,
               name: true,
               image: true,
-            }
-          }
-        }
+            },
+          },
+        },
       });
       this.webSocketService.emitEvent('order:markPay', result, markedById);
       return result;
@@ -538,7 +560,11 @@ export class OrdersService {
     }
   }
 
-  async markTaken(orderId: string, markTakenDto: MarkTakenDto, markedById: number) {
+  async markTaken(
+    orderId: string,
+    markTakenDto: MarkTakenDto,
+    markedById: number,
+  ) {
     const { status, description, takenAt } = markTakenDto;
     try {
       const result = await this.prismaService.takenStatus.upsert({
@@ -563,9 +589,9 @@ export class OrdersService {
               username: true,
               name: true,
               image: true,
-            }
-          }
-        }
+            },
+          },
+        },
       });
       this.webSocketService.emitEvent('order:markTaken', result, markedById);
       return result;
@@ -575,7 +601,17 @@ export class OrdersService {
     }
   }
 
-  async cancelStatus({ type, orderId, orderDetailId, userId }: { type: CancelType, orderId?: string, orderDetailId?: string, userId: number }) {
+  async cancelStatus({
+    type,
+    orderId,
+    orderDetailId,
+    userId,
+  }: {
+    type: CancelType;
+    orderId?: string;
+    orderDetailId?: string;
+    userId: number;
+  }) {
     switch (type) {
       case CancelType.PRINT:
         const resultPrint = await this.prismaService.printedStatus.update({
@@ -592,7 +628,11 @@ export class OrdersService {
             },
           },
         });
-        this.webSocketService.emitEvent('order:cancelPrint', resultPrint, userId);
+        this.webSocketService.emitEvent(
+          'order:cancelPrint',
+          resultPrint,
+          userId,
+        );
         return resultPrint;
 
       case CancelType.PAY:
@@ -628,7 +668,11 @@ export class OrdersService {
             },
           },
         });
-        this.webSocketService.emitEvent('order:cancelTaken', resultTaken, userId);
+        this.webSocketService.emitEvent(
+          'order:cancelTaken',
+          resultTaken,
+          userId,
+        );
         return resultTaken;
     }
   }
@@ -637,5 +681,5 @@ export class OrdersService {
 export const enum CancelType {
   PRINT,
   PAY,
-  TAKEN
+  TAKEN,
 }
