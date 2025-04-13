@@ -12,7 +12,7 @@ import { PaginationDto } from 'src/common';
 export class CustomersService {
   private readonly logger = new Logger();
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   create(data: Prisma.CustomerCreateInput, userId: number): Promise<Customer> {
     const { name, address, contact, email, description } = data;
@@ -103,7 +103,7 @@ export class CustomersService {
     return this.prismaService.customer.findMany({
       where: {
         name: {
-          contains: query,
+          contains: query.toUpperCase(),
         },
       },
       take: 10,
@@ -176,15 +176,15 @@ export class CustomersService {
 
     const where = search
       ? {
-          OR: [
-            {
-              name: {
-                contains: search,
-                mode: 'insensitive' as const,
-              },
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: 'insensitive' as const,
             },
-          ],
-        }
+          },
+        ],
+      }
       : {};
 
     let [data, total] = await Promise.all([
