@@ -4,7 +4,6 @@
 ![Issues](https://img.shields.io/github/issues/izhal27/orderan-db)
 ![Pull Requests](https://img.shields.io/github/issues-pr/izhal27/orderan-db)
 ![Last Commit](https://img.shields.io/github/last-commit/izhal27/orderan-db)
-![Repo Size](https://img.shields.io/github/repo-size/izhal27/orderan-db)
 ![Top Language](https://img.shields.io/github/languages/top/izhal27/orderan-db)
 ![License](https://img.shields.io/github/license/izhal27/orderan-db)
 
