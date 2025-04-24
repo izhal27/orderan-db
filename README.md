@@ -1,35 +1,49 @@
-# Sistem Orderan Digital Berkah
+# 📦 Orderan DB | Orderan Digital Berkah
+![Stars](https://img.shields.io/github/stars/izhal27/orderan-db?style=social)
+![Forks](https://img.shields.io/github/forks/izhal27/orderan-db?style=social)
+![Issues](https://img.shields.io/github/issues/izhal27/orderan-db)
+![Pull Requests](https://img.shields.io/github/issues-pr/izhal27/orderan-db)
+![Last Commit](https://img.shields.io/github/last-commit/izhal27/orderan-db)
+![Repo Size](https://img.shields.io/github/repo-size/izhal27/orderan-db)
+![Top Language](https://img.shields.io/github/languages/top/izhal27/orderan-db)
+![License](https://img.shields.io/github/license/izhal27/orderan-db)
 
-Sistem yang menangani orderan cetakan masuk untuk di proses
+**Orderan DB** adalah skema database siap pakai untuk aplikasi manajemen pemesanan, dirancang untuk memudahkan proses pencatatan transaksi, pelanggan, produk, dan laporan pada usaha kecil hingga menengah seperti food & beverage, percetakan, atau retail.
 
-## Deskripsi
+Dengan pendekatan yang sederhana namun fleksibel, struktur database ini cocok dijadikan fondasi untuk aplikasi POS (Point of Sale), ERP ringan, atau sistem kasir berbasis desktop/mobile/web.
 
-Sistem Orderan Digital Berkah adalah sistem manajemen pesanan untuk perusahaan percetakan baliho. Sistem ini membantu mengelola dan memproses pesanan cetakan yang masuk secara efisien.
+---
 
-## Fitur Utama
+## 🧠 Fitur & Komponen
 
-- Manajemen pelanggan
-- Pencatatan dan pelacakan pesanan
-- Laporan pesanan
+- 🧾 Tabel pelanggan, produk, pesanan, dan detail transaksi
+- 📊 Dukungan laporan berbasis waktu dan pelanggan
+- 🗃️ Struktur relasi yang teroptimasi untuk efisiensi query
+- 🔄 Cocok untuk integrasi dengan berbagai platform: Flutter, Web, Desktop, dan lainnya
+- 🔐 Siap dikembangkan untuk fitur autentikasi & multiuser
 
-## Teknologi yang Digunakan
+---
 
-- Frontend: Next.js, React
-- Backend: NestJS
-- Database: PostgreSQL
-- ORM: Prisma
+## 🖥️ Teknologi yang Digunakan
 
-## Cara Menjalankan
+- 💻 Backend NestJS
+- 🖥️ Frontend NextJS
+- 💾 Prisma ORM
+- 🗃️ Websocket
 
-1. Clone repositori ini
-2. Instal dependensi dengan menjalankan `npm install` di folder frontend dan backend
-3. Atur variabel lingkungan sesuai petunjuk di file `.env.example`
-4. Jalankan migrasi database dengan `npx prisma migrate dev`
-5. Jalankan server backend dengan `npm run start:dev` di folder backend
-6. Jalankan aplikasi frontend dengan `npm run dev` di folder frontend
-7. Akses aplikasi di `http://localhost:3000`
+---
 
-<!-- ## Kontribusi -->
+## 🎯 Target Penggunaan
 
-<!-- Silakan buat pull request untuk kontribusi. Untuk perubahan besar, harap buka issue terlebih dahulu untuk mendiskusikan perubahan yang diinginkan. -->
+- Aplikasi kasir atau POS sederhana
+- Manajemen order untuk usaha percetakan
+- Sistem pemesanan pada usaha percetakan
+
+---
+
+## 📄 Lisensi
+
+Proyek ini dilisensikan di bawah [MIT License](LICENSE).
+
+---
 
