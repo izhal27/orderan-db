@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/9e21cb5a-2dd2-4806-b0ff-a0918536d05e)# 📦 Orderan DB | Orderan Digital Berkah
+# 📦 Orderan DB | Orderan Digital Berkah
 ![Stars](https://img.shields.io/github/stars/izhal27/orderan-db?style=social)
 ![Forks](https://img.shields.io/github/forks/izhal27/orderan-db?style=social)
 ![Issues](https://img.shields.io/github/issues/izhal27/orderan-db)
