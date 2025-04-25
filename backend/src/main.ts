@@ -30,8 +30,8 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
-      .setTitle('Orderan Dunia Baliho')
-      .setDescription('The Orderan Dunia Baliho API description')
+      .setTitle('Orderan Digital Berkah API')
+      .setDescription('The Orderan Digital Berkah API description')
       .setVersion('1.0')
       .addBearerAuth()
       .build();
