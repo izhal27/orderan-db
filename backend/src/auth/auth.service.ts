@@ -35,10 +35,13 @@ export class AuthService {
     password,
   }: AuthDto): Promise<Tokens | undefined> {
     try {
-      const user = await this.userService.create({
-        username,
-        password,
-      });
+      const user = await this.userService.create(
+        {
+          username,
+          password,
+        },
+        null,
+      );
       return this.generateTokens(user);
     } catch (error) {
       this.logger.error(error);
@@ -76,10 +79,13 @@ export class AuthService {
         refreshToken: { not: null },
       });
       if (user) {
-        this.userService.update({
-          where: { id: userId },
-          data: { refreshToken: null },
-        });
+        this.userService.update(
+          {
+            where: { id: userId },
+            data: { refreshToken: null },
+          },
+          null,
+        );
       }
     } catch (error) {
       this.logger.error(error);
@@ -107,10 +113,13 @@ export class AuthService {
       const tokens = await this.getTokens(user);
       // generate new refresh_token hash and save to database
       const hash = await hashValue(tokens.refresh_token);
-      this.userService.update({
-        where: { username: user.username },
-        data: { refreshToken: hash },
-      });
+      this.userService.update(
+        {
+          where: { username: user.username },
+          data: { refreshToken: hash },
+        },
+        null,
+      );
       return tokens;
     } catch (error) {
       this.logger.error(error);

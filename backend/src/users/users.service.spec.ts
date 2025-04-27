@@ -59,7 +59,7 @@ describe('UsersService', () => {
     });
 
     it('should call the prisma service', async () => {
-      await service.create({ password: '' } as User);
+      await service.create({ password: '' } as User, null);
       expect(prismaMock.user.create).toHaveBeenCalledTimes(1);
     });
   });
@@ -69,8 +69,8 @@ describe('UsersService', () => {
       expect(service.update).toBeDefined();
     });
 
-    it('should call the prisma service', () => {
-      service.update({ where: { id: 1 }, data: {} as User });
+    it('should call the prisma service', async () => {
+      await service.update({ where: { id: 1 }, data: {} as User }, null);
       expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
     });
   });
@@ -80,8 +80,8 @@ describe('UsersService', () => {
       expect(service.delete).toBeDefined();
     });
 
-    it('should call the prisma service', () => {
-      service.delete({ id: 1 });
+    it('should call the prisma service', async () => {
+      await service.delete({ id: 1 });
       expect(prismaMock.user.delete).toHaveBeenCalledTimes(1);
     });
   });

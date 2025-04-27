@@ -1,5 +1,3 @@
-import { join } from 'path';
-import * as fs from 'fs';
 import { Express } from 'express';
 import {
   Controller,
@@ -43,10 +41,7 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
     @UploadedFile() file: Express.Multer.File | null,
   ) {
-    if (file) {
-      createUserDto.image = file.filename;
-    }
-    return this.usersService.create(createUserDto);
+    return this.usersService.create(createUserDto, file);
   }
 
   @Get()
@@ -67,79 +62,47 @@ export class UsersController {
   @ApiOkResponse({ type: UserEntity })
   getProfil(
     @Param('id', ParseIntPipe) id: number,
-    @GetCurrentUserId() currentId: number,
+    @GetCurrentUserId() currentUserId: number,
   ) {
-    // only current user can get profile
-    if (id !== currentId) {
-      throw new ForbiddenException('403 Forbidden');
-    }
-    return this.usersService.findUnique({ id });
+    return this.usersService.getCurrentUserData(id, currentUserId);
   }
 
   @Patch(':id')
   @Roles(Role.Admin, Role.Administrasi)
   @UseInterceptors(FileInterceptor('image', multerOptions))
   @ApiOkResponse({ type: UserEntity })
-  async update(
+  update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() file: Express.Multer.File | null,
   ) {
-    const currentUser = await this.usersService.findUnique({ id });
-    if (file) {
-      this.removeImage(currentUser?.image!);
-      updateUserDto.image = file.filename;
-    }
-    return this.usersService.update({ where: { id }, data: updateUserDto });
+    return this.usersService.update(
+      { where: { id }, data: updateUserDto },
+      file,
+    );
   }
 
   @Patch('/:id/profile')
   @UseInterceptors(FileInterceptor('image', multerOptions))
   @ApiOkResponse({ type: UserEntity })
-  async updateProfil(
+  updateProfil(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
     @GetCurrentUserId() currentId: number,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    // only current user can update profile
-    if (id !== currentId) {
-      throw new ForbiddenException('403 Forbidden');
-    }
-    const currentUser = await this.usersService.findUnique({ id });
-    if (file) {
-      this.removeImage(currentUser?.image!);
-      updateUserDto.image = file.filename;
-    }
-    const { currentPassword, newPassword, ...data } = updateUserDto;
-
     return this.usersService.updateProfile(
-      { where: { id }, data: data },
-      currentPassword,
-      newPassword,
+      { where: { id } },
+      currentId,
+      updateUserDto,
+      file,
     );
   }
 
   @Delete(':id')
   @Roles(Role.Admin)
   @ApiOkResponse({ type: UserEntity })
-  async delete(@Param('id', ParseIntPipe) id: number) {
-    const deletedUser = await this.usersService.delete({ id });
-    this.removeImage(deletedUser?.image!);
-    return deletedUser;
-  }
-
-  removeImage(imagePath: string) {
-    if (!imagePath) {
-      return;
-    }
-    const oldImagePath = join(__dirname, '../../public/images', imagePath);
-    if (fs.existsSync(oldImagePath)) {
-      fs.unlink(oldImagePath, (err) => {
-        if (err) {
-          console.error('Error deleting old image:', err);
-        }
-      });
-    }
+  delete(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.delete({ id });
   }
 }
