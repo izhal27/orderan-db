@@ -11,6 +11,8 @@ import {
   MarkPayDto,
   MarkTakenDto,
 } from './dto';
+import { CustomersService } from '../customers/customers.service';
+import { WebSocketService } from '../lib/websocket.service';
 
 describe('OrdersService', () => {
   let service: OrdersService;
@@ -21,10 +23,9 @@ describe('OrdersService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         OrdersService,
-        {
-          provide: PrismaService,
-          useValue: prismaMock,
-        },
+        { provide: PrismaService, useValue: prismaMock },
+        { provide: CustomersService, useValue: mockDeep<CustomersService>() },
+        { provide: WebSocketService, useValue: mockDeep<WebSocketService>() },
       ],
     }).compile();
     service = module.get<OrdersService>(OrdersService);
@@ -65,7 +66,7 @@ describe('OrdersService', () => {
 
     it('should call the prisma service', async () => {
       prismaMock.$transaction.mockResolvedValue({} as Order);
-      await service.create({} as CreateOrderDto, 1);
+      await service.create({ customer: 'John Doe' } as CreateOrderDto, 1);
       expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
     });
   });
@@ -75,8 +76,19 @@ describe('OrdersService', () => {
       expect(service.update).toBeDefined();
     });
 
-    it('should call the prisma service', () => {
-      service.update('1', {} as UpdateOrderDto, 1);
+    it('should call the prisma service', async () => {
+      prismaMock.$transaction.mockImplementation(async (callback) => {
+        prismaMock.order.update.mockResolvedValue({ id: '1' } as any);
+        prismaMock.orderDetail.deleteMany.mockResolvedValue({
+          count: 0,
+        } as any);
+        return callback(prismaMock);
+      });
+      await service.update(
+        '1',
+        { customer: 'John', orderDetails: [] } as UpdateOrderDto,
+        1,
+      );
       expect(prismaMock.order.update).toHaveBeenCalledTimes(1);
     });
   });
@@ -86,8 +98,9 @@ describe('OrdersService', () => {
       expect(service.delete).toBeDefined();
     });
 
-    it('should call the prisma service', () => {
-      service.delete({} as Prisma.OrderWhereUniqueInput);
+    it('should call the prisma service', async () => {
+      prismaMock.order.delete.mockResolvedValue({ id: 'aaa' } as Order);
+      await service.delete({} as Prisma.OrderWhereUniqueInput, 'admin', 1);
       expect(prismaMock.order.delete).toHaveBeenCalledTimes(1);
     });
   });

@@ -41,7 +41,7 @@ export class UsersController {
   @ApiCreatedResponse({ type: UserEntity })
   create(
     @Body() createUserDto: CreateUserDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File | null,
   ) {
     if (file) {
       createUserDto.image = file.filename;
@@ -83,7 +83,7 @@ export class UsersController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File | null,
   ) {
     const currentUser = await this.usersService.findUnique({ id });
     if (file) {

@@ -440,7 +440,7 @@ export class OrdersService {
       return result;
     } catch (error) {
       this.logger.error(error);
-      throw new NotFoundException(error);
+      throw new BadRequestException(error);
     }
   }
 

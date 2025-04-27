@@ -85,7 +85,7 @@ describe('OrdersController', () => {
     });
 
     it('should call OrdersService.delete', () => {
-      controller.delete('aaa', 'admin');
+      controller.delete('aaa', 'admin', 1);
       expect(serviceMock.delete).toHaveBeenCalledTimes(1);
     });
   });

@@ -4,6 +4,7 @@ import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
+import { User } from '@prisma/client';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -57,7 +58,7 @@ describe('UsersController', () => {
     });
 
     it('should call UsersService.create', () => {
-      controller.create({} as CreateUserDto);
+      controller.create({} as CreateUserDto, null);
       expect(serviceMock.create).toHaveBeenCalledTimes(1);
     });
   });
@@ -67,8 +68,8 @@ describe('UsersController', () => {
       expect(serviceMock.update).toBeDefined();
     });
 
-    it('should call UsersService.update', () => {
-      controller.update(1, {} as UpdateUserDto);
+    it('should call UsersService.update', async () => {
+      await controller.update(1, {} as UpdateUserDto, null);
       expect(serviceMock.update).toHaveBeenCalledTimes(1);
     });
   });
