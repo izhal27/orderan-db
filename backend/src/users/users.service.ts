@@ -127,8 +127,8 @@ export class UsersService {
     const { currentPassword, newPassword, ...data } = updateUserDto;
     const currentUser = await this.findUnique(where);
     if (file) {
-      this.removeImage(currentUser?.image!);
-      updateUserDto.image = file.filename;
+      this.removeImage(currentUser!.image!);
+      data.image = file.filename;
     }
     // jika password baru dikirim tersedia, hash password baru
     if (newPassword) {
