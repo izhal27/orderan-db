@@ -7,9 +7,7 @@
 ![Top Language](https://img.shields.io/github/languages/top/izhal27/orderan-db)
 ![License](https://img.shields.io/github/license/izhal27/orderan-db)
 
-**Orderan DB** adalah skema database siap pakai untuk aplikasi manajemen pemesanan, dirancang untuk memudahkan proses pencatatan transaksi, pelanggan, produk, dan laporan pada usaha kecil hingga menengah seperti food & beverage, percetakan, atau retail.
-
-Dengan pendekatan yang sederhana namun fleksibel, struktur database ini cocok dijadikan fondasi untuk aplikasi POS (Point of Sale), ERP ringan, atau sistem kasir berbasis desktop/mobile/web.
+**Orderan DB** adalah aplikasi manajemen pemesanan dirancang untuk memudahkan proses pencatatan transaksi, pelanggan, produk, dan laporan pada usaha digital percetakan.
 
 ---
 
