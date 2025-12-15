@@ -13,11 +13,11 @@
 
 ## 🧠 Fitur & Komponen
 
-- 🧾 Tabel pelanggan, produk, pesanan, dan detail transaksi
+- 🧾 Data pelanggan, produk, pesanan, dan detail transaksi
 - 📊 Dukungan laporan berbasis waktu dan pelanggan
-- 🗃️ Struktur relasi yang teroptimasi untuk efisiensi query
-- 🔄 Cocok untuk integrasi dengan berbagai platform: Flutter, Web, Desktop, dan lainnya
-- 🔐 Siap dikembangkan untuk fitur autentikasi & multiuser
+- 🗃️ Realtime perubahan data
+- 🔄 Pencarian berbasis pelanggan dan waktu cetak
+- 🔐 Multi user role
 
 ---
 
