@@ -2,12 +2,19 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+function isSqlite(): boolean {
+  const url = process.env.DATABASE_URL ?? '';
+  return url.startsWith('file:') || url.includes('sqlite');
+}
+
 export async function truncateTable(table: string) {
   await prisma.$executeRawUnsafe(`DELETE FROM "${table}";`);
   // Optional: reset auto increment for SQLite
-  await prisma.$executeRawUnsafe(
-    `DELETE FROM sqlite_sequence WHERE name='${table}';`,
-  );
+  if (isSqlite()) {
+    await prisma.$executeRawUnsafe(
+      `DELETE FROM sqlite_sequence WHERE name='${table}';`,
+    );
+  }
 }
 
 export async function truncateCustomers() {
@@ -31,7 +38,6 @@ export async function truncateAll() {
     truncateTable('Customer'),
     truncateTable('Order'),
     truncateTable('OrderType'),
-    truncateTable('Role'),
-    // tambah sesuai kebutuhan
+    // Note: don't truncate Role here to avoid nulling user.roleId via FK.
   ]);
 }
