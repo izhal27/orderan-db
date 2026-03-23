@@ -15,7 +15,7 @@ interface props {
     e: React.ChangeEvent<HTMLInputElement>,
     orderDetailId: string,
   ): void;
-  role: string | undefined;
+  userRole: string | undefined;
 }
 
 export default function ShowDetailOrderTable({
@@ -24,7 +24,7 @@ export default function ShowDetailOrderTable({
   expandedRowId,
   onExpandedRowToggleHandler,
   onCheckBoxPrintedClickHandler,
-  role,
+  userRole,
 }: props) {
   const { moment } = useMoment();
 
@@ -97,8 +97,8 @@ export default function ShowDetailOrderTable({
                     {
                       // jika user bertipe admin atau operator
                       // maka tampilkan checkbox marked printed
-                      isContain(role || "", Roles.ADMIN) ||
-                      isContain(role || "", Roles.OPERATOR) ? (
+                      isContain(userRole || "", Roles.ADMIN) ||
+                      isContain(userRole || "", Roles.OPERATOR) ? (
                         <Checkbox
                           id="marked-printed"
                           onChange={(e) =>

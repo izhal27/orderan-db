@@ -50,9 +50,7 @@ export function useOrderStatusWebSocket(initialOrder: Order | undefined) {
       if (!prevOrder) return prevOrder;
       const updates = Array.isArray(event.data) ? event.data : [];
       const updatedOrderDetails = prevOrder.OrderDetails.map((detail) => {
-        const match = updates.find(
-          (u) => u.orderDetailId === detail.id,
-        );
+        const match = updates.find((u) => u.orderDetailId === detail.id);
         return match ? { ...detail, MarkedPrinted: match } : detail;
       });
       return {

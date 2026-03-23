@@ -1,5 +1,5 @@
-import type { ReactElement } from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import DetailPage from "./page";
 
 const mockOrder = {

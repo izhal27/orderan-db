@@ -1,7 +1,8 @@
+import type { OrderDetail } from "@/constants";
 import { render, screen } from "@testing-library/react";
 import ShowDetailOrderTable from "./ShowDetailOrderTable";
 
-const baseDetail = {
+const baseDetail: OrderDetail = {
   id: "od1",
   name: "FRONTLITE 280 GSM",
   width: 2,
@@ -11,7 +12,24 @@ const baseDetail = {
   eyelets: true,
   shiming: false,
   description: "Test",
-  MarkedPrinted: { status: true },
+  MarkedPrinted: {
+    id: "mp1",
+    status: true,
+    printAt: new Date().toISOString(),
+    description: "-",
+    PrintedBy: {
+      id: "u1",
+      username: "admin",
+      email: "admin@example.com",
+      name: "Admin",
+      image: "",
+      blocked: false,
+      roleId: 1,
+      role: { id: 1, name: "Admin" },
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
 };
 
 describe("ShowDetailOrderTable", () => {
@@ -19,29 +37,28 @@ describe("ShowDetailOrderTable", () => {
     render(
       <ShowDetailOrderTable
         markedTaken={false}
-        orderDetails={[baseDetail as any]}
+        orderDetails={[baseDetail]}
         expandedRowId={null}
         onExpandedRowToggleHandler={() => {}}
         onCheckBoxPrintedClickHandler={() => {}}
-        role="admin"
+        userRole="admin"
       />,
     );
 
     expect(screen.getByText("FRONTLITE 280 GSM")).toBeInTheDocument();
     expect(screen.getByText("Ya")).toBeInTheDocument();
     expect(screen.getByText("Tidak")).toBeInTheDocument();
-
   });
 
   it("shows checkbox for admin role and text for non-privileged role", () => {
     const { rerender } = render(
       <ShowDetailOrderTable
         markedTaken={false}
-        orderDetails={[baseDetail as any]}
+        orderDetails={[baseDetail]}
         expandedRowId={null}
         onExpandedRowToggleHandler={() => {}}
         onCheckBoxPrintedClickHandler={() => {}}
-        role="admin"
+        userRole="admin"
       />,
     );
 
@@ -50,11 +67,11 @@ describe("ShowDetailOrderTable", () => {
     rerender(
       <ShowDetailOrderTable
         markedTaken={false}
-        orderDetails={[baseDetail as any]}
+        orderDetails={[baseDetail]}
         expandedRowId={null}
         onExpandedRowToggleHandler={() => {}}
         onCheckBoxPrintedClickHandler={() => {}}
-        role="designer"
+        userRole="designer"
       />,
     );
 

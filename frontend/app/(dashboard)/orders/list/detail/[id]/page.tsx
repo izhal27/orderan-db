@@ -14,7 +14,6 @@ import debounce from "lodash.debounce";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import ConfirmPasswordModal from "../../_components/ConfirmPasswordModal";
 import ConfirmActionModal from "../../_components/ConfirmActionModal";
 import LabelStatus from "../../_components/LabelStatus";
 import ShowDetailOrderTable from "../../_components/ShowDetailOrderTable";
@@ -44,17 +43,14 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const { order, setOrder } = useOrderStatusWebSocket(undefined);
   const { moment } = useMoment();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{
     type: "printed-all" | "pay" | "taken";
     checked: boolean;
   } | null>(null);
-  const [currentCheckbox, setCurrentCheckbox] = useState<{
-    type: string;
-    state: boolean;
-    id?: string;
-  } | null>(null);
+
+  const createCheckboxEvent = (checked: boolean) =>
+    ({ target: { checked } }) as React.ChangeEvent<HTMLInputElement>;
 
   const fetchOrder = useCallback(async () => {
     if (status === "loading" || !session?.accessToken) return;
@@ -77,60 +73,11 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
 
-  const handleModalConfirm = useCallback(
-    async (password: string) => {
-      setIsModalOpen(false);
-      if (!currentCheckbox) return;
-
-      try {
-        const valid = await request("/auth/validate-password", {
-          method: "POST",
-          body: JSON.stringify({ password }),
-        });
-
-        if (valid) {
-          if (currentCheckbox.type === "printed") {
-            handleCheckboxPrintedClick(
-              {
-                target: { checked: currentCheckbox.state },
-              } as React.ChangeEvent<HTMLInputElement>,
-              currentCheckbox.id as string,
-            );
-          } else if (currentCheckbox.type === "printed-all") {
-            handleCheckboxPrintedAllClick({
-              target: { checked: currentCheckbox.state },
-            } as React.ChangeEvent<HTMLInputElement>);
-          } else if (currentCheckbox.type === "pay") {
-            handleCheckboxPayClick({
-              target: { checked: currentCheckbox.state },
-            } as React.ChangeEvent<HTMLInputElement>);
-          } else if (currentCheckbox.type === "taken") {
-            handleCheckboxTakenClick({
-              target: { checked: currentCheckbox.state },
-            } as React.ChangeEvent<HTMLInputElement>);
-          }
-        } else {
-          showToast("error", "Verifikasi password gagal");
-        }
-      } catch (error) {
-        showToast("error", "Terjadi kesalahan saat memvalidasi password");
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentCheckbox],
-  );
-
   const handleCheckboxClick = (
     e: React.ChangeEvent<HTMLInputElement>,
     checkboxType: string,
     id?: string,
   ) => {
-    // TEMP: bypass password confirmation (enable again later)
-    // e.preventDefault();
-    // setCurrentCheckbox({ type: checkboxType, state: e.target.checked, id });
-    // setIsModalOpen(true);
-    // // Reset the checkbox state to its previous value to prevent default behavior
-    // e.target.checked = !e.target.checked;
     const checked = e.target.checked;
     if (
       checkboxType === "printed-all" ||
@@ -148,22 +95,15 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       return;
     }
     if (checkboxType === "printed" && id) {
-      handleCheckboxPrintedClick(
-        { target: { checked } } as React.ChangeEvent<HTMLInputElement>,
-        id,
-      );
+      handleCheckboxPrintedClick(createCheckboxEvent(checked), id);
       return;
     }
     if (checkboxType === "pay") {
-      handleCheckboxPayClick(
-        { target: { checked } } as React.ChangeEvent<HTMLInputElement>,
-      );
+      handleCheckboxPayClick(createCheckboxEvent(checked));
       return;
     }
     if (checkboxType === "taken") {
-      handleCheckboxTakenClick(
-        { target: { checked } } as React.ChangeEvent<HTMLInputElement>,
-      );
+      handleCheckboxTakenClick(createCheckboxEvent(checked));
     }
   };
 
@@ -334,7 +274,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           onCheckBoxPrintedClickHandler={(e, id) =>
             handleCheckboxClick(e, "printed", id)
           }
-          role={session?.user?.role}
+          userRole={session?.user?.role}
         />
       );
     }
@@ -531,13 +471,6 @@ export default function DetailPage({ params }: { params: { id: string } }) {
         {table}
       </div>
 
-      {/*
-      <ConfirmPasswordModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleModalConfirm}
-      />
-      */}
       <ConfirmActionModal
         isOpen={isConfirmOpen}
         title={
@@ -564,21 +497,13 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           if (!confirmAction) return;
           if (confirmAction.type === "printed-all") {
             handleCheckboxPrintedAllClick(
-              {
-                target: { checked: confirmAction.checked },
-              } as React.ChangeEvent<HTMLInputElement>,
+              createCheckboxEvent(confirmAction.checked),
             );
           } else if (confirmAction.type === "pay") {
-            handleCheckboxPayClick(
-              {
-                target: { checked: confirmAction.checked },
-              } as React.ChangeEvent<HTMLInputElement>,
-            );
+            handleCheckboxPayClick(createCheckboxEvent(confirmAction.checked));
           } else {
             handleCheckboxTakenClick(
-              {
-                target: { checked: confirmAction.checked },
-              } as React.ChangeEvent<HTMLInputElement>,
+              createCheckboxEvent(confirmAction.checked),
             );
           }
           setIsConfirmOpen(false);
