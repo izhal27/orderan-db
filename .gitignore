@@ -95,6 +95,10 @@ packages/**/*.js
 /packages/graphql
 /benchmarks/memory
 build/config\.gypi
+playwright-report
+test-results
+.playwright
+frontend/e2e/.auth
 
 # IDEs and editors
 /.idea
