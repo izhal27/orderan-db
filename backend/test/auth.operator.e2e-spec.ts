@@ -1,8 +1,19 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { PrismaClient } from '@prisma/client';
-import { buildApp } from '../utils/setup.e2e';
-import { login } from './utils';
+import { buildApp } from './utils/setup.e2e';
+
+const login = async (
+  app: INestApplication,
+  username: string,
+  password: string,
+): Promise<{ accessToken: string }> => {
+  const res = await request(app.getHttpServer())
+    .post('/auth/local/signin')
+    .send({ username, password })
+    .expect(200);
+  return { accessToken: res.body.access_token };
+};
 
 describe('Operator Auth (e2e)', () => {
   let app: INestApplication;

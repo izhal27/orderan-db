@@ -3,7 +3,8 @@ import { Order, Prisma, PrismaClient } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 
-import { OrdersService } from './orders.service';
+import { ForbiddenException } from '@nestjs/common';
+import { CancelType, OrdersService } from './orders.service';
 import {
   CreateOrderDto,
   UpdateOrderDto,
@@ -17,15 +18,17 @@ import { WebSocketService } from '../lib/websocket.service';
 describe('OrdersService', () => {
   let service: OrdersService;
   let prismaMock: DeepMockProxy<PrismaClient>;
+  let wsMock: DeepMockProxy<WebSocketService>;
 
   beforeAll(async () => {
     prismaMock = mockDeep<PrismaClient>();
+    wsMock = mockDeep<WebSocketService>();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         OrdersService,
         { provide: PrismaService, useValue: prismaMock },
         { provide: CustomersService, useValue: mockDeep<CustomersService>() },
-        { provide: WebSocketService, useValue: mockDeep<WebSocketService>() },
+        { provide: WebSocketService, useValue: wsMock },
       ],
     }).compile();
     service = module.get<OrdersService>(OrdersService);
@@ -103,6 +106,16 @@ describe('OrdersService', () => {
       await service.delete({} as Prisma.OrderWhereUniqueInput, 'admin', 1);
       expect(prismaMock.order.delete).toHaveBeenCalledTimes(1);
     });
+
+    it('should forbid non-admin delete when paid or taken', async () => {
+      jest
+        .spyOn(service, 'findUnique')
+        .mockResolvedValue({ MarkedPay: { id: 'p1' } } as any);
+
+      await expect(
+        service.delete({ id: '1' } as Prisma.OrderWhereUniqueInput, 'operator', 1),
+      ).rejects.toThrow(ForbiddenException);
+    });
   });
 
   describe('markPrint', () => {
@@ -110,8 +123,9 @@ describe('OrdersService', () => {
       expect(service.markPrint).toBeDefined();
     });
 
-    it('should call the prisma service', () => {
-      service.markPrint('aaa', {} as MarkPrintedDto, 1);
+    it('should call the prisma service', async () => {
+      prismaMock.printedStatus.upsert.mockResolvedValue({ id: 'p1' } as any);
+      await service.markPrint('aaa', {} as MarkPrintedDto, 1);
       expect(prismaMock.printedStatus.upsert).toHaveBeenCalledTimes(1);
     });
   });
@@ -121,8 +135,9 @@ describe('OrdersService', () => {
       expect(service.markPay).toBeDefined();
     });
 
-    it('should call the prisma service', () => {
-      service.markPay('aaa', {} as MarkPayDto, 1);
+    it('should call the prisma service', async () => {
+      prismaMock.payStatus.upsert.mockResolvedValue({ id: 'p1' } as any);
+      await service.markPay('aaa', {} as MarkPayDto, 1);
       expect(prismaMock.payStatus.upsert).toHaveBeenCalledTimes(1);
     });
   });
@@ -132,9 +147,45 @@ describe('OrdersService', () => {
       expect(service.markTaken).toBeDefined();
     });
 
-    it('should call the prisma service', () => {
-      service.markTaken('aaa', {} as MarkTakenDto, 1);
+    it('should call the prisma service', async () => {
+      prismaMock.takenStatus.upsert.mockResolvedValue({ id: 't1' } as any);
+      await service.markTaken('aaa', {} as MarkTakenDto, 1);
       expect(prismaMock.takenStatus.upsert).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('cancelStatus', () => {
+    it('should cancel print status', async () => {
+      prismaMock.printedStatus.update.mockResolvedValue({ id: 'p1' } as any);
+      await service.cancelStatus({
+        type: CancelType.PRINT,
+        orderDetailId: 'od1',
+        userId: 1,
+      });
+      expect(prismaMock.printedStatus.update).toHaveBeenCalledTimes(1);
+      expect(wsMock.emitEvent).toHaveBeenCalled();
+    });
+
+    it('should cancel pay status', async () => {
+      prismaMock.payStatus.update.mockResolvedValue({ id: 'pay1' } as any);
+      await service.cancelStatus({
+        type: CancelType.PAY,
+        orderId: 'o1',
+        userId: 1,
+      });
+      expect(prismaMock.payStatus.update).toHaveBeenCalledTimes(1);
+      expect(wsMock.emitEvent).toHaveBeenCalled();
+    });
+
+    it('should cancel taken status', async () => {
+      prismaMock.takenStatus.update.mockResolvedValue({ id: 't1' } as any);
+      await service.cancelStatus({
+        type: CancelType.TAKEN,
+        orderId: 'o1',
+        userId: 1,
+      });
+      expect(prismaMock.takenStatus.update).toHaveBeenCalledTimes(1);
+      expect(wsMock.emitEvent).toHaveBeenCalled();
     });
   });
 });
