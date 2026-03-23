@@ -62,7 +62,15 @@ export default function OrderAddEdit({ order }: props) {
     }
     return isEditMode ? editHandler() : addHandler();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditMode, isValid, session, orderDetails]);
+  }, [
+    isEditMode,
+    isValid,
+    session,
+    orderDetails,
+    deletedOrderDetails,
+    customer,
+    description,
+  ]);
 
   const addHandler = useCallback(async () => {
     try {
