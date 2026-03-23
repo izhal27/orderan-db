@@ -68,6 +68,31 @@ export function useOrderWebSocket(
     [],
   );
 
+  const handleOrderPrintMany = useCallback((event: WebSocketEvent) => {
+    const updates = Array.isArray(event.data) ? event.data : [];
+    setOrders((prevOrders) =>
+      prevOrders.map((order) => {
+        const updatedOrderDetails = order.OrderDetails.map((detail) => {
+          const match = updates.find((u) => u.orderDetailId === detail.id);
+          return match ? { ...detail, MarkedPrinted: match } : detail;
+        });
+        return {
+          ...order,
+          OrderDetails: updatedOrderDetails,
+          animate: true,
+        };
+      }),
+    );
+
+    setTimeout(() => {
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.animate ? { ...order, animate: false } : order,
+        ),
+      );
+    }, 700);
+  }, []);
+
   useWebSocket({
     "order:new": (event: WebSocketEvent) => {
       if (event.userId !== sessionUserId) {
@@ -122,6 +147,8 @@ export function useOrderWebSocket(
       handleOrderStatusChange(event, "Print"),
     "order:cancelPrint": (event: WebSocketEvent) =>
       handleOrderStatusChange(event, "Print"),
+    "order:markPrintMany": handleOrderPrintMany,
+    "order:cancelPrintMany": handleOrderPrintMany,
     "order:markPay": (event: WebSocketEvent) =>
       handleOrderStatusChange(event, "Pay"),
     "order:cancelPay": (event: WebSocketEvent) =>

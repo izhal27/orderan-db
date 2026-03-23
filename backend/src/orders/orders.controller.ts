@@ -22,6 +22,8 @@ import {
   CreateOrderDto,
   MarkPayDto,
   MarkPrintedDto,
+  MarkPrintedManyDto,
+  CancelPrintedManyDto,
   UpdateOrderDto,
 } from './dto';
 import { CancelType, OrdersService } from './orders.service';
@@ -110,6 +112,26 @@ export class OrdersController {
     @GetCurrentUserId() userId: number,
   ) {
     return this.ordersService.markPrint(id, markPrintedDto, userId);
+  }
+
+  @Post('/detail/print-many')
+  @Roles(Role.Admin, Role.Operator)
+  @HttpCode(200)
+  markPrintedMany(
+    @Body() markPrintedManyDto: MarkPrintedManyDto,
+    @GetCurrentUserId() userId: number,
+  ) {
+    return this.ordersService.markPrintMany(markPrintedManyDto, userId);
+  }
+
+  @Post('/detail/cancel-print-many')
+  @Roles(Role.Admin, Role.Operator)
+  @HttpCode(200)
+  cancelPrintedMany(
+    @Body() cancelPrintedManyDto: CancelPrintedManyDto,
+    @GetCurrentUserId() userId: number,
+  ) {
+    return this.ordersService.cancelPrintMany(cancelPrintedManyDto, userId);
   }
 
   @Post('/detail/:orderDetailId/cancel-print')

@@ -12,6 +12,8 @@ import {
   CreateOrderDto,
   UpdateOrderDto,
   MarkPrintedDto,
+  MarkPrintedManyDto,
+  CancelPrintedManyDto,
   MarkPayDto,
   MarkTakenDto,
 } from './dto';
@@ -517,6 +519,87 @@ export class OrdersService {
       });
       this.webSocketService.emitEvent('order:markPrint', result, printedById);
       return result;
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
+  }
+
+  async markPrintMany(
+    markPrintedManyDto: MarkPrintedManyDto,
+    printedById: number,
+  ) {
+    const { orderDetailIds, status, description, printAt } =
+      markPrintedManyDto;
+    try {
+      const results = await this.prismaService.$transaction(
+        orderDetailIds.map((orderDetailId) =>
+          this.prismaService.printedStatus.upsert({
+            where: { orderDetailId },
+            update: {
+              status,
+              printAt,
+              description,
+              printedById,
+            },
+            create: {
+              status,
+              printAt,
+              description,
+              orderDetailId,
+              printedById,
+            },
+            include: {
+              PrintedBy: {
+                select: {
+                  id: true,
+                  username: true,
+                  name: true,
+                  image: true,
+                },
+              },
+            },
+          }),
+        ),
+      );
+      this.webSocketService.emitEvent('order:markPrintMany', results, printedById);
+      return results;
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException(error);
+    }
+  }
+
+  async cancelPrintMany(
+    cancelPrintedManyDto: CancelPrintedManyDto,
+    printedById: number,
+  ) {
+    const { orderDetailIds } = cancelPrintedManyDto;
+    try {
+      const results = await this.prismaService.$transaction(
+        orderDetailIds.map((orderDetailId) =>
+          this.prismaService.printedStatus.update({
+            where: { orderDetailId },
+            data: { status: false, printedById },
+            include: {
+              PrintedBy: {
+                select: {
+                  id: true,
+                  username: true,
+                  name: true,
+                  image: true,
+                },
+              },
+            },
+          }),
+        ),
+      );
+      this.webSocketService.emitEvent(
+        'order:cancelPrintMany',
+        results,
+        printedById,
+      );
+      return results;
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(error);

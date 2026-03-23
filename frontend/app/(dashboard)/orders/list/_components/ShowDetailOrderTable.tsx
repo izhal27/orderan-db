@@ -15,6 +15,10 @@ interface props {
     e: React.ChangeEvent<HTMLInputElement>,
     orderDetailId: string,
   ): void;
+  onCheckBoxPrintedAllClickHandler(
+    e: React.ChangeEvent<HTMLInputElement>,
+  ): void;
+  allPrinted: boolean;
   role: string | undefined;
 }
 
@@ -24,6 +28,8 @@ export default function ShowDetailOrderTable({
   expandedRowId,
   onExpandedRowToggleHandler,
   onCheckBoxPrintedClickHandler,
+  onCheckBoxPrintedAllClickHandler,
+  allPrinted,
   role,
 }: props) {
   const { moment } = useMoment();
@@ -39,7 +45,21 @@ export default function ShowDetailOrderTable({
         <Table.HeadCell className="text-center">Mata Ayam</Table.HeadCell>
         <Table.HeadCell className="text-center">Shiming</Table.HeadCell>
         <Table.HeadCell className="text-center">Keterangan</Table.HeadCell>
-        <Table.HeadCell className="text-center">Dicetak</Table.HeadCell>
+        <Table.HeadCell className="text-center">
+          <div className="flex items-center justify-center gap-2">
+            <span>Dicetak</span>
+            {isContain(role || "", Roles.ADMIN) ||
+            isContain(role || "", Roles.OPERATOR) ? (
+              <Checkbox
+                id="marked-printed-all"
+                onChange={onCheckBoxPrintedAllClickHandler}
+                checked={allPrinted}
+                disabled={markedTaken}
+                className="disabled:cursor-not-allowed disabled:text-gray-500"
+              />
+            ) : null}
+          </div>
+        </Table.HeadCell>
       </Table.Head>
       <Table.Body className="divide-y">
         {orderDetails?.map((item: OrderDetail, index) => {

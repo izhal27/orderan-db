@@ -45,11 +45,30 @@ export function useOrderStatusWebSocket(initialOrder: Order | undefined) {
     [],
   );
 
+  const handleOrderPrintMany = useCallback((event: WebSocketEvent) => {
+    setOrder((prevOrder) => {
+      if (!prevOrder) return prevOrder;
+      const updates = Array.isArray(event.data) ? event.data : [];
+      const updatedOrderDetails = prevOrder.OrderDetails.map((detail) => {
+        const match = updates.find(
+          (u) => u.orderDetailId === detail.id,
+        );
+        return match ? { ...detail, MarkedPrinted: match } : detail;
+      });
+      return {
+        ...prevOrder,
+        OrderDetails: updatedOrderDetails,
+      };
+    });
+  }, []);
+
   useWebSocket({
     "order:markPrint": (event: WebSocketEvent) =>
       handleOrderStatusChange(event, "Print"),
     "order:cancelPrint": (event: WebSocketEvent) =>
       handleOrderStatusChange(event, "Print"),
+    "order:markPrintMany": handleOrderPrintMany,
+    "order:cancelPrintMany": handleOrderPrintMany,
     "order:markPay": (event: WebSocketEvent) =>
       handleOrderStatusChange(event, "Pay"),
     "order:cancelPay": (event: WebSocketEvent) =>
