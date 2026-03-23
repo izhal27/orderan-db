@@ -15,6 +15,7 @@ import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import ConfirmPasswordModal from "../../_components/ConfirmPasswordModal";
+import ConfirmActionModal from "../../_components/ConfirmActionModal";
 import LabelStatus from "../../_components/LabelStatus";
 import ShowDetailOrderTable from "../../_components/ShowDetailOrderTable";
 
@@ -44,6 +45,11 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   const { order, setOrder } = useOrderStatusWebSocket(undefined);
   const { moment } = useMoment();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<{
+    type: "printed-all" | "pay" | "taken";
+    checked: boolean;
+  } | null>(null);
   const [currentCheckbox, setCurrentCheckbox] = useState<{
     type: string;
     state: boolean;
@@ -91,11 +97,9 @@ export default function DetailPage({ params }: { params: { id: string } }) {
               currentCheckbox.id as string,
             );
           } else if (currentCheckbox.type === "printed-all") {
-            handleCheckboxPrintedAllClick(
-              {
-                target: { checked: currentCheckbox.state },
-              } as React.ChangeEvent<HTMLInputElement>,
-            );
+            handleCheckboxPrintedAllClick({
+              target: { checked: currentCheckbox.state },
+            } as React.ChangeEvent<HTMLInputElement>);
           } else if (currentCheckbox.type === "pay") {
             handleCheckboxPayClick({
               target: { checked: currentCheckbox.state },
@@ -121,11 +125,46 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     checkboxType: string,
     id?: string,
   ) => {
-    e.preventDefault();
-    setCurrentCheckbox({ type: checkboxType, state: e.target.checked, id });
-    setIsModalOpen(true);
-    // Reset the checkbox state to its previous value to prevent default behavior
-    e.target.checked = !e.target.checked;
+    // TEMP: bypass password confirmation (enable again later)
+    // e.preventDefault();
+    // setCurrentCheckbox({ type: checkboxType, state: e.target.checked, id });
+    // setIsModalOpen(true);
+    // // Reset the checkbox state to its previous value to prevent default behavior
+    // e.target.checked = !e.target.checked;
+    const checked = e.target.checked;
+    if (
+      checkboxType === "printed-all" ||
+      checkboxType === "pay" ||
+      checkboxType === "taken"
+    ) {
+      e.preventDefault();
+      setConfirmAction({
+        type: checkboxType as "printed-all" | "pay" | "taken",
+        checked,
+      });
+      setIsConfirmOpen(true);
+      // Reset the checkbox state to its previous value to prevent default behavior
+      e.target.checked = !checked;
+      return;
+    }
+    if (checkboxType === "printed" && id) {
+      handleCheckboxPrintedClick(
+        { target: { checked } } as React.ChangeEvent<HTMLInputElement>,
+        id,
+      );
+      return;
+    }
+    if (checkboxType === "pay") {
+      handleCheckboxPayClick(
+        { target: { checked } } as React.ChangeEvent<HTMLInputElement>,
+      );
+      return;
+    }
+    if (checkboxType === "taken") {
+      handleCheckboxTakenClick(
+        { target: { checked } } as React.ChangeEvent<HTMLInputElement>,
+      );
+    }
   };
 
   const sendPostMarked = debounce(
@@ -295,14 +334,6 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           onCheckBoxPrintedClickHandler={(e, id) =>
             handleCheckboxClick(e, "printed", id)
           }
-          onCheckBoxPrintedAllClickHandler={(e) =>
-            handleCheckboxClick(e, "printed-all")
-          }
-          allPrinted={
-            order?.OrderDetails?.length
-              ? order.OrderDetails.every((od) => od.MarkedPrinted?.status)
-              : false
-          }
           role={session?.user?.role}
         />
       );
@@ -318,158 +349,241 @@ export default function DetailPage({ params }: { params: { id: string } }) {
   ]);
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-6 p-4">
       <BackButton />
-      <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-        Detail Pesanan :{" "}
-        <span className="font-normal text-gray-500 dark:text-gray-400">
-          {order?.user?.name}
-        </span>{" "}
-        <span className="text-sm font-light text-gray-500 dark:text-gray-400">
-          @{order?.user?.username}
-        </span>
-      </h3>
-      <div className="grid grid-cols-[auto,1fr] gap-x-24">
-        <div className="flex gap-x-4">
-          <div className="hidden flex-col items-center space-y-2 xl:flex">
-            <UserAvatar
-              width={80}
-              height={80}
-              userImage={order?.user?.image}
-              size="lg"
-              bordered
-              rounded
-            />
+
+      <div className="rounded-2xl border border-gray-700/60 bg-gray-900/70 p-6 text-gray-200 shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h3 className="text-2xl font-semibold text-white">
+              Detail Pesanan
+            </h3>
+            <div className="mt-1 text-sm text-gray-400">
+              {order?.number} <span className="mx-2 text-gray-500">•</span>
+              {moment(order?.updatedAt).format("DD MMMM YYYY, HH.mm")}
+            </div>
           </div>
-          <div className="flex gap-x-6">
-            <div className="grid grid-cols-[auto,auto,1fr] gap-x-4 text-sm text-gray-500 dark:text-gray-400">
-              <p>Nomor</p>
-              <span>:</span>
-              <p>{order?.number}</p>
-              <p>Tanggal</p>
-              <span>:</span>
-              <p>{moment(order?.updatedAt).format("DD MMMM YYYY HH.mm")}</p>
-              <p>Pelanggan</p>
-              <span>:</span>
-              <p>{order?.customer}</p>
-              <p>Keterangan</p>
-              <span>:</span>
-              <p>{order?.description}</p>
-            </div>
-            <div className="flex items-start gap-2 text-sm">
-              <p className="font-medium text-gray-500 dark:text-gray-400">
-                Total
-              </p>
-              <div className="grid grid-cols-[auto,auto,1fr] items-center gap-x-4 text-gray-500 dark:text-gray-400">
-                <p>Item</p>
-                <span>:</span>
-                <p>{order?.OrderDetails?.length}</p>
-                <p>Qty</p>
-                <span>:</span>
-                <p>
-                  {order?.OrderDetails?.reduce((acc, od) => acc + od.qty, 0)}
-                </p>
+          {(order?.MarkedPay?.status ||
+            order?.MarkedTaken?.status ||
+            order?.OrderDetails?.some((od) => od.MarkedPrinted?.status)) && (
+            <div className="flex items-center">
+              <div className="rounded-full border border-emerald-700/60 bg-emerald-900/30 px-4 py-2 text-sm font-medium text-emerald-300">
+                {order && LabelStatus({ order })}
               </div>
             </div>
-            <div className="flex items-start gap-2 text-sm">
-              <p className="font-medium text-gray-500 dark:text-gray-400">
-                Status
-              </p>
-              <div className="grid grid-cols-[auto,auto,1fr] items-center gap-x-4 text-gray-500 dark:text-gray-400">
-                <p>Dibayar</p>
-                <span>:</span>
-                <p
-                  className={twMerge(
-                    "font-medium",
-                    order?.MarkedPay?.status
-                      ? "text-green-400"
-                      : "text-red-400",
-                  )}
-                >
-                  {order?.MarkedPay?.status ? "Selesai" : "Belum"}
-                </p>
-                {order?.MarkedPay && (
-                  <span className="col-span-3 text-xs font-light">
-                    {order?.MarkedPay?.status ? "Ditandai" : "Dibatalkan"} oleh{" "}
-                    {`${order?.MarkedPay.MarkedBy?.username} ${moment(order?.MarkedPay?.updatedAt).format("DD MMMM YYYY HH.mm")}`}
-                  </span>
-                )}
-                <p>Diambil</p>
-                <span>:</span>
-                <p
-                  className={twMerge(
-                    "font-medium",
-                    order?.MarkedTaken?.status
-                      ? "text-green-400"
-                      : "text-red-400",
-                  )}
-                >
-                  {order?.MarkedTaken?.status ? "Selesai" : "Belum"}
-                </p>
-                {order?.MarkedTaken && (
-                  <span className="col-span-3 text-xs font-light">
-                    {order?.MarkedTaken?.status ? "Ditandai" : "Dibatalkan"}{" "}
-                    oleh{" "}
-                    {`${order?.MarkedTaken.MarkedBy?.username} ${moment(order?.MarkedTaken?.updatedAt).format("DD MMMM YYYY HH.mm")}`}
-                  </span>
+          )}
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="rounded-xl border border-gray-700/60 bg-gray-800/70 p-4">
+            <div className="text-xs uppercase tracking-wide text-gray-400">
+              Total Item
+            </div>
+            <div className="mt-1 text-2xl font-semibold text-white">
+              {order?.OrderDetails?.length ?? 0}
+            </div>
+          </div>
+          <div className="rounded-xl border border-gray-700/60 bg-gray-800/70 p-4">
+            <div className="text-xs uppercase tracking-wide text-gray-400">
+              Total Qty
+            </div>
+            <div className="mt-1 text-2xl font-semibold text-white">
+              {order?.OrderDetails?.reduce((acc, od) => acc + od.qty, 0) ?? 0}
+            </div>
+          </div>
+          <div className="rounded-xl border border-gray-700/60 bg-gray-800/70 p-4">
+            <div className="text-xs uppercase tracking-wide text-gray-400">
+              Status Bayar
+            </div>
+            <div
+              className={twMerge(
+                "mt-2 text-lg font-semibold",
+                order?.MarkedPay?.status ? "text-emerald-300" : "text-rose-300",
+              )}
+            >
+              {order?.MarkedPay?.status ? "Selesai" : "Belum Dibayar"}
+            </div>
+            {order?.MarkedPay?.status && order?.MarkedPay?.updatedAt && (
+              <div className="mt-1 text-xs text-gray-400">
+                {moment(order?.MarkedPay?.updatedAt).format(
+                  "DD MMMM YYYY HH.mm",
                 )}
               </div>
+            )}
+          </div>
+          <div className="rounded-xl border border-gray-700/60 bg-gray-800/70 p-4">
+            <div className="text-xs uppercase tracking-wide text-gray-400">
+              Status Ambil
             </div>
+            <div
+              className={twMerge(
+                "mt-2 text-lg font-semibold",
+                order?.MarkedTaken?.status
+                  ? "text-emerald-300"
+                  : "text-rose-300",
+              )}
+            >
+              {order?.MarkedTaken?.status ? "Selesai" : "Belum Diambil"}
+            </div>
+            {order?.MarkedTaken?.status && order?.MarkedTaken?.updatedAt && (
+              <div className="mt-1 text-xs text-gray-400">
+                {moment(order?.MarkedTaken?.updatedAt).format(
+                  "DD MMMM YYYY HH.mm",
+                )}
+              </div>
+            )}
           </div>
         </div>
-        <div className="flex justify-end">
-          <div className="flex flex-col items-end justify-between">
-            <div>{order && LabelStatus({ order })}</div>
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              {
-                // hanya user yang bertipe role admin atau administrasi yang bisa menandai terbayar dan diambil
-                isContain(session?.user?.role || "", Roles.ADMIN) ||
-                isContain(session?.user?.role || "", Roles.ADMINISTRASI) ? (
-                  <>
-                    <Label
-                      htmlFor="marked-pay"
-                      className="flex items-center gap-2 text-gray-500 dark:text-gray-400"
-                    >
-                      <Checkbox
-                        id="marked-pay"
-                        onChange={(e) => handleCheckboxClick(e, "pay")}
-                        checked={order?.MarkedPay?.status || false}
-                        // disable jika status sudah diambil
-                        // disabled={order?.MarkedTaken?.status}
-                        className="disabled:cursor-not-allowed disabled:text-gray-500"
-                      />
-                      Dibayar
-                    </Label>
-                    <Label
-                      htmlFor="marked-taken"
-                      className="flex items-center gap-2 text-gray-500 dark:text-gray-400"
-                    >
-                      <Checkbox
-                        id="marked-taken"
-                        onChange={(e) => handleCheckboxClick(e, "taken")}
-                        checked={order?.MarkedTaken?.status || false}
-                        // disable jika belum ada pembayaran atau semua belum ditandai dicetak
-                        disabled={
-                          !order?.OrderDetails?.every(
-                            (od) => od.MarkedPrinted?.status,
-                          )
-                        }
-                        className="disabled:cursor-not-allowed disabled:text-gray-500"
-                      />
-                      Diambil
-                    </Label>
-                  </>
-                ) : null
-              }
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
+        <div className="rounded-2xl border border-gray-700/60 bg-gray-900/70 p-5 text-gray-200">
+          <div className="flex items-center gap-4">
+            <UserAvatar
+              rounded
+              bordered
+              size="lg"
+              userImage={order?.user?.image}
+            ></UserAvatar>
+            <div className="flex flex-col">
+              <div className="text-xs uppercase tracking-widest text-gray-400">
+                Dibuat Oleh
+              </div>
+              <div className="text-lg font-semibold text-white">
+                {order?.user?.name}
+              </div>
+              <div className="text-sm text-gray-400">
+                @{order?.user?.username}
+              </div>
+            </div>
+            <div className="mx-4 hidden h-12 w-px bg-gray-700 lg:block" />
+            <div className="flex flex-col">
+              <div className="text-xs uppercase tracking-widest text-gray-400">
+                Pelanggan
+              </div>
+              <div className="text-lg font-semibold text-white">
+                {order?.customer || "-"}
+              </div>
+              <div className="text-sm text-gray-400">
+                {order?.description || "-"}
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-4">{table}</div>
+
+      <div className="rounded-2xl border border-gray-700/60 bg-gray-900/70 p-5">
+        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="text-lg font-semibold text-white">
+            Daftar Item Pesanan
+          </div>
+          <div className="flex items-center gap-3 text-sm text-gray-300">
+            {(isContain(session?.user?.role || "", Roles.ADMIN) ||
+              isContain(session?.user?.role || "", Roles.OPERATOR)) && (
+              <Label className="flex items-center gap-2">
+                <Checkbox
+                  onChange={(e) => handleCheckboxClick(e, "printed-all")}
+                  checked={
+                    order?.OrderDetails?.length
+                      ? order.OrderDetails.every(
+                          (od) => od.MarkedPrinted?.status,
+                        )
+                      : false
+                  }
+                  disabled={order?.MarkedTaken?.status}
+                  className="disabled:cursor-not-allowed disabled:text-gray-500"
+                />
+                Cetak Semua
+              </Label>
+            )}
+            {(isContain(session?.user?.role || "", Roles.ADMIN) ||
+              isContain(session?.user?.role || "", Roles.OPERATOR)) &&
+              (isContain(session?.user?.role || "", Roles.ADMIN) ||
+                isContain(session?.user?.role || "", Roles.ADMINISTRASI)) && (
+                <span className="h-4 w-px bg-gray-700" />
+              )}
+            {(isContain(session?.user?.role || "", Roles.ADMIN) ||
+              isContain(session?.user?.role || "", Roles.ADMINISTRASI)) && (
+              <>
+                <Label className="flex items-center gap-2">
+                  <Checkbox
+                    onChange={(e) => handleCheckboxClick(e, "pay")}
+                    checked={order?.MarkedPay?.status || false}
+                  />
+                  Dibayar
+                </Label>
+                <Label className="flex items-center gap-2">
+                  <Checkbox
+                    onChange={(e) => handleCheckboxClick(e, "taken")}
+                    checked={order?.MarkedTaken?.status || false}
+                    disabled={
+                      !order?.OrderDetails?.every(
+                        (od) => od.MarkedPrinted?.status,
+                      )
+                    }
+                  />
+                  Diambil
+                </Label>
+              </>
+            )}
+          </div>
+        </div>
+        {table}
+      </div>
+
+      {/*
       <ConfirmPasswordModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleModalConfirm}
+      />
+      */}
+      <ConfirmActionModal
+        isOpen={isConfirmOpen}
+        title={
+          confirmAction?.type === "printed-all"
+            ? confirmAction?.checked
+              ? "Cetak semua item?"
+              : "Batalkan cetak semua item?"
+            : confirmAction?.type === "pay"
+              ? confirmAction?.checked
+                ? "Tandai pesanan sebagai dibayar?"
+                : "Batalkan status dibayar?"
+              : confirmAction?.checked
+                ? "Tandai pesanan sebagai diambil?"
+                : "Batalkan status diambil?"
+        }
+        description="Aksi ini akan mengubah status pesanan."
+        confirmLabel="Lanjutkan"
+        cancelLabel="Batal"
+        onClose={() => {
+          setIsConfirmOpen(false);
+          setConfirmAction(null);
+        }}
+        onConfirm={() => {
+          if (!confirmAction) return;
+          if (confirmAction.type === "printed-all") {
+            handleCheckboxPrintedAllClick(
+              {
+                target: { checked: confirmAction.checked },
+              } as React.ChangeEvent<HTMLInputElement>,
+            );
+          } else if (confirmAction.type === "pay") {
+            handleCheckboxPayClick(
+              {
+                target: { checked: confirmAction.checked },
+              } as React.ChangeEvent<HTMLInputElement>,
+            );
+          } else {
+            handleCheckboxTakenClick(
+              {
+                target: { checked: confirmAction.checked },
+              } as React.ChangeEvent<HTMLInputElement>,
+            );
+          }
+          setIsConfirmOpen(false);
+          setConfirmAction(null);
+        }}
       />
     </div>
   );
