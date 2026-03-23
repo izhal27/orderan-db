@@ -13,6 +13,7 @@ interface props<T> {
   onEmptyQueryHandler?(): void;
   value?: string; // New prop to control the input value
   onChange?: (value: string) => void; // New prop to handle input changes
+  disabled?: boolean;
 }
 
 export default function AutoCompleteTextInput<T>({
@@ -24,6 +25,7 @@ export default function AutoCompleteTextInput<T>({
   onEmptyQueryHandler,
   value = "", // Default to empty string
   onChange,
+  disabled = false,
 }: props<T>) {
   const [internalQuery, setInternalQuery] = useState<string>(value);
   const [items, setItems] = useState<T[]>([]);
@@ -36,7 +38,9 @@ export default function AutoCompleteTextInput<T>({
   const fetchSuggestions = useCallback(async (searchQuery: string) => {
     setLoading(true);
     try {
-      const data = await request(`${fetchUrl}?query=${searchQuery}`);
+      const data = await request(
+        `${fetchUrl}?query=${encodeURIComponent(searchQuery)}`,
+      );
       setItems(data);
     } catch (error) {
       showToast("error", "Error fetching suggestions");
@@ -74,10 +78,15 @@ export default function AutoCompleteTextInput<T>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [internalQuery]);
 
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [items]);
+
   const handleSuggestionClick = (item: T) => {
     const selectedValue = getDisplayValue(item);
     setInternalQuery(selectedValue);
     onChange && onChange(selectedValue);
+    onSelect && onSelect(item);
     setShowItems(false);
     setIsItemSelected(true);
   };
@@ -114,7 +123,7 @@ export default function AutoCompleteTextInput<T>({
   return (
     <div className="relative">
       <TextInput
-        disabled={!!value}
+        disabled={disabled}
         id="generic-text-input"
         placeholder="Type to search..."
         value={internalQuery}

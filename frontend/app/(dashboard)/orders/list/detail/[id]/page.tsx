@@ -90,6 +90,12 @@ export default function DetailPage({ params }: { params: { id: string } }) {
               } as React.ChangeEvent<HTMLInputElement>,
               currentCheckbox.id as string,
             );
+          } else if (currentCheckbox.type === "printed-all") {
+            handleCheckboxPrintedAllClick(
+              {
+                target: { checked: currentCheckbox.state },
+              } as React.ChangeEvent<HTMLInputElement>,
+            );
           } else if (currentCheckbox.type === "pay") {
             handleCheckboxPayClick({
               target: { checked: currentCheckbox.state },
@@ -176,6 +182,46 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     [sendPostMarked],
   );
 
+  const handleCheckboxPrintedAllClick = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const isChecked = e.target.checked;
+      const orderDetailIds = (order?.OrderDetails || []).map((od) => od.id);
+      if (orderDetailIds.length === 0) return;
+
+      setLoading(true);
+      request(
+        isChecked
+          ? "/orders/detail/print-many"
+          : "/orders/detail/cancel-print-many",
+        {
+          method: "POST",
+          body: JSON.stringify(
+            isChecked
+              ? {
+                  orderDetailIds,
+                  status: true,
+                  printAt: new Date().toISOString(),
+                }
+              : { orderDetailIds },
+          ),
+        },
+      )
+        .then(() => {
+          showToast(
+            "success",
+            isChecked
+              ? "Berhasil menandai semua sudah dicetak"
+              : "Berhasil membatalkan semua tanda dicetak",
+          );
+        })
+        .catch(() => {
+          showToast("error", "Terjadi kesalahan, coba lagi nanti");
+        })
+        .finally(() => setLoading(false));
+    },
+    [order?.OrderDetails, request, setLoading],
+  );
+
   const handleCheckboxPayClick = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const isChecked = e.target.checked;
@@ -248,6 +294,14 @@ export default function DetailPage({ params }: { params: { id: string } }) {
           }}
           onCheckBoxPrintedClickHandler={(e, id) =>
             handleCheckboxClick(e, "printed", id)
+          }
+          onCheckBoxPrintedAllClickHandler={(e) =>
+            handleCheckboxClick(e, "printed-all")
+          }
+          allPrinted={
+            order?.OrderDetails?.length
+              ? order.OrderDetails.every((od) => od.MarkedPrinted?.status)
+              : false
           }
           role={session?.user?.role}
         />

@@ -3,4 +3,6 @@ export * from './update-order.dto';
 export * from './create-order-detail.dto';
 export * from './mark-pay.dto';
 export * from './mark-printed.dto';
+export * from './mark-printed-many.dto';
+export * from './cancel-printed-many.dto';
 export * from './mark-taken.dto';

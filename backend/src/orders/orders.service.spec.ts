@@ -130,6 +130,43 @@ describe('OrdersService', () => {
     });
   });
 
+  describe('markPrintMany', () => {
+    it('should be defined', () => {
+      expect(service.markPrintMany).toBeDefined();
+    });
+
+    it('should call prisma transaction', async () => {
+      prismaMock.$transaction.mockClear();
+      prismaMock.$transaction.mockResolvedValue([{ id: 'p1' }] as any);
+      await service.markPrintMany(
+        {
+          orderDetailIds: ['od1', 'od2'],
+          status: true,
+          printAt: new Date().toISOString(),
+          description: 'bulk',
+        } as any,
+        1,
+      );
+      expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('cancelPrintMany', () => {
+    it('should be defined', () => {
+      expect(service.cancelPrintMany).toBeDefined();
+    });
+
+    it('should call prisma transaction', async () => {
+      prismaMock.$transaction.mockClear();
+      prismaMock.$transaction.mockResolvedValue([{ id: 'p1' }] as any);
+      await service.cancelPrintMany(
+        { orderDetailIds: ['od1', 'od2'] } as any,
+        1,
+      );
+      expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('markPay', () => {
     it('should be defined', () => {
       expect(service.markPay).toBeDefined();
@@ -156,6 +193,7 @@ describe('OrdersService', () => {
 
   describe('cancelStatus', () => {
     it('should cancel print status', async () => {
+      prismaMock.printedStatus.update.mockClear();
       prismaMock.printedStatus.update.mockResolvedValue({ id: 'p1' } as any);
       await service.cancelStatus({
         type: CancelType.PRINT,
@@ -167,6 +205,7 @@ describe('OrdersService', () => {
     });
 
     it('should cancel pay status', async () => {
+      prismaMock.payStatus.update.mockClear();
       prismaMock.payStatus.update.mockResolvedValue({ id: 'pay1' } as any);
       await service.cancelStatus({
         type: CancelType.PAY,
@@ -178,6 +217,7 @@ describe('OrdersService', () => {
     });
 
     it('should cancel taken status', async () => {
+      prismaMock.takenStatus.update.mockClear();
       prismaMock.takenStatus.update.mockResolvedValue({ id: 't1' } as any);
       await service.cancelStatus({
         type: CancelType.TAKEN,
