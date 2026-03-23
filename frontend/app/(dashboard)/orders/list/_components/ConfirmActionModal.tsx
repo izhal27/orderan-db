@@ -20,17 +20,18 @@ export default function ConfirmActionModal({
   if (!isOpen) return null;
 
   return (
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <dialog
       open={isOpen}
       className="fixed inset-0 z-50 flex size-full items-center justify-center bg-gray-900/60 backdrop-blur-sm"
-      onClick={onClose}
+      aria-modal="true"
     >
-      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-      <div
-        className="w-full max-w-md rounded-2xl border border-gray-700/70 bg-gray-900/90 p-6 text-gray-100 shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <button
+        type="button"
+        aria-label="Tutup dialog"
+        onClick={onClose}
+        className="absolute inset-0 cursor-default"
+      />
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-gray-700/70 bg-gray-900/90 p-6 text-gray-100 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
         <div className="mb-2 text-lg font-semibold text-white">{title}</div>
         {description && (
           <div className="mb-6 text-sm text-gray-400">{description}</div>

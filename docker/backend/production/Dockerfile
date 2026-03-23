@@ -1,7 +1,7 @@
 # Stage 1: Builder
 FROM node:20-alpine AS builder
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl python3 make g++
 
 # Install @nestjs/cli globally
 RUN yarn global add @nestjs/cli
@@ -26,7 +26,7 @@ RUN yarn build
 # Stage 2: Production
 FROM node:20-alpine AS production
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl python3 make g++
 
 # Set NODE_ENV to production
 ENV NODE_ENV=production
@@ -42,8 +42,6 @@ RUN yarn install --frozen-lockfile --production=true
 # Install prisma globally
 RUN yarn global add prisma
 
-# Install PM2 globally
-RUN yarn global add pm2
 
 # Copy the built app from the builder stage
 COPY --from=builder /app/dist ./dist
@@ -54,12 +52,8 @@ COPY --from=builder /app/prisma ./prisma
 # Generate Prisma client
 RUN yarn prisma generate
 
-# Copy the entrypoint script
-COPY ./backend/entrypoint.sh .
-RUN chmod +x /app/entrypoint.sh
-
 # Expose the application port
 EXPOSE 3002
 
 # Command to run the application
-CMD ["sh", "entrypoint.sh"]
+CMD ["node", "dist/src/main.js"]
