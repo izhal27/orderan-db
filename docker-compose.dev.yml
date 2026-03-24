@@ -36,6 +36,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+      - backend-images:/app/public/images
       - ./.env:/app/.env
     networks:
       - internal
@@ -58,6 +59,7 @@ services:
 
 volumes:
   postgres-data:
+  backend-images:
 
 networks:
   internal:
