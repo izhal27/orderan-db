@@ -42,6 +42,7 @@ export class CreateCustomerDto {
   @IsEmail()
   @IsOptional()
   @MaxLength(50)
+  @Transform((param) => (param.value === '' ? undefined : param.value))
   @ApiProperty({
     required: false,
     example: 'customer@email.com',

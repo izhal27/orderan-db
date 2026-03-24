@@ -25,4 +25,19 @@ describe('CreateCustomerDto', () => {
     });
     expect(errors.length).toBe(0);
   });
+
+  it('should pass when only name is provided', async () => {
+    const errors = await validateDto(CreateCustomerDto, {
+      name: 'John Doe',
+    });
+    expect(errors.length).toBe(0);
+  });
+
+  it('should pass when email is empty string', async () => {
+    const errors = await validateDto(CreateCustomerDto, {
+      name: 'John Doe',
+      email: '',
+    });
+    expect(errors.length).toBe(0);
+  });
 });
