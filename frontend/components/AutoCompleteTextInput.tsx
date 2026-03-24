@@ -2,7 +2,7 @@ import { showToast } from "@/helpers";
 import { useApiClient } from "@/lib/useApiClient";
 import { Spinner, TextInput } from "flowbite-react";
 import debounce from "lodash.debounce";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 interface props<T> {
   fetchUrl: string;
@@ -33,6 +33,8 @@ export default function AutoCompleteTextInput<T>({
   const [activeIndex, setActiveIndex] = useState<number>(-1);
   const [showItems, setShowItems] = useState<boolean>(true);
   const [isItemSelected, setIsItemSelected] = useState<boolean>(true);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { request } = useApiClient();
 
   const fetchSuggestions = useCallback(async (searchQuery: string) => {
@@ -82,6 +84,48 @@ export default function AutoCompleteTextInput<T>({
     setActiveIndex(-1);
   }, [items]);
 
+  useEffect(() => {
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+
+    if (showItems && items.length > 0 && !isItemSelected) {
+      hideTimerRef.current = setTimeout(() => {
+        setShowItems(false);
+        setActiveIndex(-1);
+      }, 3000);
+    }
+
+    return () => {
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+    };
+  }, [showItems, items.length, isItemSelected, internalQuery]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        containerRef.current &&
+        event.target instanceof Node &&
+        !containerRef.current.contains(event.target)
+      ) {
+        setShowItems(false);
+        setActiveIndex(-1);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, []);
+
   const handleSuggestionClick = (item: T) => {
     const selectedValue = getDisplayValue(item);
     setInternalQuery(selectedValue);
@@ -117,11 +161,14 @@ export default function AutoCompleteTextInput<T>({
         onSelect && onSelect(internalQuery);
         setShowItems(false);
       }
+    } else if (e.key === "Escape") {
+      setShowItems(false);
+      setActiveIndex(-1);
     }
   };
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       <TextInput
         disabled={disabled}
         id="generic-text-input"
