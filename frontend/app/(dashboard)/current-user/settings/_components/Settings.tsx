@@ -70,7 +70,7 @@ export default function SettingsPage() {
           isFormData: true,
         });
         // update data session current user
-        update({
+        await update({
           user: {
             id: user.id,
             username: user.username,
@@ -80,6 +80,7 @@ export default function SettingsPage() {
             role: user.role.name,
           },
         });
+        setCurrentUser(user);
         showToast("success", "Perubahan berhasil disimpan");
         router.push("/");
       } catch (error) {
