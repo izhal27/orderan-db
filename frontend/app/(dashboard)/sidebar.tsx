@@ -1,5 +1,6 @@
 import UserAvatar from "@/components/UserAvatar";
 import { useSidebarContext } from "@/context/SidebarContext";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import { Sidebar } from "flowbite-react";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
@@ -51,6 +52,10 @@ export const DashboardSidebar: NextPage = function () {
   const { isCollapsed } = useSidebarContext();
   const currentPath = usePathname();
   const { data: session } = useSession();
+  const { currentUser } = useCurrentUser();
+  const userImage = currentUser?.image || session?.user.image;
+  const userName = currentUser?.name || session?.user.name;
+  const userUsername = currentUser?.username || session?.user.username;
 
   useEffect(() => {
     setIsMounted(true);
@@ -78,15 +83,17 @@ export const DashboardSidebar: NextPage = function () {
               <UserAvatar
                 width={80}
                 height={80}
-                userImage={session?.user.image}
+                userImage={userImage}
+                name={userName}
                 size="lg"
                 bordered
                 rounded
+                debugLabel="sidebar"
               />
               <div className="w-full truncate text-center font-semibold dark:text-white">
-                <div>{session?.user.name}</div>
+                <div>{userName}</div>
                 <div className="text-sm font-light text-gray-500 dark:text-gray-400">
-                  @{session?.user.username}
+                  @{userUsername}
                 </div>
               </div>
             </div>

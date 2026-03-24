@@ -1,6 +1,7 @@
 import UserAvatar from "@/components/UserAvatar";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { isSmallScreen } from "@/helpers/is-small-screen";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import favIcon from "@/public/favicon.png";
 import { DarkThemeToggle, Dropdown, Navbar } from "flowbite-react";
 import { signOut, useSession } from "next-auth/react";
@@ -14,6 +15,10 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
   const { isCollapsed: isSidebarCollapsed, setCollapsed: setSidebarCollapsed } =
     useSidebarContext();
   const { data: session } = useSession();
+  const { currentUser } = useCurrentUser();
+  const userImage = currentUser?.image || session?.user.image;
+  const userName = currentUser?.name || session?.user.name;
+  const userUsername = currentUser?.username || session?.user.username;
   const currentPath = usePathname();
   const router = useRouter();
 
@@ -56,14 +61,21 @@ export const DashboardNavbar: FC<Record<string, never>> = function () {
               <Dropdown
                 arrowIcon={false}
                 inline
-                label={<UserAvatar userImage={session?.user.image} rounded />}
+                label={
+                  <UserAvatar
+                    userImage={userImage}
+                    name={userName}
+                    rounded
+                    debugLabel="navbar"
+                  />
+                }
               >
                 <Dropdown.Header>
                   <span className="block truncate text-sm font-semibold">
-                    {session?.user.name}
+                    {userName}
                   </span>
                   <span className="block text-sm font-light">
-                    @{session?.user.username}
+                    @{userUsername}
                   </span>
                 </Dropdown.Header>
                 <Dropdown.Item
