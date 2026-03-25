@@ -1,6 +1,7 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
+import { useCallback } from "react";
 
 export const baseUrl =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002/api";
@@ -8,11 +9,7 @@ export const baseUrl =
 export const useApiClient = () => {
   const { data: session, status, update: updateSession } = useSession();
 
-  if (status === "loading" || !session) {
-    return { request: async () => {} }; // Return a placeholder function if session is not ready
-  }
-
-  const request = async (
+  const request = useCallback(async (
     endpoint: string,
     {
       method = "GET",
@@ -29,8 +26,8 @@ export const useApiClient = () => {
       [key: string]: any;
     } = {},
   ) => {
+    if (status === "loading" || !session) return;
     let isRefreshing = false;
-    if (!session) return; // prevent error when no access token
 
     const defaultHeaders: Record<string, string> = {
       Authorization: session?.accessToken
@@ -99,7 +96,7 @@ export const useApiClient = () => {
     }
 
     return await response.json();
-  };
+  }, [session, status, updateSession]);
 
   return { request };
 };

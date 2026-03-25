@@ -1,5 +1,5 @@
 # Stage 1: Builder
-FROM node:20-alpine AS builder
+FROM node:20-bullseye AS builder
 
 RUN apk add --no-cache openssl python3 make g++
 
@@ -24,7 +24,7 @@ RUN yarn prisma generate
 RUN yarn build
 
 # Stage 2: Production
-FROM node:20-alpine AS production
+FROM node:20-bullseye AS production
 
 RUN apk add --no-cache openssl python3 make g++
 

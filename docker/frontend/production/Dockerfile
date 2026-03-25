@@ -1,5 +1,5 @@
-# Use the official Node.js 20 image based on Alpine
-FROM node:20-alpine AS builder
+# Use the official Node.js 20 image based on Debian (glibc)
+FROM node:20-bullseye AS builder
 
 # Set the working directory
 WORKDIR /app
@@ -18,7 +18,7 @@ COPY .env .
 RUN yarn build
 
 # Use a lightweight web server to serve the built application
-FROM node:20-alpine AS runner
+FROM node:20-bullseye AS runner
 
 # Set the working directory
 WORKDIR /app

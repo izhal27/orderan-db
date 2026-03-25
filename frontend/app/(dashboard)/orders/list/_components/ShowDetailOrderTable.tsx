@@ -104,7 +104,7 @@ export default function ShowDetailOrderTable({
                           onChange={(e) =>
                             onCheckBoxPrintedClickHandler(e, item.id)
                           }
-                          checked={item.MarkedPrinted?.status}
+                          checked={Boolean(item.MarkedPrinted?.status)}
                           disabled={markedTaken}
                           className="disabled:cursor-not-allowed disabled:text-gray-500"
                         />

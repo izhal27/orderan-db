@@ -36,15 +36,13 @@ export default function SettingsPage() {
     setValue("email", currentUser.email);
     setValue("name", currentUser.name);
     setCurrentUser(currentUser);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.accessToken, session?.user]);
+  }, [request, session?.accessToken, session?.user?.id, setValue]);
 
   useEffect(() => {
-    if (session?.user) {
+    if (session?.user?.id) {
       fetchUser();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user]);
+  }, [fetchUser, session?.user?.id]);
 
   const appendData = (data: UserFormData) => {
     const formData = new FormData();

@@ -1,5 +1,5 @@
-# Use the official Node.js 20 image based on Alpine
-FROM node:20-alpine
+# Use the official Node.js 20 image based on Debian (glibc)
+FROM node:20-bullseye
 
 # Set the working directory
 WORKDIR /app
