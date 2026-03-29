@@ -32,7 +32,7 @@ import { MarkTakenDto } from './dto/mark-taken.dto';
 import { Role } from '../common';
 
 @Controller('orders')
-@ApiTags('Orders')
+@ApiTags('orders')
 @ApiBearerAuth()
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
