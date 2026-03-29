@@ -21,7 +21,7 @@ import { UpdateCustomerDto, CreateCustomerDto } from './dto';
 import { GetCurrentUserId, PaginationDto, Role, Roles } from '../common';
 
 @Controller('customers')
-@ApiTags('customers')
+@ApiTags('Customers')
 @ApiBearerAuth()
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
