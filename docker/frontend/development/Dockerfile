@@ -1,5 +1,5 @@
 # Use the official Node.js 20 image based on Debian (glibc)
-FROM node:20-bullseye
+FROM node:22-bullseye-slim
 
 # Set the working directory
 WORKDIR /app

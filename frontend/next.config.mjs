@@ -2,6 +2,7 @@
 const config = {
   reactStrictMode: true,
   swcMinify: true,
+  output: "standalone",
   images: {
     remotePatterns: [
       {

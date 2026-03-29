@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { OrderTypesModule } from './order-types/order-types.module';
 import { OrdersModule } from './orders/orders.module';
 import { CustomersModule } from './customers/customers.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CustomersModule } from './customers/customers.module';
     OrdersModule,
     CustomersModule,
   ],
+  controllers: [AppController],
   providers: [
     {
       provide: APP_GUARD,

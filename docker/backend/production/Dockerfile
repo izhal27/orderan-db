@@ -1,59 +1,81 @@
+# ============================================================
 # Stage 1: Builder
-FROM node:20-bullseye AS builder
+# ============================================================
+FROM node:22-bullseye-slim AS builder
 
-RUN apk add --no-cache openssl python3 make g++
+# Install OS dependencies (hanya openssl yang dibutuhkan Prisma)
+# python3, make, g++ hanya diperlukan jika ada native addons
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  openssl \
+  python3 \
+  make \
+  g++ \
+  && rm -rf /var/lib/apt/lists/*
 
-# Install @nestjs/cli globally
-RUN yarn global add @nestjs/cli
-
-# Set working directory
 WORKDIR /app
 
-# Install dependencies
+# Copy package files dulu (layer caching)
 COPY ./backend/package*.json ./
 COPY ./backend/yarn.lock ./
+
+# Install semua dependencies (termasuk devDeps untuk build)
 RUN yarn install --frozen-lockfile
 
-# Copy all project files
+# Copy source code
 COPY ./backend .
 
 # Generate Prisma client
 RUN yarn prisma generate
 
-# Build the NestJS application
+# Build NestJS app
 RUN yarn build
 
+
+# ============================================================
 # Stage 2: Production
-FROM node:20-bullseye AS production
+# ============================================================
+FROM node:22-bullseye-slim AS production
 
-RUN apk add --no-cache openssl python3 make g++
-
-# Set NODE_ENV to production
+# Set environment
 ENV NODE_ENV=production
 
-# Set working directory
 WORKDIR /app
 
-# Install only production dependencies
+# Install gosu for safe privilege drop at runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  gosu \
+  && rm -rf /var/lib/apt/lists/*
+
+# Buat non-root user untuk keamanan
+RUN groupadd --system --gid 1001 nodejs \
+  && useradd --system --uid 1001 --gid nodejs nestjs
+
+# Copy package files
 COPY ./backend/package*.json ./
 COPY ./backend/yarn.lock ./
-RUN yarn install --frozen-lockfile --production=true
 
-# Install prisma globally
-RUN yarn global add prisma
+# Install production dependencies saja
+RUN yarn install --frozen-lockfile --production=true \
+  && yarn cache clean
 
-
-# Copy the built app from the builder stage
+# Copy hasil build dari stage builder
 COPY --from=builder /app/dist ./dist
 
-# Copy Prisma files (if Prisma is needed in production for the client)
+# Copy Prisma schema & generated client dari builder
+# (tidak perlu generate ulang, pakai hasil dari builder)
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# Generate Prisma client
-RUN yarn prisma generate
+# Entrypoint untuk seed saat startup
+COPY ./docker/backend/production/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+RUN mkdir -p /app/dist/public/images \
+  && chown -R nestjs:nodejs /app
 
-# Expose the application port
+# Expose port
 EXPOSE 3002
 
-# Command to run the application
+# Jalankan aplikasi
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["node", "dist/src/main.js"]

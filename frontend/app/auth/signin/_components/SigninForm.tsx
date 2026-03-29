@@ -8,11 +8,15 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { HiKey, HiUser } from "react-icons/hi";
+import { HiEye, HiEyeOff, HiKey, HiUser } from "react-icons/hi";
 
 export default function SigninForm() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const passwordAriaLabel = showPassword
+    ? "Sembunyikan password"
+    : "Lihat password";
   const {
     register,
     handleSubmit,
@@ -68,13 +72,24 @@ export default function SigninForm() {
             className="text-gray-500 dark:text-gray-400"
           />
         </div>
-        <TextInput
-          {...register("password")}
-          id="password"
-          type="password"
-          placeholder="password"
-          icon={HiKey}
-        />
+        <div className="relative w-full">
+          <HiKey className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            {...register("password")}
+            id="password"
+            type={showPassword ? "text" : "password"}
+            placeholder="password"
+            className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 pr-12 text-sm text-gray-900 focus:border-blue-600 focus:ring-blue-600 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            aria-label={passwordAriaLabel}
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-gray-200"
+          >
+            {showPassword ? <HiEyeOff size={18} /> : <HiEye size={18} />}
+          </button>
+        </div>
         {errors.password && (
           <p className="mt-2 text-sm font-light text-red-500">
             {errors.password.message}

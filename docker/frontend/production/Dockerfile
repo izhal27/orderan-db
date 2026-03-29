@@ -1,42 +1,75 @@
-# Use the official Node.js 20 image based on Debian (glibc)
-FROM node:20-bullseye AS builder
+# ============================================================
+# Stage 1: Dependencies
+# Install all deps (including dev) untuk proses build
+# ============================================================
+FROM node:22-bullseye-slim AS deps
 
-# Set the working directory
 WORKDIR /app
 
-# Install dependencies
+# Copy package files
 COPY ./frontend/package*.json ./
 COPY ./frontend/yarn.lock ./
-RUN yarn install
 
-# Copy the rest of the application code
-COPY ./frontend .
+# Install semua dependencies (termasuk devDeps untuk build)
+RUN yarn install --frozen-lockfile
 
-COPY .env .
 
-# Build the Next.js application
-RUN yarn build
+# ============================================================
+# Stage 2: Builder
+# Build Next.js application (standalone output)
+# ============================================================
+FROM node:22-bullseye-slim AS builder
 
-# Use a lightweight web server to serve the built application
-FROM node:20-bullseye AS runner
-
-# Set the working directory
 WORKDIR /app
 
-# Copy the built application from the builder stage
-COPY --from=builder /app/.next ./.next
+# Copy node_modules dari stage deps
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy source code
+COPY ./frontend .
+
+# Disable Next.js telemetry saat build
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build aplikasi (hasilkan .next/standalone)
+RUN yarn build
+
+
+# ============================================================
+# Stage 3: Runner
+# Image production yang ringan (standalone)
+# ============================================================
+FROM node:22-bullseye-slim AS runner
+
+WORKDIR /app
+
+# Set environment production
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Buat user non-root untuk keamanan
+RUN groupadd --system --gid 1001 nodejs \
+  && useradd --system --uid 1001 --gid nodejs nextjs
+
+# Copy hasil build standalone
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/yarn.lock ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next/standalone ./
 
-# Install only production dependencies
-RUN yarn install --production --frozen-lockfile && yarn cache clean
+# Runtime env injector (writes /public/env.js from container env)
+COPY ./docker/frontend/production/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh \
+  && chown -R nextjs:nodejs /app
 
-# Expose the application port
+# Gunakan user non-root
+USER nextjs
+
+# Expose port
 EXPOSE 3000
 
-# Set the environment variable for production
-ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# Start the Next.js application
-CMD ["yarn", "start"]
+# Jalankan aplikasi menggunakan server.js dari standalone
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["node", "server.js"]
