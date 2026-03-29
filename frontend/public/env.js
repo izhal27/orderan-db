@@ -1,1 +1,5 @@
-window.__ENV = window.__ENV || {};
+window.__ENV = {
+  "NEXT_PUBLIC_WEBSOCKET_URL": "ws://192.168.1.10:2704",
+  "NEXT_PUBLIC_IMAGE_PATH": "http://192.168.1.10:2704/images",
+  "NEXT_PUBLIC_API_URL": "http://192.168.1.10:2704/api"
+};
