@@ -28,7 +28,7 @@ import { Role } from '../common';
 import { multerOptions } from '../lib';
 
 @Controller('users')
-@ApiTags('Users')
+@ApiTags('users')
 @ApiBearerAuth()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
