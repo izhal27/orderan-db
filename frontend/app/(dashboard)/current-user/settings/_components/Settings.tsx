@@ -36,7 +36,13 @@ export default function SettingsPage() {
     setValue("email", currentUser.email);
     setValue("name", currentUser.name);
     setCurrentUser(currentUser);
-  }, [request, session?.accessToken, session?.user?.id, setValue]);
+  }, [
+    request,
+    session?.accessToken,
+    session?.user,
+    session?.user?.id,
+    setValue,
+  ]);
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -44,18 +50,23 @@ export default function SettingsPage() {
     }
   }, [fetchUser, session?.user?.id]);
 
-  const appendData = (data: UserFormData) => {
-    const formData = new FormData();
-    formData.append("name", data.name ? data.name : "");
-    formData.append(
-      "currentPassword",
-      data.currentPassword ? data.currentPassword : "",
-    );
-    formData.append("newPassword", data.newPassword ? data.newPassword : "");
-    formData.append("email", data.email ? data.email : "");
-    selectedImage && formData.append("image", selectedImage);
-    return formData;
-  };
+  const appendData = useCallback(
+    (data: UserFormData) => {
+      const formData = new FormData();
+      formData.append("name", data.name ? data.name : "");
+      formData.append(
+        "currentPassword",
+        data.currentPassword ? data.currentPassword : "",
+      );
+      formData.append("newPassword", data.newPassword ? data.newPassword : "");
+      formData.append("email", data.email ? data.email : "");
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+      return formData;
+    },
+    [selectedImage],
+  );
 
   const onSubmit = useCallback(
     async (data: UserFormData) => {
@@ -89,8 +100,14 @@ export default function SettingsPage() {
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [session?.accessToken, appendData, currentUser?.id, router],
+    [
+      appendData,
+      currentUser?.id,
+      request,
+      router,
+      session?.accessToken,
+      update,
+    ],
   );
 
   return (

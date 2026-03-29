@@ -1,3 +1,4 @@
+import { getPublicRuntimeEnv } from "@/lib/runtime-env";
 import { signOut, useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -11,8 +12,10 @@ interface UseFetchProps<T> {
   isFormData?: boolean; // Penanda apakah menggunakan FormData
 }
 
-export const baseUrl =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002/api";
+export const baseUrl = getPublicRuntimeEnv(
+  "NEXT_PUBLIC_API_URL",
+  "http://localhost:3002/api",
+);
 
 interface UseFetchState<T> {
   data: T | null;

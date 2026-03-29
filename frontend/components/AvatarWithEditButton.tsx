@@ -1,5 +1,6 @@
 "use client";
 
+import { getPublicRuntimeEnv } from "@/lib/runtime-env";
 import { Avatar } from "flowbite-react";
 import React, { useEffect, useRef, useState } from "react";
 import { HiPencil } from "react-icons/hi";
@@ -53,7 +54,7 @@ const AvatarWithEditButton = ({ userImage, onSelectedImageHandler }: props) => {
               height={40}
               src={
                 isEditMode && userImage === img
-                  ? `${process.env.NEXT_PUBLIC_IMAGE_PATH || "http://localhost:3002/images"}/${img}`
+                  ? `${getPublicRuntimeEnv("NEXT_PUBLIC_IMAGE_PATH", "http://localhost:3002/images")}/${img}`
                   : img
               }
               {...props}

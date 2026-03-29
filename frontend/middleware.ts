@@ -20,6 +20,6 @@ export default auth(async (req) => {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|assets|favicon.ico|db-image.png|login-page-image.png|auth/signin).*)",
+    "/((?!api|_next/static|_next/image|assets|favicon.ico|db-image.png|login-page-image.png|auth/signin|env.js).*)",
   ],
 };
