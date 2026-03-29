@@ -32,12 +32,6 @@ async function bootstrap() {
       .setTitle('Orderan Digital Berkah API')
       .setDescription('The Orderan Digital Berkah API description')
       .setVersion('1.0')
-      .addTag('Home', 'Health check & info layanan')
-      .addTag('Auth', 'Autentikasi & token')
-      .addTag('Users', 'Manajemen pengguna')
-      .addTag('Customers', 'Manajemen pelanggan')
-      .addTag('Orders', 'Manajemen pesanan')
-      .addTag('Order Types', 'Manajemen tipe pesanan')
       .addBearerAuth()
       .build();
     const document = SwaggerModule.createDocument(app, config);
