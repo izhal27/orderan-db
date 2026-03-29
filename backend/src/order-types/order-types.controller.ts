@@ -23,7 +23,7 @@ import { Roles } from '../common/decorators';
 import { Role } from '../common';
 
 @Controller('order-types')
-@ApiTags('order-types')
+@ApiTags('Order Types')
 @ApiBearerAuth()
 export class OrderTypesController {
   constructor(private readonly orderTypeService: OrderTypesService) {}
