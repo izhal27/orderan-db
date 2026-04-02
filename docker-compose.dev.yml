@@ -7,6 +7,8 @@ services:
       dockerfile: ./docker/frontend/development/Dockerfile
       args:
         - NODE_ENV=development
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    command: ["yarn", "dev"]
     restart: unless-stopped
     env_file:
       - .env
@@ -16,6 +18,7 @@ services:
       - /app/.next
       - ./logs/frontend:/root/.npm/_logs
       - ./.env:/app/.env
+      - ./docker/frontend/development/entrypoint.sh:/entrypoint.sh:ro
     networks:
       - internal
     ports:
