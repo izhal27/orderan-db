@@ -146,7 +146,11 @@ export default function ShowDetailOrderTable({
                         <div className="text-gray-700 dark:text-gray-200">
                           {item.MarkedPrinted?.status ? (
                             <span className="text-sm font-light">
-                              {`Ditandai oleh ${item.MarkedPrinted?.PrintedBy?.username} ${`${moment(item.MarkedPrinted?.updatedAt).format("DD MMMM YYYY HH.mm")}`}`}
+                              {`Ditandai oleh ${
+                                item.MarkedPrinted?.PrintedBy?.name ||
+                                item.MarkedPrinted?.PrintedBy?.username ||
+                                "-"
+                              } ${`${moment(item.MarkedPrinted?.updatedAt).format("DD MMMM YYYY HH.mm")}`}`}
                             </span>
                           ) : (
                             <span className="text-sm font-light">

@@ -31,6 +31,19 @@ COPY ./frontend .
 # Disable Next.js telemetry saat build
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Build-time env (wajib untuk NEXT_PUBLIC_*)
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_WEBSOCKET_URL
+ARG NEXT_PUBLIC_IMAGE_PATH
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_WEBSOCKET_URL=${NEXT_PUBLIC_WEBSOCKET_URL}
+ENV NEXT_PUBLIC_IMAGE_PATH=${NEXT_PUBLIC_IMAGE_PATH}
+
+# Fail fast jika NEXT_PUBLIC_* belum diisi
+RUN test -n "$NEXT_PUBLIC_API_URL" \
+  && test -n "$NEXT_PUBLIC_WEBSOCKET_URL" \
+  && test -n "$NEXT_PUBLIC_IMAGE_PATH"
+
 # Build aplikasi (hasilkan .next/standalone)
 RUN yarn build
 
@@ -55,11 +68,7 @@ RUN groupadd --system --gid 1001 nodejs \
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/.next/standalone ./
-
-# Runtime env injector (writes /public/env.js from container env)
-COPY ./docker/frontend/production/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh \
-  && chown -R nextjs:nodejs /app
+RUN chown -R nextjs:nodejs /app
 
 # Gunakan user non-root
 USER nextjs
@@ -71,5 +80,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Jalankan aplikasi menggunakan server.js dari standalone
-ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["node", "server.js"]

@@ -1,6 +1,5 @@
 "use client";
 
-import { getPublicRuntimeEnv } from "@/lib/runtime-env";
 import { Avatar } from "flowbite-react";
 import Image from "next/image";
 import { type PropsWithChildren, useEffect, useRef, useState } from "react";
@@ -49,10 +48,7 @@ export default function UserAvatar({
   }, [userImage]);
 
   const imageLoader = ({ src, width, quality }: ImageLoaderProps) => {
-    const base = `${getPublicRuntimeEnv(
-      "NEXT_PUBLIC_IMAGE_PATH",
-      "http://localhost:3002/images",
-    )}/${src}`;
+    const base = `${process.env.NEXT_PUBLIC_IMAGE_PATH ?? "http://localhost:3002/images"}/${src}`;
     const qs = `w=${width}&q=${quality || 75}${cacheBuster ? `&v=${cacheBuster}` : ""}`;
     return `${base}?${qs}`;
   };
