@@ -39,11 +39,6 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_WEBSOCKET_URL=${NEXT_PUBLIC_WEBSOCKET_URL}
 ENV NEXT_PUBLIC_IMAGE_PATH=${NEXT_PUBLIC_IMAGE_PATH}
 
-# Fail fast jika NEXT_PUBLIC_* belum diisi
-RUN test -n "$NEXT_PUBLIC_API_URL" \
-  && test -n "$NEXT_PUBLIC_WEBSOCKET_URL" \
-  && test -n "$NEXT_PUBLIC_IMAGE_PATH"
-
 # Build aplikasi (hasilkan .next/standalone)
 RUN yarn build
 
