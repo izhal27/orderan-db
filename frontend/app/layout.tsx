@@ -4,7 +4,6 @@ import ToastProvider from "@/context/ToastProvider";
 import { Flowbite, ThemeModeScript } from "flowbite-react";
 import { SessionProvider } from "next-auth/react";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 import { type FC, type PropsWithChildren } from "react";
 import { twMerge } from "tailwind-merge";
 import "./globals.css";
@@ -27,7 +26,6 @@ const RootLayout: FC<PropsWithChildren> = function ({ children }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <ThemeModeScript />
-        <Script src="/env.js" strategy="beforeInteractive" />
       </head>
       <body className={twMerge("bg-gray-50 dark:bg-gray-900", inter.className)}>
         <SessionProvider>

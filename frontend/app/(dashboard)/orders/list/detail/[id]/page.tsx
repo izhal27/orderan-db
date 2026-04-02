@@ -292,14 +292,15 @@ export default function DetailPage({ params }: { params: { id: string } }) {
     <div className="flex flex-col gap-6 p-4">
       <BackButton />
 
-      <div className="rounded-2xl border border-gray-700/60 bg-gray-900/70 p-6 text-gray-200 shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 text-gray-700 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/70 dark:text-gray-200 dark:shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h3 className="text-2xl font-semibold text-white">
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">
               Detail Pesanan
             </h3>
-            <div className="mt-1 text-sm text-gray-400">
-              {order?.number} <span className="mx-2 text-gray-500">•</span>
+            <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {order?.number}{" "}
+              <span className="mx-2 text-gray-400 dark:text-gray-500">•</span>
               {moment(order?.updatedAt).format("DD MMMM YYYY, HH.mm")}
             </div>
           </div>
@@ -307,7 +308,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
             order?.MarkedTaken?.status ||
             order?.OrderDetails?.some((od) => od.MarkedPrinted?.status)) && (
             <div className="flex items-center">
-              <div className="rounded-full border border-emerald-700/60 bg-emerald-900/30 px-4 py-2 text-sm font-medium text-emerald-300">
+              <div className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 dark:border-emerald-700/60 dark:bg-emerald-900/30 dark:text-emerald-300">
                 {order && LabelStatus({ order })}
               </div>
             </div>
@@ -315,61 +316,71 @@ export default function DetailPage({ params }: { params: { id: string } }) {
         </div>
 
         <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-          <div className="rounded-xl border border-gray-700/60 bg-gray-800/70 p-4">
-            <div className="text-xs uppercase tracking-wide text-gray-400">
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700/60 dark:bg-gray-800/70">
+            <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Total Item
             </div>
-            <div className="mt-1 text-2xl font-semibold text-white">
+            <div className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
               {order?.OrderDetails?.length ?? 0}
             </div>
           </div>
-          <div className="rounded-xl border border-gray-700/60 bg-gray-800/70 p-4">
-            <div className="text-xs uppercase tracking-wide text-gray-400">
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700/60 dark:bg-gray-800/70">
+            <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Total Qty
             </div>
-            <div className="mt-1 text-2xl font-semibold text-white">
+            <div className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
               {order?.OrderDetails?.reduce((acc, od) => acc + od.qty, 0) ?? 0}
             </div>
           </div>
-          <div className="rounded-xl border border-gray-700/60 bg-gray-800/70 p-4">
-            <div className="text-xs uppercase tracking-wide text-gray-400">
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700/60 dark:bg-gray-800/70">
+            <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Status Bayar
             </div>
             <div
               className={twMerge(
                 "mt-2 text-lg font-semibold",
-                order?.MarkedPay?.status ? "text-emerald-300" : "text-rose-300",
+                order?.MarkedPay?.status
+                  ? "text-emerald-600 dark:text-emerald-300"
+                  : "text-rose-600 dark:text-rose-300",
               )}
             >
               {order?.MarkedPay?.status ? "Selesai" : "Belum Dibayar"}
             </div>
             {order?.MarkedPay?.status && order?.MarkedPay?.updatedAt && (
-              <div className="mt-1 text-xs text-gray-400">
-                {moment(order?.MarkedPay?.updatedAt).format(
+              <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {`Ditandai oleh ${
+                  order?.MarkedPay?.MarkedBy?.name ||
+                  order?.MarkedPay?.MarkedBy?.username ||
+                  "-"
+                } ${moment(order?.MarkedPay?.updatedAt).format(
                   "DD MMMM YYYY HH.mm",
-                )}
+                )}`}
               </div>
             )}
           </div>
-          <div className="rounded-xl border border-gray-700/60 bg-gray-800/70 p-4">
-            <div className="text-xs uppercase tracking-wide text-gray-400">
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700/60 dark:bg-gray-800/70">
+            <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Status Ambil
             </div>
             <div
               className={twMerge(
                 "mt-2 text-lg font-semibold",
                 order?.MarkedTaken?.status
-                  ? "text-emerald-300"
-                  : "text-rose-300",
+                  ? "text-emerald-600 dark:text-emerald-300"
+                  : "text-rose-600 dark:text-rose-300",
               )}
             >
               {order?.MarkedTaken?.status ? "Selesai" : "Belum Diambil"}
             </div>
             {order?.MarkedTaken?.status && order?.MarkedTaken?.updatedAt && (
-              <div className="mt-1 text-xs text-gray-400">
-                {moment(order?.MarkedTaken?.updatedAt).format(
+              <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {`Ditandai oleh ${
+                  order?.MarkedTaken?.MarkedBy?.name ||
+                  order?.MarkedTaken?.MarkedBy?.username ||
+                  "-"
+                } ${moment(order?.MarkedTaken?.updatedAt).format(
                   "DD MMMM YYYY HH.mm",
-                )}
+                )}`}
               </div>
             )}
           </div>
@@ -377,7 +388,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        <div className="rounded-2xl border border-gray-700/60 bg-gray-900/70 p-5 text-gray-200">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 text-gray-700 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/70 dark:text-gray-200">
           <div className="flex items-center gap-4">
             <UserAvatar
               rounded
@@ -386,25 +397,25 @@ export default function DetailPage({ params }: { params: { id: string } }) {
               userImage={order?.user?.image}
             ></UserAvatar>
             <div className="flex flex-col">
-              <div className="text-xs uppercase tracking-widest text-gray-400">
+              <div className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 Dibuat Oleh
               </div>
-              <div className="text-lg font-semibold text-white">
+              <div className="text-lg font-semibold text-gray-900 dark:text-white">
                 {order?.user?.name}
               </div>
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 @{order?.user?.username}
               </div>
             </div>
-            <div className="mx-4 hidden h-12 w-px bg-gray-700 lg:block" />
+            <div className="mx-4 hidden h-12 w-px bg-gray-200 dark:bg-gray-700 lg:block" />
             <div className="flex flex-col">
-              <div className="text-xs uppercase tracking-widest text-gray-400">
+              <div className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">
                 Pelanggan
               </div>
-              <div className="text-lg font-semibold text-white">
+              <div className="text-lg font-semibold text-gray-900 dark:text-white">
                 {order?.customer || "-"}
               </div>
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 {order?.description || "-"}
               </div>
             </div>
@@ -412,12 +423,12 @@ export default function DetailPage({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-gray-700/60 bg-gray-900/70 p-5">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700/60 dark:bg-gray-900/70">
         <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="text-lg font-semibold text-white">
+          <div className="text-lg font-semibold text-gray-900 dark:text-white">
             Daftar Item Pesanan
           </div>
-          <div className="flex items-center gap-3 text-sm text-gray-300">
+          <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
             {(isContain(session?.user?.role || "", Roles.ADMIN) ||
               isContain(session?.user?.role || "", Roles.OPERATOR)) && (
               <Label className="flex items-center gap-2">
@@ -440,7 +451,7 @@ export default function DetailPage({ params }: { params: { id: string } }) {
               isContain(session?.user?.role || "", Roles.OPERATOR)) &&
               (isContain(session?.user?.role || "", Roles.ADMIN) ||
                 isContain(session?.user?.role || "", Roles.ADMINISTRASI)) && (
-                <span className="h-4 w-px bg-gray-700" />
+                <span className="h-4 w-px bg-gray-200 dark:bg-gray-700" />
               )}
             {(isContain(session?.user?.role || "", Roles.ADMIN) ||
               isContain(session?.user?.role || "", Roles.ADMINISTRASI)) && (

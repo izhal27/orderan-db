@@ -1,4 +1,3 @@
-import { getPublicRuntimeEnv } from "@/lib/runtime-env";
 import { useEffect, useRef } from "react";
 import type { Socket } from "socket.io-client";
 import io from "socket.io-client";
@@ -13,7 +12,7 @@ const useWebSocket = (events: EventMap) => {
   useEffect(() => {
     // Initialize socket connection
     socketRef.current = io(
-      getPublicRuntimeEnv("NEXT_PUBLIC_WEBSOCKET_URL", "ws://localhost:3002"),
+      process.env.NEXT_PUBLIC_WEBSOCKET_URL ?? "ws://localhost:3002",
     );
 
     // Subscribe to all events

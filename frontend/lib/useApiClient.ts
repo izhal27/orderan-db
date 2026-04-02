@@ -1,13 +1,10 @@
 "use client";
 
-import { getPublicRuntimeEnv } from "@/lib/runtime-env";
 import { signOut, useSession } from "next-auth/react";
 import { useCallback } from "react";
 
-export const baseUrl = getPublicRuntimeEnv(
-  "NEXT_PUBLIC_API_URL",
-  "http://localhost:3002/api",
-);
+export const baseUrl =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002/api";
 
 export const useApiClient = () => {
   const { data: session, status, update: updateSession } = useSession();
