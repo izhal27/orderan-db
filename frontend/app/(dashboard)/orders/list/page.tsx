@@ -221,41 +221,41 @@ export default function ListOrderPage() {
         </p>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="flex items-center rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-          <div className="mr-4 rounded-full bg-orange-100 p-3 text-orange-500 dark:bg-orange-500 dark:text-orange-100">
+        <div className="flex items-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="mr-4 rounded-full bg-orange-100 p-3 text-orange-500 dark:bg-orange-600 dark:text-orange-100">
             <HiClipboardList className="size-5" />
           </div>
           <div>
-            <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+            <p className="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Total Pesanan
             </p>
-            <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+            <p className="text-2xl font-bold text-gray-800 dark:text-white">
               {calculateOrderStatus.total}
             </p>
           </div>
         </div>
-        <div className="flex items-center rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-          <div className="mr-4 rounded-full bg-blue-100 p-3 text-blue-500 dark:bg-blue-500 dark:text-blue-100">
+        <div className="flex items-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="mr-4 rounded-full bg-blue-100 p-3 text-blue-500 dark:bg-blue-600 dark:text-blue-100">
             <HiClock className="size-5" />
           </div>
           <div>
-            <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+            <p className="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               On Proses
             </p>
-            <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+            <p className="text-2xl font-bold text-gray-800 dark:text-white">
               {calculateOrderStatus.onProses}
             </p>
           </div>
         </div>
-        <div className="flex items-center rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-          <div className="mr-4 rounded-full bg-green-100 p-3 text-green-500 dark:bg-green-500 dark:text-green-100">
+        <div className="flex items-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="mr-4 rounded-full bg-green-100 p-3 text-green-500 dark:bg-green-600 dark:text-green- green-100">
             <HiCheckCircle className="size-5" />
           </div>
           <div>
-            <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+            <p className="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Selesai
             </p>
-            <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+            <p className="text-2xl font-bold text-gray-800 dark:text-white">
               {calculateOrderStatus.done}
             </p>
           </div>
