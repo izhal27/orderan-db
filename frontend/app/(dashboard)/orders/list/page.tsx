@@ -14,7 +14,7 @@ import {
 import { useApiClient } from "@/lib/useApiClient";
 import { useMoment } from "@/lib/useMoment";
 import { useOrderWebSocket } from "@/lib/useOrderWebSocket";
-import { Button, Modal } from "flowbite-react";
+import { Button, Modal, Select } from "flowbite-react";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -41,6 +41,7 @@ export default function ListOrderPage() {
   const [showDesignModal, setShowDesignModal] = useState(false);
   const { moment } = useMoment();
   const [openPasswordModal, setOpenPasswordModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<string>("all");
 
   const fetchOrders = useCallback(async () => {
     if (status === "loading" || !session?.accessToken) return;
@@ -107,29 +108,48 @@ export default function ListOrderPage() {
   }, [deleteId]);
 
   const calculateUserDesignCounts = () => {
-    const counts: { [key: string]: number } = {};
+    const counts: { [key: string]: { paid: number; unpaid: number } } = {};
     orders.forEach((order) => {
-      // jangan masukkan ke dalam perhitungan jika belum di bayar
-      if (!order.MarkedPay?.status) {
-        return;
-      }
-      const user = order.user.name;
+      const user = order.user.name || "Unknown";
       const designCount = order.OrderDetails.reduce(
         (sum, od) => sum + od.design,
         0,
       );
 
-      if (counts[user]) {
-        counts[user] += designCount;
+      if (!counts[user]) {
+        counts[user] = { paid: 0, unpaid: 0 };
+      }
+
+      if (order.MarkedPay?.status) {
+        counts[user].paid += designCount;
       } else {
-        counts[user] = designCount;
+        counts[user].unpaid += designCount;
       }
     });
-    return Object.entries(counts).map(([user, totalDesign]) => ({
-      user,
-      totalDesign,
-    }));
+    return Object.entries(counts)
+      .map(([user, data]) => ({
+        user,
+        ...data,
+        total: data.paid,
+      }))
+      .filter((item) => item.paid + item.unpaid > 0);
   };
+
+  const usersWithDesign = useMemo(() => {
+    const users = new Set<string>();
+    orders.forEach((order) => {
+      const hasDesign = order.OrderDetails.some((od) => od.design > 0);
+      if (hasDesign && order.user.name) {
+        users.add(order.user.name);
+      }
+    });
+    return Array.from(users);
+  }, [orders]);
+
+  const filteredOrders = useMemo(() => {
+    if (selectedUser === "all") return orders;
+    return orders.filter((order) => order.user.name === selectedUser);
+  }, [orders, selectedUser]);
 
   const isAdministrator = useMemo(() => {
     if (!session?.user?.role) return false;
@@ -176,7 +196,7 @@ export default function ListOrderPage() {
     } else {
       return (
         <OrderTable
-          order={orders}
+          order={filteredOrders}
           onEditHandler={(id) => router.push(`${pathName}/${id}`)}
           onDetailHandler={(id) => router.push(`${pathName}/detail/${id}`)}
           onRemoveHandler={(id) => {
@@ -187,7 +207,7 @@ export default function ListOrderPage() {
         />
       );
     }
-  }, [isLoading, orders, pathName, router, session, status]);
+  }, [isLoading, filteredOrders, pathName, router, session, status]);
 
   return (
     <main className="flex flex-col gap-4 p-4">
@@ -241,17 +261,35 @@ export default function ListOrderPage() {
           </div>
         </div>
       </div>
-      <div className="flex justify-between">
-        <div className="max-w-40">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
           {isAdministrator && (
-            <Button
-              gradientMonochrome="info"
-              size={"sm"}
-              onClick={() => setShowDesignModal(true)}
-            >
-              <HiInformationCircle className="mr-2 size-5" />
-              Total Design
-            </Button>
+            <>
+              <div className="max-w-40">
+                <Button
+                  gradientMonochrome="info"
+                  size={"sm"}
+                  onClick={() => setShowDesignModal(true)}
+                >
+                  <HiInformationCircle className="mr-2 size-5" />
+                  Total Design
+                </Button>
+              </div>
+              <Select
+                id="designer-filter"
+                value={selectedUser}
+                onChange={(e) => setSelectedUser(e.target.value)}
+                className="w-48"
+                sizing="sm"
+              >
+                <option value="all">Semua</option>
+                {usersWithDesign.map((user) => (
+                  <option key={user} value={user}>
+                    {user}
+                  </option>
+                ))}
+              </Select>
+            </>
           )}
         </div>
         <div className="max-w-40">
@@ -265,23 +303,61 @@ export default function ListOrderPage() {
         onCloseHandler={() => setOpenModal(false)}
         onYesHandler={() => onRemoveHandler()}
       />
-      <Modal show={showDesignModal} onClose={() => setShowDesignModal(false)}>
-        <Modal.Header>Total Design per User</Modal.Header>
-        <Modal.Body>
-          <div className="mt-6 space-y-2">
-            {calculateUserDesignCounts().map(({ user, totalDesign }) => (
-              <div
-                key={user}
-                className="flex items-center gap-4 dark:text-white"
-              >
-                <span className="font-medium">{user} :</span>
-                <span>{totalDesign}</span>
-              </div>
-            ))}
+      <Modal show={showDesignModal} onClose={() => setShowDesignModal(false)} size="2xl">
+        <Modal.Header className="border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-2">
+            <HiInformationCircle className="text-blue-500 size-6" />
+            <span>Rekapitulasi Design per User</span>
+          </div>
+        </Modal.Header>
+        <Modal.Body className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+              <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                  <th scope="col" className="px-6 py-4">User</th>
+                  <th scope="col" className="px-6 py-4 text-center">Terbayar</th>
+                  <th scope="col" className="px-6 py-4 text-center">Belum Bayar</th>
+                  <th scope="col" className="px-6 py-4 text-center">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {calculateUserDesignCounts().length > 0 ? (
+                  calculateUserDesignCounts().map(({ user, paid, unpaid, total }) => (
+                    <tr key={user} className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700">
+                      <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
+                        {user}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
+                          {paid.toLocaleString()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+                          {unpaid.toLocaleString()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center font-bold text-gray-900 dark:text-white">
+                        {total.toLocaleString()}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-10 text-center text-gray-400">
+                      Belum ada data design
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={() => setShowDesignModal(false)}>Close</Button>
+        <Modal.Footer className="flex justify-end border-t border-gray-200 dark:border-gray-700">
+          <Button color="gray" onClick={() => setShowDesignModal(false)}>
+            Tutup
+          </Button>
         </Modal.Footer>
       </Modal>
       <ConfirmPasswordModal
