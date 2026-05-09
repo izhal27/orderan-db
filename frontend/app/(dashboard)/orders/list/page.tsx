@@ -248,7 +248,7 @@ export default function ListOrderPage() {
           </div>
         </div>
         <div className="flex items-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <div className="mr-4 rounded-full bg-green-100 p-3 text-green-500 dark:bg-green-600 dark:text-green- green-100">
+          <div className="mr-4 rounded-full bg-green-100 p-3 text-green-500 dark:bg-green-600 dark:text-green-100">
             <HiCheckCircle className="size-5" />
           </div>
           <div>
@@ -303,10 +303,14 @@ export default function ListOrderPage() {
         onCloseHandler={() => setOpenModal(false)}
         onYesHandler={() => onRemoveHandler()}
       />
-      <Modal show={showDesignModal} onClose={() => setShowDesignModal(false)} size="2xl">
+      <Modal
+        show={showDesignModal}
+        onClose={() => setShowDesignModal(false)}
+        size="2xl"
+      >
         <Modal.Header className="border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            <HiInformationCircle className="text-blue-500 size-6" />
+            <HiInformationCircle className="size-6 text-blue-500" />
             <span>Rekapitulasi Design per User</span>
           </div>
         </Modal.Header>
@@ -315,37 +319,53 @@ export default function ListOrderPage() {
             <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
               <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                  <th scope="col" className="px-6 py-4">User</th>
-                  <th scope="col" className="px-6 py-4 text-center">Terbayar</th>
-                  <th scope="col" className="px-6 py-4 text-center">Belum Bayar</th>
-                  <th scope="col" className="px-6 py-4 text-center">Total</th>
+                  <th scope="col" className="px-6 py-4">
+                    User
+                  </th>
+                  <th scope="col" className="px-6 py-4 text-center">
+                    Terbayar
+                  </th>
+                  <th scope="col" className="px-6 py-4 text-center">
+                    Belum Bayar
+                  </th>
+                  <th scope="col" className="px-6 py-4 text-center">
+                    Total
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {calculateUserDesignCounts().length > 0 ? (
-                  calculateUserDesignCounts().map(({ user, paid, unpaid, total }) => (
-                    <tr key={user} className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700">
-                      <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
-                        {user}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
-                          {paid.toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
-                          {unpaid.toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center font-bold text-gray-900 dark:text-white">
-                        {total.toLocaleString()}
-                      </td>
-                    </tr>
-                  ))
+                  calculateUserDesignCounts().map(
+                    ({ user, paid, unpaid, total }) => (
+                      <tr
+                        key={user}
+                        className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700"
+                      >
+                        <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
+                          {user}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
+                            {paid.toLocaleString()}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+                            {unpaid.toLocaleString()}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center font-bold text-gray-900 dark:text-white">
+                          {total.toLocaleString()}
+                        </td>
+                      </tr>
+                    ),
+                  )
                 ) : (
                   <tr>
-                    <td colSpan={4} className="px-6 py-10 text-center text-gray-400">
+                    <td
+                      colSpan={4}
+                      className="px-6 py-10 text-center text-gray-400"
+                    >
                       Belum ada data design
                     </td>
                   </tr>

@@ -14,7 +14,11 @@ export const formatToStartDateToUTC = (date: Date) => {
 export const formatToEndDateToUTC = (date: Date) => {
   const momentDate = moment.tz(date, timezone);
   const timezoneOffset = momentDate.utcOffset() / 60; // Konversi menit ke jam
-  return momentDate.endOf('day').subtract(timezoneOffset, 'hours').utc().format();
+  return momentDate
+    .endOf("day")
+    .subtract(timezoneOffset, "hours")
+    .utc()
+    .format();
 };
 
 export const isContain = (value: string, search: string) => {
@@ -25,4 +29,4 @@ export const isContain = (value: string, search: string) => {
 export const isConflict = (error: Error) => {
   let erroObj = JSON.parse((error as Error).message);
   return "statusCode" in erroObj && erroObj.statusCode === 409;
-}
+};

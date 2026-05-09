@@ -1,4 +1,4 @@
-import { chromium, type FullConfig, expect } from "@playwright/test";
+import { chromium, expect, type FullConfig } from "@playwright/test";
 
 const username = process.env.E2E_USERNAME;
 const password = process.env.E2E_PASSWORD;

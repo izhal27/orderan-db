@@ -127,7 +127,6 @@ test.describe("order detail (admin)", () => {
       await expect(statusBayarCard.getByText("Belum Dibayar")).toBeVisible();
     }
   });
-
 });
 
 test.describe("order detail (operator)", () => {

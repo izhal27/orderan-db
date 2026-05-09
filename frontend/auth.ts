@@ -55,7 +55,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       if (Date.now() > customToken.expiresAt) {
         try {
-          const { accessToken, refreshToken, user, expiresAt } = await refreshAccessToken(customToken.refreshToken as string);
+          const { accessToken, refreshToken, user, expiresAt } =
+            await refreshAccessToken(customToken.refreshToken as string);
           customToken.accessToken = accessToken;
           customToken.refreshToken = refreshToken;
           customToken.user = user;
@@ -83,7 +84,7 @@ async function refreshAccessToken(refreshToken: string) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${refreshToken}`,
+      Authorization: `Bearer ${refreshToken}`,
     },
   });
   if (res.ok) {

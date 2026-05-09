@@ -36,13 +36,7 @@ export default function SettingsPage() {
     setValue("email", currentUser.email);
     setValue("name", currentUser.name);
     setCurrentUser(currentUser);
-  }, [
-    request,
-    session?.accessToken,
-    session?.user,
-    session?.user?.id,
-    setValue,
-  ]);
+  }, [request, session?.accessToken, session?.user, setValue]);
 
   useEffect(() => {
     if (session?.user?.id) {
