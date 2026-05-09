@@ -76,26 +76,28 @@ export const DashboardSidebar: NextPage = function () {
           <Sidebar.ItemGroup>
             <div
               className={twMerge(
-                "flex flex-col items-center space-y-2 p-4",
-                isCollapsed && "hidden w-16",
+                "flex flex-col items-center space-y-2 p-2 transition-all duration-300",
+                isCollapsed ? "p-1" : "p-4",
               )}
             >
               <UserAvatar
-                width={80}
-                height={80}
+                width={isCollapsed ? 40 : 80}
+                height={isCollapsed ? 40 : 80}
                 userImage={userImage}
                 name={userName}
-                size="lg"
+                size={isCollapsed ? "sm" : "lg"}
                 bordered
                 rounded
                 debugLabel="sidebar"
               />
-              <div className="w-full truncate text-center font-semibold dark:text-white">
-                <div>{userName}</div>
-                <div className="text-sm font-light text-gray-500 dark:text-gray-400">
-                  @{userUsername}
+              {!isCollapsed && (
+                <div className="w-full truncate text-center font-semibold dark:text-white">
+                  <div>{userName}</div>
+                  <div className="text-sm font-light text-gray-500 dark:text-gray-400">
+                    @{userUsername}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             <Sidebar.Collapse
               icon={BiSolidShoppingBag}
